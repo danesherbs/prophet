@@ -61,6 +61,10 @@ class House {
         return this.getHouseValue() * this.buildingDepreciation;
     }
 
+    getEquity() {
+        return this.getHouseValue() - this.loan;
+    }
+
 }
 
 export { House };

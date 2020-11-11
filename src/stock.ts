@@ -9,13 +9,27 @@ class Stock {
     clock: Clock;
     rateOfReturn: number;
     initialPrice: number;
+    initialTime: number;
     transactions: Array<Transaction>;
 
-    constructor(clock: Clock, rateOfReturn: number, initialPrice: number, transactions: Array<Transaction>) {
+    constructor(clock: Clock, rateOfReturn: number, initialTime: number, initialPrice: number, transactions: Array<Transaction>) {
         this.clock = clock;
         this.rateOfReturn = rateOfReturn;
         this.initialPrice = initialPrice;
+        this.initialTime = initialTime;
         this.transactions = transactions;
+    }
+
+    getInitialPrice() {
+        return this.initialPrice;
+    }
+
+    getInitialTime() {
+        return this.initialTime;
+    }
+
+    getMonthlyRateOfReturn() {
+        return Math.pow(1 + this.rateOfReturn, 1 / 12) - 1;
     }
 
     getNumberOfUnits() {
@@ -23,12 +37,8 @@ class Stock {
             .reduce((acc, [_, units]) => acc + units, 0);
     }
 
-    getMonthlyRateOfReturn() {
-        return Math.pow(1 + this.rateOfReturn, 1 / 12) - 1;
-    }
-
     getPrice() {
-        return this.initialPrice * (1 + this.getMonthlyRateOfReturn()) ** this.clock.monthsPassedSince(this.clock.getTime());
+        return this.getInitialPrice() * Math.pow(1 + this.getMonthlyRateOfReturn(), this.clock.monthsPassedSince(this.getInitialTime()));
     }
 
     buyUnits(number: number) {
@@ -36,7 +46,8 @@ class Stock {
         return new Stock(
             this.clock,
             this.rateOfReturn,
-            this.initialPrice,
+            this.getInitialTime(),
+            this.getInitialPrice(),
             new Array(...this.transactions, [this.clock.getTime(), number]));
     }
 
@@ -49,10 +60,10 @@ class Stock {
         return new Stock(
             this.clock,
             this.rateOfReturn,
-            this.initialPrice,
+            this.getInitialTime(),
+            this.getInitialPrice(),
             new Array(...this.transactions, [this.clock.getTime(), -number]));
     }
-
 }
 
 export { Stock };

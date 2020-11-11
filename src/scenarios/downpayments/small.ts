@@ -1,10 +1,9 @@
-import { Tax, TaxType } from "./tax";
-import { Clock } from "./clock";
-import { Salary } from "./salary";
-import { Bank } from "./bank";
-import { Stock } from "./stock";
-import { House } from "./house";
-import { Super } from "./super";
+import { Tax, TaxType } from "../../tax";
+import { Clock } from "../../clock";
+import { Salary } from "../../salary";
+import { Bank } from "../../bank";
+import { House } from "../../house";
+import { Super } from "../../super";
 
 
 let clock = new Clock();
@@ -12,8 +11,8 @@ let tax = new Tax(clock, new Array(), new Array());
 let salary = new Salary(clock, 120_000, 0.05, tax);
 let superan = new Super(clock, new Array(), 0.10);
 let bank = new Bank(clock, new Array(), 0.03);
-let house = new House(clock, tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02);
-let stock = new Stock(clock, 0.10, clock.getTime(), 400, new Array());
+let houseOne = new House(clock, tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02);
+let houseTwo = new House(clock, tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02);
 
 const waitOneMonth = () => {
     // Salary
@@ -33,45 +32,43 @@ const waitOneMonth = () => {
     bank = bank
         .withdraw(350, "Living expenses")
 
-    // Property
+    // Property one
     bank = bank
-        .deposit(house.getMonthlyGrossRentalIncome(), "Rental income")
-        .withdraw(house.getMonthlyInterestPayment(), "Interest payment")
+        .deposit(houseOne.getMonthlyGrossRentalIncome(), "Rental income")
+        .withdraw(houseOne.getMonthlyInterestPayment(), "Interest payment")
     tax = tax
-        .declareIncome(house.getMonthlyGrossRentalIncome());
+        .declareIncome(houseOne.getMonthlyGrossRentalIncome());
 
-    // Stocks
-    const numberOfUnits = Math.floor(bank.getBalance() / stock.getPrice());
+    // Property two
     bank = bank
-        .withdraw(numberOfUnits * stock.getPrice(), "Buy stock")
-    stock = stock
-        .buyUnits(numberOfUnits)
+        .deposit(houseTwo.getMonthlyGrossRentalIncome(), "Rental income")
+        .withdraw(houseTwo.getMonthlyInterestPayment(), "Interest payment")
+    tax = tax
+        .declareIncome(houseTwo.getMonthlyGrossRentalIncome());
 
     clock.tick()
 
     if (clock.getTime() % 12 === 0) {
         tax = tax
-            .declareLoss(house.getYearlyDepreciation());
+            .declareLoss(houseOne.getYearlyDepreciation());
+    }
+
+    if (clock.getTime() % 12 === 0) {
+        tax = tax
+            .declareLoss(houseTwo.getYearlyDepreciation());
     }
 
     console.log('Time:', clock.getTime());
     console.log('Salary:', salary.getSalary());
-    console.log('Bank transactions:', bank.getTransactions());
     console.log('Bank balance:', bank.getBalance());
-    console.log('Super transactions:', superan.getTransactions());
     console.log('Super balance:', superan.getBalance());
-    console.log('House value:', house.getHouseValue());
-    console.log('House equity:', house.getEquity());
-    console.log('Stock price:', stock.getPrice());
-    console.log('Stock units:', stock.getNumberOfUnits());
-    console.log('Stock value:', stock.getNumberOfUnits() * stock.getPrice());
-    console.log('Tax records:', tax.getTaxRecords());
-    console.log('Tax paid:', tax.getTaxPaid());
+    console.log('House one value:', houseOne.getHouseValue());
+    console.log('House one equity:', houseOne.getEquity());
+    console.log('House two value:', houseTwo.getHouseValue());
+    console.log('House two equity:', houseTwo.getEquity());
 
     if (clock.getTime() % 12 === 0) {
-        console.log('Tax paid:', tax.getPaidIncomeTaxInCalendarYear(clock.getTime() - 1))
-
-        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, house.getYearlyDepreciation());
+        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, houseOne.getYearlyDepreciation() + houseTwo.getYearlyDepreciation());
         console.log('Tax owing:', taxOwing);
 
         if (taxOwing < 0) {
