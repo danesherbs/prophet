@@ -1,9 +1,9 @@
 import { Clock } from "./clock";
 
 
-type Transaction = [number, number, string];
+type Transaction = [number, number];
 
-class Bank {
+class Super {
 
     transactions: Array<Transaction>;
     interestRate: number;
@@ -15,28 +15,15 @@ class Bank {
         this.clock = clock;
     }
 
-    deposit(amount: number, description: string) {
-        if (Math.abs(amount) <= 1e-6) {
-            return this;
-        }
-
-        return new Bank(
+    deposit(amount: number) {
+        return new Super(
             this.clock,
-            new Array<Transaction>(...this.transactions, [this.clock.getTime(), amount, description]),
+            new Array<Transaction>(...this.transactions, [this.clock.getTime(), amount]),
             this.interestRate);
     }
 
-    withdraw(amount: number, description: string) {
-        // Throw a warning if withdrawing more than balance?
-
-        if (Math.abs(amount) <= 1e-6) {
-            return this;
-        }
-
-        return new Bank(
-            this.clock,
-            new Array<Transaction>(...this.transactions, [this.clock.getTime(), -amount, description]),
-            this.interestRate);
+    getMonthlySuperContribution(amount: number) {
+        return 0.125 * amount;
     }
 
     getMonthlyInterestRate() {
@@ -55,4 +42,4 @@ class Bank {
 
 }
 
-export { Bank };
+export { Super };

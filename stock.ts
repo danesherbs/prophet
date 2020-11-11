@@ -1,24 +1,26 @@
 import { Clock } from "./clock";
 
+type Time = number;
+type Units = number;
+type Transaction = [Time, Units];
 
 class Stock {
 
     clock: Clock;
     rateOfReturn: number;
     initialPrice: number;
-    timeOfPurchase: number;
-    numberOfUnits: number;
+    transactions: Array<Transaction>;
 
-    constructor(clock: Clock, timeOfPurchase: number, rateOfReturn: number, initialPrice: number, numberOfUnits: number) {
+    constructor(clock: Clock, rateOfReturn: number, initialPrice: number, transactions: Array<Transaction>) {
         this.clock = clock;
-        this.timeOfPurchase = timeOfPurchase;
         this.rateOfReturn = rateOfReturn;
         this.initialPrice = initialPrice;
-        this.numberOfUnits = numberOfUnits;
+        this.transactions = transactions;
     }
 
     getNumberOfUnits() {
-        return this.numberOfUnits;
+        return this.transactions
+            .reduce((acc, [_, units]) => acc + units, 0);
     }
 
     getMonthlyRateOfReturn() {
@@ -26,12 +28,29 @@ class Stock {
     }
 
     getPrice() {
-        return this.initialPrice * (1 + this.getMonthlyRateOfReturn()) ** this.clock.monthsPassedSince(this.timeOfPurchase);
+        return this.initialPrice * (1 + this.getMonthlyRateOfReturn()) ** this.clock.monthsPassedSince(this.clock.getTime());
     }
 
     buyUnits(number: number) {
         // throw warning if not integer?
-        return new Stock(this.clock, this.timeOfPurchase, this.rateOfReturn, this.initialPrice, this.numberOfUnits + number);
+        return new Stock(
+            this.clock,
+            this.rateOfReturn,
+            this.initialPrice,
+            new Array(...this.transactions, [this.clock.getTime(), number]));
+    }
+
+    sellUnits(number: number) {
+        // throw warning if not integer?
+        if (number > this.getNumberOfUnits()) {
+            console.error("Sold", number, "units but only have", this.getNumberOfUnits());
+        }
+
+        return new Stock(
+            this.clock,
+            this.rateOfReturn,
+            this.initialPrice,
+            new Array(...this.transactions, [this.clock.getTime(), -number]));
     }
 
 }

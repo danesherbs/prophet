@@ -27,7 +27,11 @@ class Salary {
     }
 
     getMonthlyNetSalary() {
-        return this.getMonthlyGrossSalary() - this.tax.getIncomeTax(this.getMonthlyGrossSalary());
+        return this.getMonthlyGrossSalary() - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossSalary());
+    }
+
+    getMonthlyNetSuperContribution() {
+        return this.getMonthlyGrossSalary() - this.tax.getMonthlySuperTax(this.getMonthlyGrossSalary());
     }
 
 }

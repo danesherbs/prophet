@@ -50,7 +50,7 @@ class House {
     }
 
     getMonthlyNetRentalIncome() {
-        return this.getMonthlyGrossRentalIncome() - this.tax.getIncomeTax(this.getMonthlyGrossRentalIncome());
+        return this.getMonthlyGrossRentalIncome() - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossRentalIncome());
     }
 
     getHouseValue() {

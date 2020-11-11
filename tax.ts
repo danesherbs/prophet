@@ -1,45 +1,61 @@
 import { Clock } from "./clock";
 
+enum DeclarationType {
+    Income = "Income",
+    Loss = "Loss",
+}
+
 enum TaxType {
-    Income,
-    CapitalGains,
-    Super
+    Income = "Income",
+    Super = "Super",
 }
 
 class Tax {
 
     clock: Clock;
-    declared: Array<[number, number]>;
-    paid: Array<[number, number]>;
+    declared: Array<[number, number, DeclarationType]>;
+    paid: Array<[number, number, TaxType]>;
 
-    constructor(clock: Clock, declared: Array<[number, number]>, paid: Array<[number, number]>) {
+    constructor(clock: Clock, declared: Array<[number, number, DeclarationType]>, paid: Array<[number, number, TaxType]>) {
         this.clock = clock;
         this.declared = declared;
         this.paid = paid;
     }
 
-    getIncomeTax(income: number) {
+    getMonthlyIncomeTax(income: number) {
         return 0.3 * income;
+    }
+
+    getYearlyIncomeTax(income: number) {
+        return 0.3 * income;
+    }
+
+    getMonthlySuperTax(income: number) {
+        return 0.15 * income;
     }
 
     getTaxRecords() {
         return this.declared;
     }
 
+    getTaxPaid() {
+        return this.paid;
+    }
+
     getDeclaredIncomeInCalendarYear(time: number) {
         return this.declared
-            .filter(([t, _]) => time - (time % 12) <= t && t <= time)
+            .filter(([t, _, type]) => time - (time % 12) <= t && t <= time && type === DeclarationType.Income)
             .reduce((acc, [_, amount]) => acc + amount, 0)
     }
 
     getPaidIncomeTaxInCalendarYear(time: number) {
         return this.paid
-            .filter(([t, _]) => time - (time % 12) <= t && t <= time)
+            .filter(([t, _, type]) => time - (time % 12) <= t && t <= time && type === TaxType.Income)
             .reduce((acc, [_, amount]) => acc + amount, 0)
     }
 
     getEndOfYearNetTax(time: number, deductions: number) {
-        return this.getIncomeTax(this.getDeclaredIncomeInCalendarYear(time))
+        return this.getYearlyIncomeTax(this.getDeclaredIncomeInCalendarYear(time))
             - this.getPaidIncomeTaxInCalendarYear(time)
             - deductions;
     }
@@ -47,17 +63,24 @@ class Tax {
     declareIncome(amount: number) {
         return new Tax(
             this.clock,
-            new Array<[number, number]>(...this.declared, [this.clock.getTime(), amount]),
+            new Array(...this.declared, [this.clock.getTime(), amount, DeclarationType.Income]),
             this.paid);
     }
 
-    payTax(amount: number) {
+    declareLoss(amount: number) {
+        return new Tax(
+            this.clock,
+            new Array(...this.declared, [this.clock.getTime(), amount, DeclarationType.Loss]),
+            this.paid);
+    }
+
+    payTax(amount: number, type: TaxType) {
         return new Tax(
             this.clock,
             this.declared,
-            new Array<[number, number]>(...this.paid, [this.clock.getTime(), amount]));
+            new Array(...this.paid, [this.clock.getTime(), amount, type]));
     }
 
 }
 
-export { Tax };
+export { Tax, TaxType };
