@@ -1,22 +1,38 @@
+import { Tax } from "./tax";
+
+
 type Transaction = [number, number];
 
 class Super {
 
+    tax: Tax;
     transactions: Array<Transaction>;
     interestRate: number;
+    contributionRate: number;
 
-    constructor({ transactions, interestRate }: { transactions: Array<Transaction>; interestRate: number; }) {
+    constructor({ tax, transactions, interestRate, contributionRate }: { tax: Tax; transactions: Array<Transaction>; interestRate: number; contributionRate: number; }) {
+        this.tax = tax;
         this.transactions = transactions;
         this.interestRate = interestRate;
+        this.contributionRate = contributionRate;
     }
 
     deposit(time: number, amount: number) {
-        return new Super(
-            { transactions: new Array<Transaction>(...this.transactions, [time, amount]), interestRate: this.interestRate });
+        return new Super({
+            tax: this.tax,
+            transactions: new Array<Transaction>(...this.transactions, [time, amount]),
+            interestRate: this.interestRate,
+            contributionRate: this.contributionRate,
+        });
     }
 
-    getMonthlySuperContribution(amount: number) {
-        return 0.125 * amount;
+    getMonthlyGrossSuperContribution(yearlyGrossSalary: number) {
+        return this.contributionRate * yearlyGrossSalary / 12;
+    }
+
+    getMonthlyNetSuperContribution(yearlyGrossSalary: number) {
+        return this.getMonthlyGrossSuperContribution(yearlyGrossSalary) -
+            this.tax.getMonthlySuperTax(this.getMonthlyGrossSuperContribution(yearlyGrossSalary));
     }
 
     getMonthlyInterestRate() {

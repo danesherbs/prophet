@@ -15,11 +15,13 @@ type TaxBracket = [IncomeBracket, TaxRate];
 class Tax {
 
     incomeTaxBrackets: Array<TaxBracket>;
+    superTaxRate: number;
     declared: Array<[number, number, DeclarationType]>;
     paid: Array<[number, number, TaxType]>;
 
-    constructor({ incomeTaxBrackets, declared, paid }: { incomeTaxBrackets: Array<TaxBracket>; declared: Array<[number, number, DeclarationType]>; paid: Array<[number, number, TaxType]>; }) {
+    constructor({ incomeTaxBrackets, superTaxRate, declared, paid }: { incomeTaxBrackets: Array<TaxBracket>; superTaxRate: number, declared: Array<[number, number, DeclarationType]>; paid: Array<[number, number, TaxType]>; }) {
         this.incomeTaxBrackets = incomeTaxBrackets;
+        this.superTaxRate = superTaxRate;
         this.declared = declared;
         this.paid = paid;
     }
@@ -34,8 +36,8 @@ class Tax {
         return this.getYearlyIncomeTax(income) / 12;
     }
 
-    getMonthlySuperTax(income: number) {
-        return 0.15 * income;
+    getMonthlySuperTax(monthlyGrossSuperContribution: number) {
+        return this.superTaxRate * monthlyGrossSuperContribution;
     }
 
     getTaxRecords() {
@@ -68,6 +70,7 @@ class Tax {
         return new Tax(
             {
                 incomeTaxBrackets: this.incomeTaxBrackets,
+                superTaxRate: this.superTaxRate,
                 declared: new Array(...this.declared, [time, amount, DeclarationType.Income]),
                 paid: this.paid
             });
@@ -77,6 +80,7 @@ class Tax {
         return new Tax(
             {
                 incomeTaxBrackets: this.incomeTaxBrackets,
+                superTaxRate: this.superTaxRate,
                 declared: new Array(...this.declared, [time, amount, DeclarationType.Loss]),
                 paid: this.paid
             });
@@ -86,6 +90,7 @@ class Tax {
         return new Tax(
             {
                 incomeTaxBrackets: this.incomeTaxBrackets,
+                superTaxRate: this.superTaxRate,
                 declared: this.declared,
                 paid: new Array(...this.paid, [time, amount, type])
             });

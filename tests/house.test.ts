@@ -5,6 +5,7 @@ import { Tax } from "../src/tax";
 test('house value appreciating correctly', () => {
     const tax = new Tax({
         incomeTaxBrackets: new Array(),
+        superTaxRate: 0.15,
         declared: new Array(),
         paid: new Array()
     });
@@ -27,6 +28,7 @@ test('house value appreciating correctly', () => {
 test('house equity is value minus loan', () => {
     const tax = new Tax({
         incomeTaxBrackets: new Array(),
+        superTaxRate: 0.15,
         declared: new Array(),
         paid: new Array()
     });
@@ -50,6 +52,7 @@ test('house equity is value minus loan', () => {
 test('house rental income grows correctly', () => {
     const tax = new Tax({
         incomeTaxBrackets: new Array(),
+        superTaxRate: 0.15,
         declared: new Array(),
         paid: new Array()
     });
