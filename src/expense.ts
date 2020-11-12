@@ -3,22 +3,20 @@ import { Clock } from "./clock";
 
 class Expense {
 
-    clock: Clock;
     yearlyIncrease: number;
     monthlyAmount: number;
     description: string;
     initialTime: number;
 
-    constructor({ clock, yearlyIncrease, amount, description }: { clock: Clock; yearlyIncrease: number; amount: number; description: string; }) {
-        this.clock = clock;
+    constructor({ yearlyIncrease, amount, description, initialTime }: { yearlyIncrease: number; amount: number; description: string; initialTime: number }) {
         this.yearlyIncrease = yearlyIncrease;
         this.monthlyAmount = amount;
         this.description = description;
-        this.initialTime = clock.getTime();
+        this.initialTime = initialTime;
     }
 
-    getMonthlyAmount() {
-        return this.monthlyAmount * (1 + this.yearlyIncrease) ** this.clock.yearsPassedSince(this.initialTime);
+    getMonthlyAmount(time: number) {
+        return this.monthlyAmount * Math.pow(1 + this.yearlyIncrease, time - Math.floor(this.initialTime / 12));
     }
 
     getDescription() {

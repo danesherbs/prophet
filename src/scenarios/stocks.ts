@@ -6,7 +6,7 @@ import { Stock } from "../stock";
 import { Super } from "../super";
 
 
-let clock = new Clock();
+let clock = new Clock(0);
 let tax = new Tax({ declared: new Array(), paid: new Array() });
 let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
 let superan = new Super({ transactions: new Array(), interestRate: 0.1 });

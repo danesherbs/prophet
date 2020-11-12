@@ -20,14 +20,7 @@ class State {
     expenses: Array<Expense>;
 
     constructor(
-        clock: Clock,
-        tax: Tax,
-        bank: Bank,
-        superan: Super,
-        salaries: Array<Salary>,
-        houses: Array<House>,
-        stocks: Array<Stock>,
-        expenses: Array<Expense>) {
+        { clock, tax, bank, superan, salaries, houses, stocks, expenses }: { clock: Clock; tax: Tax; bank: Bank; superan: Super; salaries: Array<Salary>; houses: Array<House>; stocks: Array<Stock>; expenses: Array<Expense>; }) {
         this.clock = clock;
         this.tax = tax;
         this.bank = bank;
@@ -38,51 +31,96 @@ class State {
         this.expenses = expenses;
     }
 
+    getNetWealth() {
+        return this.bank.getBalance(this.clock.getTime()) +
+            this.superan.getBalance(this.clock.getTime()) +
+            this.stocks.reduce((acc, stock) => acc + stock.getNumberOfUnits() * stock.getPrice(this.clock.getTime()), 0) +
+            this.houses.reduce((acc, house) => acc + house.getEquity(this.clock.getTime()), 0);
+    }
+
     registerSalary(salary: Salary) {
         return new State(
-            this.clock,
-            this.tax
-                .declareIncome(this.clock.getTime(), salary.getMonthlyGrossSalary(this.clock.getTime()))
-                .payTax(this.clock.getTime(), this.tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Income)
-                .payTax(this.clock.getTime(), this.tax.getMonthlySuperTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Super),
-            this.bank
-                .deposit(this.clock.getTime(), salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
-            this.superan
-                .deposit(this.clock.getTime(), this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
-            this.salaries,
-            this.houses,
-            this.stocks,
-            this.expenses,
+            {
+                clock: this.clock,
+                tax: this.tax
+                    .declareIncome(this.clock.getTime(), salary.getMonthlyGrossSalary(this.clock.getTime()))
+                    .payTax(this.clock.getTime(), this.tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Income)
+                    .payTax(this.clock.getTime(), this.tax.getMonthlySuperTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Super),
+                bank: this.bank
+                    .deposit(this.clock.getTime(), salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
+                superan: this.superan
+                    .deposit(this.clock.getTime(), this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
+                salaries: this.salaries,
+                houses: this.houses,
+                stocks: this.stocks,
+                expenses: this.expenses
+            },
         )
     }
 
     registerHouse(house: House) {
         return new State(
-            this.clock,
-            this.tax
-                .declareIncome(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime())),
-            this.bank
-                .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income")
-                .withdraw(this.clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment"),
-            this.superan,
-            this.salaries,
-            this.houses,
-            this.stocks,
-            this.expenses,
+            {
+                clock: this.clock,
+                tax: this.tax
+                    .declareIncome(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime())),
+                bank: this.bank
+                    .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income")
+                    .withdraw(this.clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment"),
+                superan: this.superan,
+                salaries: this.salaries,
+                houses: this.houses,
+                stocks: this.stocks,
+                expenses: this.expenses
+            },
         );
     }
 
     registerExpense(expense: Expense) {
         return new State(
-            this.clock,
-            this.tax,
-            this.bank
-                .withdraw(this.clock.getTime(), expense.getMonthlyAmount(), expense.getDescription()),
-            this.superan,
-            this.salaries,
-            this.houses,
-            this.stocks,
-            this.expenses,
+            {
+                clock: this.clock,
+                tax: this.tax,
+                bank: this.bank
+                    .withdraw(this.clock.getTime(), expense.getMonthlyAmount(this.clock.getTime()), expense.getDescription()),
+                superan: this.superan,
+                salaries: this.salaries,
+                houses: this.houses,
+                stocks: this.stocks,
+                expenses: this.expenses
+            },
+        );
+    }
+
+    registerTick() {
+        if ((this.clock.getTime() - 1) % 12 === 0) {
+            return new State(
+                {
+                    clock: this.clock.tick(),
+                    tax: this.tax
+                        .declareLoss(this.clock.getTime(),
+                            this.houses.reduce((acc, house) => acc + house.getYearlyDepreciation(this.clock.getTime()), 0)),
+                    bank: this.bank,
+                    superan: this.superan,
+                    salaries: this.salaries,
+                    houses: this.houses,
+                    stocks: this.stocks,
+                    expenses: this.expenses
+                }
+            );
+        }
+
+        return new State(
+            {
+                clock: this.clock.tick(),
+                tax: this.tax,
+                bank: this.bank,
+                superan: this.superan,
+                salaries: this.salaries,
+                houses: this.houses,
+                stocks: this.stocks,
+                expenses: this.expenses
+            },
         );
     }
 
@@ -104,21 +142,7 @@ class State {
             state = state.registerHouse(house);
         })
 
-        this.clock.tick()
-
-        // if (clock.getTime() % 12 === 0) {
-        //     state = new State(
-        //         this.clock,
-        //         this.tax
-        //             .declareLoss(house.getYearlyDepreciation()),
-        //         this.bank,
-        //         this.superan,
-        //         this.salaries,
-        //         this.houses,
-        //         this.stocks,
-        //         this.expenses,
-        //     );
-        // }
+        state = state.registerTick();
 
         return state;
     }

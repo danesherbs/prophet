@@ -7,9 +7,9 @@ import { House } from "./house";
 import { Super } from "./super";
 
 
-let clock = new Clock();
+let clock = new Clock(0);
 let tax = new Tax({ declared: new Array(), paid: new Array() });
-let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
+let salary = new Salary({ salary: 120_000, yearSalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
 let superan = new Super({ transactions: new Array(), interestRate: 0.1 });
 let bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
 let house = new House({ tax, downPayment: 50000, loan: 550000, interestRate: 0.03, appreciation: 0.03, monthlyRentalIncome: 2500, yearlyRentalIncomeIncrease: 0.03, buildingDepreciation: 0.02, purchaseTime: clock.getTime() });
@@ -47,7 +47,7 @@ const waitOneMonth = () => {
     stock = stock
         .buyUnits(clock.getTime(), numberOfUnits)
 
-    clock.tick()
+    clock = clock.tick()
 
     if (clock.getTime() % 12 === 0) {
         tax = tax

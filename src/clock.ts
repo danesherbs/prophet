@@ -1,23 +1,18 @@
 class Clock {
 
-    time = 0;
+    time: number;
+
+    constructor(time: number) {
+        this.time = time;
+    }
 
     tick() {
-        this.time += 1;
+        return new Clock(this.time + 1);
     }
 
     getTime() {
         return this.time;
     }
-
-    monthsPassedSince(time: number) {
-        return this.time - time;
-    }
-
-    yearsPassedSince(time: number) {
-        return Math.floor((this.getTime() - time) / 12);
-    }
-
 }
 
 export { Clock };
