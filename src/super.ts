@@ -5,15 +5,14 @@ class Super {
     transactions: Array<Transaction>;
     interestRate: number;
 
-    constructor(transactions: Array<Transaction>, interestRate: number) {
+    constructor({ transactions, interestRate }: { transactions: Array<Transaction>; interestRate: number; }) {
         this.transactions = transactions;
         this.interestRate = interestRate;
     }
 
     deposit(time: number, amount: number) {
         return new Super(
-            new Array<Transaction>(...this.transactions, [time, amount]),
-            this.interestRate);
+            { transactions: new Array<Transaction>(...this.transactions, [time, amount]), interestRate: this.interestRate });
     }
 
     getMonthlySuperContribution(amount: number) {

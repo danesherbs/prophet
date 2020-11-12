@@ -14,15 +14,7 @@ class House {
     purchaseTime: number;
 
     constructor(
-        tax: Tax,
-        downPayment: number,
-        loan: number,
-        interestRate: number,
-        appreciation: number,
-        monthlyRentalIncome: number,
-        yearlyRentalIncomeIncrease: number,
-        buildingDepreciation: number,
-        purchaseTime: number) {
+        { tax, downPayment, loan, interestRate, appreciation, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciation, purchaseTime }: { tax: Tax; downPayment: number; loan: number; interestRate: number; appreciation: number; monthlyRentalIncome: number; yearlyRentalIncomeIncrease: number; buildingDepreciation: number; purchaseTime: number; }) {
         this.tax = tax;
         this.downPayment = downPayment;
         this.loan = loan;

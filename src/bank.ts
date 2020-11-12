@@ -5,7 +5,7 @@ class Bank {
     transactions: Array<Transaction>;
     interestRate: number;
 
-    constructor(transactions: Array<Transaction>, interestRate: number) {
+    constructor({ transactions, interestRate }: { transactions: Array<Transaction>; interestRate: number; }) {
         this.transactions = transactions;
         this.interestRate = interestRate;
     }
@@ -16,8 +16,7 @@ class Bank {
         }
 
         return new Bank(
-            new Array<Transaction>(...this.transactions, [time, amount, description]),
-            this.interestRate);
+            { transactions: new Array<Transaction>(...this.transactions, [time, amount, description]), interestRate: this.interestRate });
     }
 
     withdraw(time: number, amount: number, description: string) {
@@ -28,8 +27,7 @@ class Bank {
         }
 
         return new Bank(
-            new Array<Transaction>(...this.transactions, [time, -amount, description]),
-            this.interestRate);
+            { transactions: new Array<Transaction>(...this.transactions, [time, -amount, description]), interestRate: this.interestRate });
     }
 
     getMonthlyInterestRate() {

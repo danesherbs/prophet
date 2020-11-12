@@ -9,7 +9,7 @@ class Stock {
     initialTime: number;
     transactions: Array<Transaction>;
 
-    constructor(rateOfReturn: number, initialTime: number, initialPrice: number, transactions: Array<Transaction>) {
+    constructor({ rateOfReturn, initialTime, initialPrice, transactions }: { rateOfReturn: number; initialTime: number; initialPrice: number; transactions: Array<Transaction>; }) {
         this.rateOfReturn = rateOfReturn;
         this.initialPrice = initialPrice;
         this.initialTime = initialTime;
@@ -40,10 +40,7 @@ class Stock {
     buyUnits(time: number, number: number) {
         // throw warning if not integer?
         return new Stock(
-            this.rateOfReturn,
-            this.getInitialTime(),
-            this.getInitialPrice(),
-            new Array(...this.transactions, [time, number]));
+            { rateOfReturn: this.rateOfReturn, initialTime: this.getInitialTime(), initialPrice: this.getInitialPrice(), transactions: new Array(...this.transactions, [time, number]) });
     }
 
     sellUnits(time: number, number: number) {
@@ -53,10 +50,7 @@ class Stock {
         }
 
         return new Stock(
-            this.rateOfReturn,
-            this.getInitialTime(),
-            this.getInitialPrice(),
-            new Array(...this.transactions, [time, -number]));
+            { rateOfReturn: this.rateOfReturn, initialTime: this.getInitialTime(), initialPrice: this.getInitialPrice(), transactions: new Array(...this.transactions, [time, -number]) });
     }
 }
 

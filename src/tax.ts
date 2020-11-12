@@ -13,7 +13,7 @@ class Tax {
     declared: Array<[number, number, DeclarationType]>;
     paid: Array<[number, number, TaxType]>;
 
-    constructor(declared: Array<[number, number, DeclarationType]>, paid: Array<[number, number, TaxType]>) {
+    constructor({ declared, paid }: { declared: Array<[number, number, DeclarationType]>; paid: Array<[number, number, TaxType]>; }) {
         this.declared = declared;
         this.paid = paid;
     }
@@ -58,20 +58,17 @@ class Tax {
 
     declareIncome(time: number, amount: number) {
         return new Tax(
-            new Array(...this.declared, [time, amount, DeclarationType.Income]),
-            this.paid);
+            { declared: new Array(...this.declared, [time, amount, DeclarationType.Income]), paid: this.paid });
     }
 
     declareLoss(time: number, amount: number) {
         return new Tax(
-            new Array(...this.declared, [time, amount, DeclarationType.Loss]),
-            this.paid);
+            { declared: new Array(...this.declared, [time, amount, DeclarationType.Loss]), paid: this.paid });
     }
 
     payTax(time: number, amount: number, type: TaxType) {
         return new Tax(
-            this.declared,
-            new Array(...this.paid, [time, amount, type]));
+            { declared: this.declared, paid: new Array(...this.paid, [time, amount, type]) });
     }
 
 }

@@ -3,7 +3,7 @@ import { Salary } from "../src/salary";
 
 
 test('correct yearly salary increases', () => {
-    const tax = new Tax(new Array(), new Array());
+    const tax = new Tax({ declared: new Array(), paid: new Array() });
     const salary = new Salary({ salary: 120_000, yearSalaryIncrease: 0.05, tax: tax, creationTime: 0 });
 
     expect(salary.getSalary(12 * 0)).toBeCloseTo(120_000 * Math.pow(1.05, 0), 10);

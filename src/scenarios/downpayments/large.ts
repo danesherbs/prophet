@@ -7,11 +7,11 @@ import { Super } from "../../super";
 
 
 let clock = new Clock();
-let tax = new Tax(new Array(), new Array());
+let tax = new Tax({ declared: new Array(), paid: new Array() });
 let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: 0 });
-let superan = new Super(new Array(), 0.10);
-let bank = new Bank(new Array(), 0.03);
-let house = new House(tax, 100_000, 1_100_000, 0.03, 0.03, 5_000, 0.03, 0.02, 0);
+let superan = new Super({ transactions: new Array(), interestRate: 0.1 });
+let bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
+let house = new House({ tax, downPayment: 100000, loan: 1100000, interestRate: 0.03, appreciation: 0.03, monthlyRentalIncome: 5000, yearlyRentalIncomeIncrease: 0.03, buildingDepreciation: 0.02, purchaseTime: 0 });
 
 const waitOneMonth = () => {
     // Salary

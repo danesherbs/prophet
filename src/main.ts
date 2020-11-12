@@ -8,12 +8,12 @@ import { Super } from "./super";
 
 
 let clock = new Clock();
-let tax = new Tax(new Array(), new Array());
+let tax = new Tax({ declared: new Array(), paid: new Array() });
 let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
-let superan = new Super(new Array(), 0.10);
-let bank = new Bank(new Array(), 0.03);
-let house = new House(tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02, clock.getTime());
-let stock = new Stock(0.10, clock.getTime(), 400, new Array());
+let superan = new Super({ transactions: new Array(), interestRate: 0.1 });
+let bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
+let house = new House({ tax, downPayment: 50000, loan: 550000, interestRate: 0.03, appreciation: 0.03, monthlyRentalIncome: 2500, yearlyRentalIncomeIncrease: 0.03, buildingDepreciation: 0.02, purchaseTime: clock.getTime() });
+let stock = new Stock({ rateOfReturn: 0.1, initialTime: clock.getTime(), initialPrice: 400, transactions: new Array() });
 
 const waitOneMonth = () => {
     // Salary

@@ -9,7 +9,7 @@ class Expense {
     description: string;
     initialTime: number;
 
-    constructor(clock: Clock, yearlyIncrease: number, amount: number, description: string) {
+    constructor({ clock, yearlyIncrease, amount, description }: { clock: Clock; yearlyIncrease: number; amount: number; description: string; }) {
         this.clock = clock;
         this.yearlyIncrease = yearlyIncrease;
         this.monthlyAmount = amount;
