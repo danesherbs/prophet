@@ -58,6 +58,10 @@ class State {
         return this.tax;
     }
 
+    getStocks() {
+        return this.stocks;
+    }
+
     registerSalary(salary: Salary) {
         return new State({
             clock: this.clock,

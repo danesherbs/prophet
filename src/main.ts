@@ -59,10 +59,10 @@ const houses = new Array(
 
 const stocks = new Array(
     // new Stock({
-    //     rateOfReturn: 0.1,
+    //     rateOfReturn: 0.10,
     //     initialTime: 0,
-    //     initialPrice: 500,
-    //     transactions: new Array()
+    //     initialPrice: 400,
+    //     transactions: new Array([0, 475])
     // }),
 );
 
@@ -93,5 +93,6 @@ for (let i = 0; i < 12 * 10; i++) {
     console.log('Salary:', state.getSalary().getYearlyGrossSalary(state.getClock().getTime()));
     console.log('Bank balance:', state.getBank().getBalance(state.getClock().getTime()));
     console.log('Super balance:', state.getSuper().getBalance(state.getClock().getTime()));
+    console.log('Stock balance:', state.getStocks().reduce((acc, stock) => acc + stock.getNumberOfUnits() * stock.getPrice(state.getClock().getTime()), 0))
     console.log('Total net worth', state.getNetWealth());
 }
