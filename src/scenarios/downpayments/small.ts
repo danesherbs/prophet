@@ -7,26 +7,26 @@ import { Super } from "../../super";
 
 
 let clock = new Clock();
-let tax = new Tax(clock, new Array(), new Array());
+let tax = new Tax(new Array(), new Array());
 let salary = new Salary(clock, 120_000, 0.05, tax);
 let superan = new Super(clock, new Array(), 0.10);
 let bank = new Bank(clock, new Array(), 0.03);
-let houseOne = new House(clock, tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02);
-let houseTwo = new House(clock, tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02);
+let houseOne = new House(tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02, 0);
+let houseTwo = new House(tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02, 0);
 
 const waitOneMonth = () => {
     // Salary
     bank = bank
         .deposit(salary.getMonthlyNetSalary(), "Salary")
     tax = tax
-        .declareIncome(salary.getMonthlyGrossSalary())
-        .payTax(tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary()), TaxType.Income)
+        .declareIncome(clock.getTime(), salary.getMonthlyGrossSalary())
+        .payTax(clock.getTime(), tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary()), TaxType.Income)
 
     // Super
     superan = superan
         .deposit(superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary()))
     tax = tax
-        .payTax(tax.getMonthlySuperTax(salary.getMonthlyGrossSalary()), TaxType.Super)
+        .payTax(clock.getTime(), tax.getMonthlySuperTax(salary.getMonthlyGrossSalary()), TaxType.Super)
 
     // Expenses
     bank = bank
@@ -34,41 +34,41 @@ const waitOneMonth = () => {
 
     // Property one
     bank = bank
-        .deposit(houseOne.getMonthlyGrossRentalIncome(), "Rental income")
+        .deposit(houseOne.getMonthlyGrossRentalIncome(clock.getTime()), "Rental income")
         .withdraw(houseOne.getMonthlyInterestPayment(), "Interest payment")
     tax = tax
-        .declareIncome(houseOne.getMonthlyGrossRentalIncome());
+        .declareIncome(clock.getTime(), houseOne.getMonthlyGrossRentalIncome(clock.getTime()));
 
     // Property two
     bank = bank
-        .deposit(houseTwo.getMonthlyGrossRentalIncome(), "Rental income")
+        .deposit(houseTwo.getMonthlyGrossRentalIncome(clock.getTime()), "Rental income")
         .withdraw(houseTwo.getMonthlyInterestPayment(), "Interest payment")
     tax = tax
-        .declareIncome(houseTwo.getMonthlyGrossRentalIncome());
+        .declareIncome(clock.getTime(), houseTwo.getMonthlyGrossRentalIncome(clock.getTime()));
 
     clock.tick()
 
     if (clock.getTime() % 12 === 0) {
         tax = tax
-            .declareLoss(houseOne.getYearlyDepreciation());
+            .declareLoss(clock.getTime(), houseOne.getYearlyDepreciation(clock.getTime()));
     }
 
     if (clock.getTime() % 12 === 0) {
         tax = tax
-            .declareLoss(houseTwo.getYearlyDepreciation());
+            .declareLoss(clock.getTime(), houseTwo.getYearlyDepreciation(clock.getTime()));
     }
 
     console.log('Time:', clock.getTime());
     console.log('Salary:', salary.getSalary());
     console.log('Bank balance:', bank.getBalance());
     console.log('Super balance:', superan.getBalance());
-    console.log('House one value:', houseOne.getHouseValue());
-    console.log('House one equity:', houseOne.getEquity());
-    console.log('House two value:', houseTwo.getHouseValue());
-    console.log('House two equity:', houseTwo.getEquity());
+    console.log('House one value:', houseOne.getHouseValue(clock.getTime()));
+    console.log('House one equity:', houseOne.getEquity(clock.getTime()));
+    console.log('House two value:', houseTwo.getHouseValue(clock.getTime()));
+    console.log('House two equity:', houseTwo.getEquity(clock.getTime()));
 
     if (clock.getTime() % 12 === 0) {
-        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, houseOne.getYearlyDepreciation() + houseTwo.getYearlyDepreciation());
+        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, houseOne.getYearlyDepreciation(clock.getTime()) + houseTwo.getYearlyDepreciation(clock.getTime()));
         console.log('Tax owing:', taxOwing);
 
         if (taxOwing < 0) {

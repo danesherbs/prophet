@@ -1,10 +1,8 @@
-import { Clock } from "./clock";
 import { Tax } from "./tax";
 
 
 class House {
 
-    clock: Clock;
     tax: Tax;
     downPayment: number;
     loan: number;
@@ -16,7 +14,6 @@ class House {
     purchaseTime: number;
 
     constructor(
-        clock: Clock,
         tax: Tax,
         downPayment: number,
         loan: number,
@@ -24,8 +21,8 @@ class House {
         appreciation: number,
         monthlyRentalIncome: number,
         yearlyRentalIncomeIncrease: number,
-        buildingDepreciation: number) {
-        this.clock = clock;
+        buildingDepreciation: number,
+        purchaseTime: number) {
         this.tax = tax;
         this.downPayment = downPayment;
         this.loan = loan;
@@ -34,7 +31,7 @@ class House {
         this.monthlyRentalIncome = monthlyRentalIncome;
         this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
         this.buildingDepreciation = buildingDepreciation;
-        this.purchaseTime = clock.getTime()
+        this.purchaseTime = purchaseTime;
     }
 
     getMonthlyInterestRate() {
@@ -45,24 +42,24 @@ class House {
         return this.loan * this.getMonthlyInterestRate();
     }
 
-    getMonthlyGrossRentalIncome() {
-        return this.monthlyRentalIncome * (1 + this.yearlyRentalIncomeIncrease) ** this.clock.yearsPassedSince(this.purchaseTime);
+    getMonthlyGrossRentalIncome(time: number) {
+        return this.monthlyRentalIncome * Math.pow(1 + this.yearlyRentalIncomeIncrease, Math.floor((time - this.purchaseTime) / 12));
     }
 
-    getMonthlyNetRentalIncome() {
-        return this.getMonthlyGrossRentalIncome() - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossRentalIncome());
+    getMonthlyNetRentalIncome(time: number) {
+        return this.getMonthlyGrossRentalIncome(time) - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossRentalIncome(time));
     }
 
-    getHouseValue() {
-        return (this.downPayment + this.loan) * (1 + this.getMonthlyInterestRate()) ** this.clock.monthsPassedSince(this.purchaseTime);
+    getHouseValue(time: number) {
+        return (this.downPayment + this.loan) * Math.pow(1 + this.getMonthlyInterestRate(), time - this.purchaseTime);
     }
 
-    getYearlyDepreciation() {
-        return this.getHouseValue() * this.buildingDepreciation;
+    getYearlyDepreciation(time: number) {
+        return this.getHouseValue(time) * this.buildingDepreciation;
     }
 
-    getEquity() {
-        return this.getHouseValue() - this.loan;
+    getEquity(time: number) {
+        return this.getHouseValue(time) - this.loan;
     }
 
 }

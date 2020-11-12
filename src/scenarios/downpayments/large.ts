@@ -7,25 +7,25 @@ import { Super } from "../../super";
 
 
 let clock = new Clock();
-let tax = new Tax(clock, new Array(), new Array());
+let tax = new Tax(new Array(), new Array());
 let salary = new Salary(clock, 120_000, 0.05, tax);
 let superan = new Super(clock, new Array(), 0.10);
 let bank = new Bank(clock, new Array(), 0.03);
-let house = new House(clock, tax, 100_000, 1_100_000, 0.03, 0.03, 5_000, 0.03, 0.02);
+let house = new House(tax, 100_000, 1_100_000, 0.03, 0.03, 5_000, 0.03, 0.02, 0);
 
 const waitOneMonth = () => {
     // Salary
     bank = bank
         .deposit(salary.getMonthlyNetSalary(), "Salary")
     tax = tax
-        .declareIncome(salary.getMonthlyGrossSalary())
-        .payTax(tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary()), TaxType.Income)
+        .declareIncome(clock.getTime(), salary.getMonthlyGrossSalary())
+        .payTax(clock.getTime(), tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary()), TaxType.Income)
 
     // Super
     superan = superan
         .deposit(superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary()))
     tax = tax
-        .payTax(tax.getMonthlySuperTax(salary.getMonthlyGrossSalary()), TaxType.Super)
+        .payTax(clock.getTime(), tax.getMonthlySuperTax(salary.getMonthlyGrossSalary()), TaxType.Super)
 
     // Expenses
     bank = bank
@@ -33,28 +33,28 @@ const waitOneMonth = () => {
 
     // Property
     bank = bank
-        .deposit(house.getMonthlyGrossRentalIncome(), "Rental income")
+        .deposit(house.getMonthlyGrossRentalIncome(clock.getTime()), "Rental income")
         .withdraw(house.getMonthlyInterestPayment(), "Interest payment")
     tax = tax
-        .declareIncome(house.getMonthlyGrossRentalIncome());
+        .declareIncome(clock.getTime(), house.getMonthlyGrossRentalIncome(clock.getTime()));
 
     clock.tick()
 
     if (clock.getTime() % 12 === 0) {
         tax = tax
-            .declareLoss(house.getYearlyDepreciation());
+            .declareLoss(clock.getTime(), house.getYearlyDepreciation(clock.getTime()));
     }
 
     console.log('Time:', clock.getTime());
     console.log('Salary:', salary.getSalary());
     console.log('Bank balance:', bank.getBalance());
     console.log('Super balance:', superan.getBalance());
-    console.log('House value:', house.getHouseValue());
-    console.log('House equity:', house.getEquity());
-    console.log('Rental income:', house.getMonthlyNetRentalIncome() - house.getMonthlyInterestPayment());
+    console.log('House value:', house.getHouseValue(clock.getTime()));
+    console.log('House equity:', house.getEquity(clock.getTime()));
+    console.log('Rental income:', house.getMonthlyNetRentalIncome(clock.getTime()) - house.getMonthlyInterestPayment());
 
     if (clock.getTime() % 12 === 0) {
-        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, house.getYearlyDepreciation());
+        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, house.getYearlyDepreciation(clock.getTime()));
         console.log('Tax owing:', taxOwing);
 
         if (taxOwing < 0) {

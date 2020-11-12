@@ -1,5 +1,3 @@
-import { Clock } from "./clock";
-
 enum DeclarationType {
     Income = "Income",
     Loss = "Loss",
@@ -12,12 +10,10 @@ enum TaxType {
 
 class Tax {
 
-    clock: Clock;
     declared: Array<[number, number, DeclarationType]>;
     paid: Array<[number, number, TaxType]>;
 
-    constructor(clock: Clock, declared: Array<[number, number, DeclarationType]>, paid: Array<[number, number, TaxType]>) {
-        this.clock = clock;
+    constructor(declared: Array<[number, number, DeclarationType]>, paid: Array<[number, number, TaxType]>) {
         this.declared = declared;
         this.paid = paid;
     }
@@ -60,25 +56,22 @@ class Tax {
             - deductions;
     }
 
-    declareIncome(amount: number) {
+    declareIncome(time: number, amount: number) {
         return new Tax(
-            this.clock,
-            new Array(...this.declared, [this.clock.getTime(), amount, DeclarationType.Income]),
+            new Array(...this.declared, [time, amount, DeclarationType.Income]),
             this.paid);
     }
 
-    declareLoss(amount: number) {
+    declareLoss(time: number, amount: number) {
         return new Tax(
-            this.clock,
-            new Array(...this.declared, [this.clock.getTime(), amount, DeclarationType.Loss]),
+            new Array(...this.declared, [time, amount, DeclarationType.Loss]),
             this.paid);
     }
 
-    payTax(amount: number, type: TaxType) {
+    payTax(time: number, amount: number, type: TaxType) {
         return new Tax(
-            this.clock,
             this.declared,
-            new Array(...this.paid, [this.clock.getTime(), amount, type]));
+            new Array(...this.paid, [time, amount, type]));
     }
 
 }
