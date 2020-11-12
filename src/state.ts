@@ -108,6 +108,9 @@ class State {
 
     registerTick() {
         if ((this.clock.getTime() - 1) % 12 === 0) {
+
+            // TODO: refund/pay remaing tax
+
             return new State({
                 clock: this.clock.tick(),
                 tax: this.tax
