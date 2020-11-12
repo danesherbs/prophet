@@ -38,7 +38,7 @@ const superan = new Super({
 
 const salary = new Salary({
     tax: tax,
-    salary: 120_000,
+    yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
     creationTime: clock.getTime()
 });

@@ -16,7 +16,7 @@ class Expense {
     }
 
     getMonthlyAmount(time: number) {
-        return ((this.weeklyAmount * 52) / 12) * Math.pow(1 + this.yearlyIncrease, time - Math.floor(this.initialTime / 12));
+        return ((this.weeklyAmount * 52) / 12) * Math.pow(1 + this.yearlyIncrease, Math.floor((time - this.initialTime) / 12));
     }
 
     getDescription() {

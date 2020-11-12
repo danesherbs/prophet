@@ -3,20 +3,24 @@ import { Tax } from "./tax";
 
 class Salary {
 
-    salary: number;
+    yearlyGrossSalary: number;
     yearSalaryIncrease: number;
     tax: Tax;
     creationTime: number;
 
-    constructor({ salary, yearlySalaryIncrease, tax, creationTime }: { salary: number; yearlySalaryIncrease: number; tax: Tax; creationTime: number; }) {
-        this.salary = salary;
+    constructor({ yearlyGrossSalary, yearlySalaryIncrease, tax, creationTime }: { yearlyGrossSalary: number; yearlySalaryIncrease: number; tax: Tax; creationTime: number; }) {
+        this.yearlyGrossSalary = yearlyGrossSalary;
         this.yearSalaryIncrease = yearlySalaryIncrease;
         this.tax = tax;
         this.creationTime = creationTime;
     }
 
     getYearlyGrossSalary(time: number) {
-        return this.salary * Math.pow(1 + this.yearSalaryIncrease, Math.floor((time - this.creationTime) / 12));
+        return this.yearlyGrossSalary * Math.pow(1 + this.yearSalaryIncrease, Math.floor((time - this.creationTime) / 12));
+    }
+
+    getYearlyNetSalary(time: number) {
+        return this.getYearlyGrossSalary(time) - this.tax.getYearlyIncomeTax(this.yearlyGrossSalary);
     }
 
     getMonthlyGrossSalary(time: number) {

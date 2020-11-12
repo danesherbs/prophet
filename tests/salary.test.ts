@@ -12,7 +12,7 @@ test('correct yearly salary increases', () => {
 
     const salary = new Salary({
         tax: tax,
-        salary: 120_000,
+        yearlyGrossSalary: 120_000,
         yearlySalaryIncrease: 0.05,
         creationTime: 0
     });
@@ -33,7 +33,7 @@ test('correct gross monthly salary', () => {
 
     const salary = new Salary({
         tax: tax,
-        salary: 120_000,
+        yearlyGrossSalary: 120_000,
         yearlySalaryIncrease: 0.05,
         creationTime: 0
     });
@@ -54,11 +54,35 @@ test('correct net monthly salary', () => {
 
     const salary = new Salary({
         tax: tax,
-        salary: 120_000,
+        yearlyGrossSalary: 120_000,
         yearlySalaryIncrease: 0.05,
         creationTime: 0
     });
 
     expect(salary.getMonthlyNetSalary(0)).toEqual(10_000 - (60_000 - 1) * 0.2 / 12);
     expect(salary.getMonthlyNetSalary(10)).toEqual(salary.getMonthlyGrossSalary(10) - tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(10)));
+});
+
+test('correct yearly net salary with rough ATO tax rates', () => {
+    const tax = new Tax({
+        incomeTaxBrackets: new Array(
+            [[0.0, 18_200], 0.0],
+            [[18_201, 37_000], 0.19],
+            [[37_001, 87_000], 0.325],
+            [[87_001, 180_000], 0.37],
+            [[180_001, Infinity], 0.45],
+        ),
+        superTaxRate: 0.15,
+        declared: new Array(),
+        paid: new Array()
+    });
+
+    const salary = new Salary({
+        tax: tax,
+        yearlyGrossSalary: 120_000,
+        yearlySalaryIncrease: 0.05,
+        creationTime: 0
+    });
+
+    expect(salary.getYearlyNetSalary(0)).toBeCloseTo(87_968.885, 2);
 });

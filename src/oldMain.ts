@@ -9,7 +9,7 @@ import { Super } from "./super";
 
 let clock = new Clock(0);
 let tax = new Tax({ incomeTaxBrackets: new Array(), superTaxRate: 0.15, declared: new Array(), paid: new Array() });
-let salary = new Salary({ salary: 120_000, yearlySalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
+let salary = new Salary({ yearlyGrossSalary: 120_000, yearlySalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
 let superan = new Super({ tax: tax, transactions: new Array(), interestRate: 0.1, contributionRate: 0.125 });
 let bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
 let house = new House({ tax, downPayment: 50000, loan: 550000, interestRate: 0.03, appreciation: 0.03, monthlyRentalIncome: 2500, yearlyRentalIncomeIncrease: 0.03, buildingDepreciation: 0.02, purchaseTime: clock.getTime() });

@@ -33,7 +33,7 @@ test('correct salary transition', () => {
 
     const salary = new Salary({
         tax: tax,
-        salary: 120_000,
+        yearlyGrossSalary: 120_000,
         yearlySalaryIncrease: 0.05,
         creationTime: clock.getTime()
     });
@@ -78,7 +78,7 @@ test('correct initial net wealth with salary only', () => {
 
     const salary = new Salary({
         tax: tax,
-        salary: 120_000,
+        yearlyGrossSalary: 120_000,
         yearlySalaryIncrease: 0.05,
         creationTime: clock.getTime()
     });
@@ -124,7 +124,7 @@ test('correct net wealth after one month with salary only', () => {
 
     const salary = new Salary({
         tax: tax,
-        salary: 120_000,
+        yearlyGrossSalary: 120_000,
         yearlySalaryIncrease: 0.05,
         creationTime: clock.getTime()
     });
