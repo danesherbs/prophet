@@ -1,24 +1,18 @@
-import { Clock } from "./clock";
-
-
 type Transaction = [number, number];
 
 class Super {
 
     transactions: Array<Transaction>;
     interestRate: number;
-    clock: Clock;
 
-    constructor(clock: Clock, transactions: Array<Transaction>, interestRate: number) {
+    constructor(transactions: Array<Transaction>, interestRate: number) {
         this.transactions = transactions;
         this.interestRate = interestRate;
-        this.clock = clock;
     }
 
-    deposit(amount: number) {
+    deposit(time: number, amount: number) {
         return new Super(
-            this.clock,
-            new Array<Transaction>(...this.transactions, [this.clock.getTime(), amount]),
+            new Array<Transaction>(...this.transactions, [time, amount]),
             this.interestRate);
     }
 
@@ -34,9 +28,9 @@ class Super {
         return this.transactions;
     }
 
-    getBalance() {
+    getBalance(time: number) {
         return this.transactions
-            .map(([time, amount]) => amount * (1 + this.getMonthlyInterestRate()) ** this.clock.monthsPassedSince(time))
+            .map(([then, amount]) => amount * Math.pow(1 + this.getMonthlyInterestRate(), time - then))
             .reduce((acc, amount) => acc + amount, 0)
     }
 

@@ -48,7 +48,7 @@ class State {
             this.bank
                 .deposit(this.clock.getTime(), salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
             this.superan
-                .deposit(this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
+                .deposit(this.clock.getTime(), this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
             this.salaries,
             this.houses,
             this.stocks,
