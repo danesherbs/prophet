@@ -46,7 +46,7 @@ class State {
                 .payTax(this.clock.getTime(), this.tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Income)
                 .payTax(this.clock.getTime(), this.tax.getMonthlySuperTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Super),
             this.bank
-                .deposit(salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
+                .deposit(this.clock.getTime(), salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
             this.superan
                 .deposit(this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
             this.salaries,
@@ -62,8 +62,8 @@ class State {
             this.tax
                 .declareIncome(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime())),
             this.bank
-                .deposit(house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income")
-                .withdraw(house.getMonthlyInterestPayment(), "Interest payment"),
+                .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income")
+                .withdraw(this.clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment"),
             this.superan,
             this.salaries,
             this.houses,
@@ -77,7 +77,7 @@ class State {
             this.clock,
             this.tax,
             this.bank
-                .withdraw(expense.getMonthlyAmount(), expense.getDescription()),
+                .withdraw(this.clock.getTime(), expense.getMonthlyAmount(), expense.getDescription()),
             this.superan,
             this.salaries,
             this.houses,

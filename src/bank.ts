@@ -1,32 +1,26 @@
-import { Clock } from "./clock";
-
-
 type Transaction = [number, number, string];
 
 class Bank {
 
     transactions: Array<Transaction>;
     interestRate: number;
-    clock: Clock;
 
-    constructor(clock: Clock, transactions: Array<Transaction>, interestRate: number) {
+    constructor(transactions: Array<Transaction>, interestRate: number) {
         this.transactions = transactions;
         this.interestRate = interestRate;
-        this.clock = clock;
     }
 
-    deposit(amount: number, description: string) {
+    deposit(time: number, amount: number, description: string) {
         if (Math.abs(amount) <= 1e-6) {
             return this;
         }
 
         return new Bank(
-            this.clock,
-            new Array<Transaction>(...this.transactions, [this.clock.getTime(), amount, description]),
+            new Array<Transaction>(...this.transactions, [time, amount, description]),
             this.interestRate);
     }
 
-    withdraw(amount: number, description: string) {
+    withdraw(time: number, amount: number, description: string) {
         // Throw a warning if withdrawing more than balance?
 
         if (Math.abs(amount) <= 1e-6) {
@@ -34,8 +28,7 @@ class Bank {
         }
 
         return new Bank(
-            this.clock,
-            new Array<Transaction>(...this.transactions, [this.clock.getTime(), -amount, description]),
+            new Array<Transaction>(...this.transactions, [time, -amount, description]),
             this.interestRate);
     }
 
@@ -47,9 +40,9 @@ class Bank {
         return this.transactions;
     }
 
-    getBalance() {
+    getBalance(now: number) {
         return this.transactions
-            .map(([time, amount]) => amount * (1 + this.getMonthlyInterestRate()) ** this.clock.monthsPassedSince(time))
+            .map(([then, amount]) => amount * Math.pow(1 + this.getMonthlyInterestRate(), now - then))
             .reduce((acc, amount) => acc + amount, 0)
     }
 

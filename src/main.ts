@@ -9,16 +9,16 @@ import { Super } from "./super";
 
 let clock = new Clock();
 let tax = new Tax(new Array(), new Array());
-let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: 0 });
+let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
 let superan = new Super(clock, new Array(), 0.10);
-let bank = new Bank(clock, new Array(), 0.03);
+let bank = new Bank(new Array(), 0.03);
 let house = new House(tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02, clock.getTime());
 let stock = new Stock(0.10, clock.getTime(), 400, new Array());
 
 const waitOneMonth = () => {
     // Salary
     bank = bank
-        .deposit(salary.getMonthlyNetSalary(clock.getTime()), "Salary")
+        .deposit(clock.getTime(), salary.getMonthlyNetSalary(clock.getTime()), "Salary")
     tax = tax
         .declareIncome(clock.getTime(), salary.getMonthlyGrossSalary(clock.getTime()))
         .payTax(clock.getTime(), tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(clock.getTime())), TaxType.Income)
@@ -31,19 +31,19 @@ const waitOneMonth = () => {
 
     // Expenses
     bank = bank
-        .withdraw(350, "Living expenses")
+        .withdraw(clock.getTime(), 350, "Living expenses")
 
     // Property
     bank = bank
-        .deposit(house.getMonthlyGrossRentalIncome(clock.getTime()), "Rental income")
-        .withdraw(house.getMonthlyInterestPayment(), "Interest payment")
+        .deposit(clock.getTime(), house.getMonthlyGrossRentalIncome(clock.getTime()), "Rental income")
+        .withdraw(clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment")
     tax = tax
         .declareIncome(clock.getTime(), house.getMonthlyGrossRentalIncome(clock.getTime()));
 
     // Stocks
-    const numberOfUnits = Math.floor(bank.getBalance() / stock.getPrice(clock.getTime()));
+    const numberOfUnits = Math.floor(bank.getBalance(clock.getTime()) / stock.getPrice(clock.getTime()));
     bank = bank
-        .withdraw(numberOfUnits * stock.getPrice(clock.getTime()), "Buy stock")
+        .withdraw(clock.getTime(), numberOfUnits * stock.getPrice(clock.getTime()), "Buy stock")
     stock = stock
         .buyUnits(clock.getTime(), numberOfUnits)
 
@@ -57,7 +57,7 @@ const waitOneMonth = () => {
     console.log('Time:', clock.getTime());
     console.log('Salary:', salary.getSalary(clock.getTime()));
     console.log('Bank transactions:', bank.getTransactions());
-    console.log('Bank balance:', bank.getBalance());
+    console.log('Bank balance:', bank.getBalance(clock.getTime()));
     console.log('Super transactions:', superan.getTransactions());
     console.log('Super balance:', superan.getBalance());
     console.log('House value:', house.getHouseValue(clock.getTime()));
@@ -76,7 +76,7 @@ const waitOneMonth = () => {
 
         if (taxOwing < 0) {
             console.log('Refund:', -taxOwing);
-            bank = bank.deposit(-taxOwing, "Tax refund");
+            bank = bank.deposit(clock.getTime(), -taxOwing, "Tax refund");
         }
     }
 }
