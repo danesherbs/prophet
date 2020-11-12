@@ -14,18 +14,18 @@ class State {
     tax: Tax;
     bank: Bank;
     superan: Super;
-    salaries: Array<Salary>;
+    salary: Salary;
     houses: Array<House>;
     stocks: Array<Stock>;
     expenses: Array<Expense>;
 
     constructor(
-        { clock, tax, bank, superan, salaries, houses, stocks, expenses }: { clock: Clock; tax: Tax; bank: Bank; superan: Super; salaries: Array<Salary>; houses: Array<House>; stocks: Array<Stock>; expenses: Array<Expense>; }) {
+        { clock, tax, bank, superan, salary, houses, stocks, expenses }: { clock: Clock; tax: Tax; bank: Bank; superan: Super; salary: Salary; houses: Array<House>; stocks: Array<Stock>; expenses: Array<Expense>; }) {
         this.clock = clock;
         this.tax = tax;
         this.bank = bank;
         this.superan = superan;
-        this.salaries = salaries;
+        this.salary = salary;
         this.houses = houses;
         this.stocks = stocks;
         this.expenses = expenses;
@@ -50,7 +50,7 @@ class State {
                     .deposit(this.clock.getTime(), salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
                 superan: this.superan
                     .deposit(this.clock.getTime(), this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
-                salaries: this.salaries,
+                salary: this.salary,
                 houses: this.houses,
                 stocks: this.stocks,
                 expenses: this.expenses
@@ -68,7 +68,7 @@ class State {
                     .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income")
                     .withdraw(this.clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment"),
                 superan: this.superan,
-                salaries: this.salaries,
+                salary: this.salary,
                 houses: this.houses,
                 stocks: this.stocks,
                 expenses: this.expenses
@@ -84,7 +84,7 @@ class State {
                 bank: this.bank
                     .withdraw(this.clock.getTime(), expense.getMonthlyAmount(this.clock.getTime()), expense.getDescription()),
                 superan: this.superan,
-                salaries: this.salaries,
+                salary: this.salary,
                 houses: this.houses,
                 stocks: this.stocks,
                 expenses: this.expenses
@@ -102,7 +102,7 @@ class State {
                             this.houses.reduce((acc, house) => acc + house.getYearlyDepreciation(this.clock.getTime()), 0)),
                     bank: this.bank,
                     superan: this.superan,
-                    salaries: this.salaries,
+                    salary: this.salary,
                     houses: this.houses,
                     stocks: this.stocks,
                     expenses: this.expenses
@@ -116,7 +116,7 @@ class State {
                 tax: this.tax,
                 bank: this.bank,
                 superan: this.superan,
-                salaries: this.salaries,
+                salary: this.salary,
                 houses: this.houses,
                 stocks: this.stocks,
                 expenses: this.expenses
@@ -127,10 +127,8 @@ class State {
     next() {
         let state: State = this;
 
-        // Salaries
-        this.salaries.forEach((salary) => {
-            state = state.registerSalary(salary);
-        })
+        // Salary
+        state = state.registerSalary(this.salary);
 
         // Expenses
         this.expenses.forEach((expense) => {

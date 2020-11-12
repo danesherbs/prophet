@@ -40,7 +40,7 @@ test('correct net wealth for model with salary only', () => {
             tax: tax,
             bank: bank,
             superan: superan,
-            salaries: new Array(salary),
+            salary: salary,
             houses: new Array(),
             stocks: new Array(),
             expenses: new Array(),
