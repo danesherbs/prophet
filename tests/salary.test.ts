@@ -3,8 +3,18 @@ import { Salary } from "../src/salary";
 
 
 test('correct yearly salary increases', () => {
-    const tax = new Tax({ declared: new Array(), paid: new Array() });
-    const salary = new Salary({ salary: 120_000, yearSalaryIncrease: 0.05, tax: tax, creationTime: 0 });
+    const tax = new Tax({
+        incomeTaxBrackets: new Array(),
+        declared: new Array(),
+        paid: new Array()
+    });
+
+    const salary = new Salary({
+        tax: tax,
+        salary: 120_000,
+        yearSalaryIncrease: 0.05,
+        creationTime: 0
+    });
 
     expect(salary.getSalary(12 * 0)).toBeCloseTo(120_000 * Math.pow(1.05, 0), 10);
     expect(salary.getSalary(12 * 1)).toBeCloseTo(120_000 * Math.pow(1.05, 1), 10);

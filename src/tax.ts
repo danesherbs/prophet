@@ -8,12 +8,18 @@ enum TaxType {
     Super = "Super",
 }
 
+type IncomeBracket = [number, number];
+type TaxRate = number;
+type TaxBracket = [IncomeBracket, TaxRate];
+
 class Tax {
 
+    incomeTaxBrackets: Array<TaxBracket>;
     declared: Array<[number, number, DeclarationType]>;
     paid: Array<[number, number, TaxType]>;
 
-    constructor({ declared, paid }: { declared: Array<[number, number, DeclarationType]>; paid: Array<[number, number, TaxType]>; }) {
+    constructor({ incomeTaxBrackets, declared, paid }: { incomeTaxBrackets: Array<TaxBracket>; declared: Array<[number, number, DeclarationType]>; paid: Array<[number, number, TaxType]>; }) {
+        this.incomeTaxBrackets = incomeTaxBrackets;
         this.declared = declared;
         this.paid = paid;
     }
@@ -58,17 +64,29 @@ class Tax {
 
     declareIncome(time: number, amount: number) {
         return new Tax(
-            { declared: new Array(...this.declared, [time, amount, DeclarationType.Income]), paid: this.paid });
+            {
+                incomeTaxBrackets: this.incomeTaxBrackets,
+                declared: new Array(...this.declared, [time, amount, DeclarationType.Income]),
+                paid: this.paid
+            });
     }
 
     declareLoss(time: number, amount: number) {
         return new Tax(
-            { declared: new Array(...this.declared, [time, amount, DeclarationType.Loss]), paid: this.paid });
+            {
+                incomeTaxBrackets: this.incomeTaxBrackets,
+                declared: new Array(...this.declared, [time, amount, DeclarationType.Loss]),
+                paid: this.paid
+            });
     }
 
     payTax(time: number, amount: number, type: TaxType) {
         return new Tax(
-            { declared: this.declared, paid: new Array(...this.paid, [time, amount, type]) });
+            {
+                incomeTaxBrackets: this.incomeTaxBrackets,
+                declared: this.declared,
+                paid: new Array(...this.paid, [time, amount, type])
+            });
     }
 
 }

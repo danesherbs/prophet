@@ -13,6 +13,7 @@ test('correct net wealth for model with salary only', () => {
     const clock = new Clock(0);
 
     const tax = new Tax({
+        incomeTaxBrackets: new Array(),
         declared: new Array(),
         paid: new Array()
     });
