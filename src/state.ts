@@ -42,13 +42,13 @@ class State {
         return new State(
             this.clock,
             this.tax
-                .declareIncome(this.clock.getTime(), salary.getMonthlyGrossSalary())
-                .payTax(this.clock.getTime(), this.tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary()), TaxType.Income)
-                .payTax(this.clock.getTime(), this.tax.getMonthlySuperTax(salary.getMonthlyGrossSalary()), TaxType.Super),
+                .declareIncome(this.clock.getTime(), salary.getMonthlyGrossSalary(this.clock.getTime()))
+                .payTax(this.clock.getTime(), this.tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Income)
+                .payTax(this.clock.getTime(), this.tax.getMonthlySuperTax(salary.getMonthlyGrossSalary(this.clock.getTime())), TaxType.Super),
             this.bank
-                .deposit(salary.getMonthlyNetSalary(), "Salary"),
+                .deposit(salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
             this.superan
-                .deposit(this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary())),
+                .deposit(this.superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(this.clock.getTime()))),
             this.salaries,
             this.houses,
             this.stocks,

@@ -8,7 +8,7 @@ import { Super } from "../../super";
 
 let clock = new Clock();
 let tax = new Tax(new Array(), new Array());
-let salary = new Salary(clock, 120_000, 0.05, tax);
+let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
 let superan = new Super(clock, new Array(), 0.10);
 let bank = new Bank(clock, new Array(), 0.03);
 let houseOne = new House(tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02, 0);
@@ -17,16 +17,16 @@ let houseTwo = new House(tax, 50_000, 550_000, 0.03, 0.03, 2_500, 0.03, 0.02, 0)
 const waitOneMonth = () => {
     // Salary
     bank = bank
-        .deposit(salary.getMonthlyNetSalary(), "Salary")
+        .deposit(salary.getMonthlyNetSalary(clock.getTime()), "Salary")
     tax = tax
-        .declareIncome(clock.getTime(), salary.getMonthlyGrossSalary())
-        .payTax(clock.getTime(), tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary()), TaxType.Income)
+        .declareIncome(clock.getTime(), salary.getMonthlyGrossSalary(clock.getTime()))
+        .payTax(clock.getTime(), tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(clock.getTime())), TaxType.Income)
 
     // Super
     superan = superan
-        .deposit(superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary()))
+        .deposit(superan.getMonthlySuperContribution(salary.getMonthlyGrossSalary(clock.getTime())))
     tax = tax
-        .payTax(clock.getTime(), tax.getMonthlySuperTax(salary.getMonthlyGrossSalary()), TaxType.Super)
+        .payTax(clock.getTime(), tax.getMonthlySuperTax(salary.getMonthlyGrossSalary(clock.getTime())), TaxType.Super)
 
     // Expenses
     bank = bank
@@ -59,7 +59,7 @@ const waitOneMonth = () => {
     }
 
     console.log('Time:', clock.getTime());
-    console.log('Salary:', salary.getSalary());
+    console.log('Salary:', salary.getSalary(clock.getTime()));
     console.log('Bank balance:', bank.getBalance());
     console.log('Super balance:', superan.getBalance());
     console.log('House one value:', houseOne.getHouseValue(clock.getTime()));

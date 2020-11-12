@@ -1,37 +1,34 @@
 import { Tax } from "./tax";
-import { Clock } from "./clock";
 
 
 class Salary {
 
-    clock: Clock;
     salary: number;
     yearSalaryIncrease: number;
     tax: Tax;
     creationTime: number;
 
-    constructor(clock: Clock, salary: number, yearSalaryIncrease: number, tax: Tax) {
-        this.clock = clock;
+    constructor({ salary, yearSalaryIncrease, tax, creationTime }: { salary: number; yearSalaryIncrease: number; tax: Tax; creationTime: number; }) {
         this.salary = salary;
         this.yearSalaryIncrease = yearSalaryIncrease;
         this.tax = tax;
-        this.creationTime = clock.getTime()
+        this.creationTime = creationTime;
     }
 
-    getSalary() {
-        return this.salary * (1 + this.yearSalaryIncrease) ** this.clock.yearsPassedSince(this.creationTime);
+    getSalary(time: number) {
+        return this.salary * Math.pow(1 + this.yearSalaryIncrease, Math.floor((time - this.creationTime) / 12));
     }
 
-    getMonthlyGrossSalary() {
-        return this.getSalary() / 12.0;
+    getMonthlyGrossSalary(time: number) {
+        return this.getSalary(time) / 12.0;
     }
 
-    getMonthlyNetSalary() {
-        return this.getMonthlyGrossSalary() - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossSalary());
+    getMonthlyNetSalary(time: number) {
+        return this.getMonthlyGrossSalary(time) - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossSalary(time));
     }
 
-    getMonthlyNetSuperContribution() {
-        return this.getMonthlyGrossSalary() - this.tax.getMonthlySuperTax(this.getMonthlyGrossSalary());
+    getMonthlyNetSuperContribution(time: number) {
+        return this.getMonthlyGrossSalary(time) - this.tax.getMonthlySuperTax(this.getMonthlyGrossSalary(time));
     }
 
 }
