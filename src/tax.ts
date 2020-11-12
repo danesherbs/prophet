@@ -29,7 +29,9 @@ class Tax {
     }
 
     getYearlyIncomeTax(income: number) {
-        return 0.3 * income;
+        return this.incomeTaxBrackets.reduce((acc, [[lo, hi], rate]) => {
+            return acc + Math.min(Math.max(0, income - lo), hi - lo) * rate;
+        }, 0)
     }
 
     getMonthlySuperTax(income: number) {

@@ -2,20 +2,29 @@ import { Bank } from "../src/bank";
 
 
 test('componding monthly correctly', () => {
-    const bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
+    const bank = new Bank({
+        transactions: new Array(),
+        interestRate: 0.03
+    });
 
     expect(Math.pow(1 + bank.getMonthlyInterestRate(), 12)).toBeCloseTo(1.03, 10);
 });
 
 test('correct bank balance with one transaction', () => {
-    const bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
+    const bank = new Bank({
+        transactions: new Array(),
+        interestRate: 0.03
+    });
 
     expect(bank.deposit(0, 100, "Payday").getBalance(0)).toBeCloseTo(100, 10);
     expect(bank.deposit(0, 100, "Payday").getBalance(60)).toBeCloseTo(100 * Math.pow(1.03, 5), 10);
 });
 
 test('correct bank balance with many transactions', () => {
-    const bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
+    const bank = new Bank({
+        transactions: new Array(),
+        interestRate: 0.03
+    });
 
     expect(bank
         .deposit(0, 100, "Payday")
@@ -30,7 +39,10 @@ test('correct bank balance with many transactions', () => {
 });
 
 test('correct bank balance with withdrawls and depositys', () => {
-    const bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
+    const bank = new Bank({
+        transactions: new Array(),
+        interestRate: 0.03
+    });
 
     expect(bank
         .deposit(0, 100, "Payday")
