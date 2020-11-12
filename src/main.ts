@@ -1,98 +1,97 @@
-import { Tax, TaxType } from "./tax";
-import { Clock } from "./clock";
-import { Salary } from "./salary";
-import { Bank } from "./bank";
-import { Stock } from "./stock";
-import { House } from "./house";
-import { Super } from "./super";
+import { Clock } from "../src/clock";
+import { Tax } from "../src/tax";
+import { Bank } from "../src/bank";
+import { Salary } from "../src/salary";
+import { House } from "../src/house";
+import { Stock } from "../src/stock";
+import { Super } from "../src/super";
+import { State } from "../src/state";
+import { Expense } from "../src/expense";
 
 
-let clock = new Clock(0);
-let tax = new Tax({ incomeTaxBrackets: new Array(), superTaxRate: 0.15, declared: new Array(), paid: new Array() });
-let salary = new Salary({ salary: 120_000, yearlySalaryIncrease: 0.05, tax, creationTime: clock.getTime() });
-let superan = new Super({ tax: tax, transactions: new Array(), interestRate: 0.1, contributionRate: 0.125 });
-let bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
-let house = new House({ tax, downPayment: 50000, loan: 550000, interestRate: 0.03, appreciation: 0.03, monthlyRentalIncome: 2500, yearlyRentalIncomeIncrease: 0.03, buildingDepreciation: 0.02, purchaseTime: clock.getTime() });
-let stock = new Stock({ rateOfReturn: 0.1, initialTime: clock.getTime(), initialPrice: 400, transactions: new Array() });
+const clock = new Clock(0);
 
-const waitOneMonth = () => {
-    // Salary
-    bank = bank
-        .deposit(clock.getTime(), salary.getMonthlyNetSalary(clock.getTime()), "Salary")
-    tax = tax
-        .declareIncome(clock.getTime(), salary.getMonthlyGrossSalary(clock.getTime()))
-        .payTax(clock.getTime(), tax.getMonthlyIncomeTax(salary.getMonthlyGrossSalary(clock.getTime())), TaxType.Income)
+const tax = new Tax({
+    incomeTaxBrackets: new Array(
+        [[0.0, 18_200], 0.0],
+        [[18_201, 37_000], 0.19],
+        [[37_001, 87_000], 0.325],
+        [[87_001, 180_000], 0.37],
+        [[180_001, Infinity], 0.45],
+    ),
+    superTaxRate: 0.15,
+    declared: new Array(),
+    paid: new Array()
+});
 
-    // Super
-    superan = superan
-        .deposit(clock.getTime(), superan.getMonthlyGrossSuperContribution(salary.getMonthlyGrossSalary(clock.getTime())))
-    tax = tax
-        .payTax(clock.getTime(), tax.getMonthlySuperTax(salary.getMonthlyGrossSalary(clock.getTime())), TaxType.Super)
+const bank = new Bank({
+    transactions: new Array(),
+    interestRate: 0.03
+});
 
-    // Expenses
-    bank = bank
-        .withdraw(clock.getTime(), 350, "Living expenses")
+const superan = new Super({
+    tax: tax,
+    transactions: new Array(),
+    interestRate: 0.1,
+    contributionRate: 0.125,
+});
 
-    // Property
-    bank = bank
-        .deposit(clock.getTime(), house.getMonthlyGrossRentalIncome(clock.getTime()), "Rental income")
-        .withdraw(clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment")
-    tax = tax
-        .declareIncome(clock.getTime(), house.getMonthlyGrossRentalIncome(clock.getTime()));
+const salary = new Salary({
+    tax: tax,
+    salary: 120_000,
+    yearlySalaryIncrease: 0.05,
+    creationTime: clock.getTime()
+});
 
-    // Stocks
-    const numberOfUnits = Math.floor(bank.getBalance(clock.getTime()) / stock.getPrice(clock.getTime()));
-    bank = bank
-        .withdraw(clock.getTime(), numberOfUnits * stock.getPrice(clock.getTime()), "Buy stock")
-    stock = stock
-        .buyUnits(clock.getTime(), numberOfUnits)
+const houses = new Array(
+    // new House({
+    //     tax: tax,
+    //     downPayment: 50000,
+    //     loan: 550000,
+    //     interestRate: 0.03,
+    //     appreciation: 0.03,
+    //     monthlyRentalIncome: 2500,
+    //     yearlyRentalIncomeIncrease: 0.03,
+    //     buildingDepreciation: 0.02,
+    //     purchaseTime: 0
+    // }),
+);
 
-    clock = clock.tick()
+const stocks = new Array(
+    // new Stock({
+    //     rateOfReturn: 0.1,
+    //     initialTime: 0,
+    //     initialPrice: 500,
+    //     transactions: new Array()
+    // }),
+);
 
-    if (clock.getTime() % 12 === 0) {
-        tax = tax
-            .declareLoss(clock.getTime(), house.getYearlyDepreciation(clock.getTime()));
-    }
+const expenses = new Array(
+    new Expense({
+        yearlyIncrease: 0.03,
+        weeklyAmount: 350,
+        description: "Living expenses",
+        initialTime: 0,
+    }),
+)
 
-    console.log('Time:', clock.getTime());
-    console.log('Salary:', salary.getYearlyGrossSalary(clock.getTime()));
-    console.log('Bank transactions:', bank.getTransactions());
-    console.log('Bank balance:', bank.getBalance(clock.getTime()));
-    console.log('Super transactions:', superan.getTransactions());
-    console.log('Super balance:', superan.getBalance(clock.getTime()));
-    console.log('House value:', house.getHouseValue(clock.getTime()));
-    console.log('House equity:', house.getEquity(clock.getTime()));
-    console.log('Stock price:', stock.getPrice(clock.getTime()));
-    console.log('Stock units:', stock.getNumberOfUnits());
-    console.log('Stock value:', stock.getNumberOfUnits() * stock.getPrice(clock.getTime()));
-    console.log('Tax records:', tax.getTaxRecords());
-    console.log('Tax paid:', tax.getTaxPaid());
+let state = new State({
+    clock: clock,
+    tax: tax,
+    bank: bank,
+    superan: superan,
+    salary: salary,
+    houses: houses,
+    stocks: stocks,
+    expenses: expenses,
+});
 
-    if (clock.getTime() % 12 === 0) {
-        console.log('Tax paid:', tax.getPaidIncomeTaxInCalendarYear(clock.getTime() - 1))
+for (let i = 0; i < 12 * 10; i++) {
+    state = state.waitOneMonth();
 
-        const taxOwing = tax.getEndOfYearNetTax(clock.getTime() - 1, house.getYearlyDepreciation(clock.getTime()));
-        console.log('Tax owing:', taxOwing);
-
-        if (taxOwing < 0) {
-            console.log('Refund:', -taxOwing);
-            bank = bank.deposit(clock.getTime(), -taxOwing, "Tax refund");
-        }
-    }
+    console.log('Time:', state.getClock().getTime());
+    console.log('Salary:', state.getSalary().getYearlyGrossSalary(state.getClock().getTime()));
+    console.log('Bank balance:', state.getBank().getBalance(state.getClock().getTime()));
+    console.log('Super balance:', state.getSuper().getBalance(state.getClock().getTime()));
+    console.log('Total net worth', state.getNetWealth());
 }
-
-const waitOneYear = () => {
-    for (let i = 0; i < 12; i++) {
-        waitOneMonth();
-    }
-}
-
-const waitOneDecade = () => {
-    for (let i = 0; i < 10; i++) {
-        waitOneYear();
-    }
-}
-
-// waitOneMonth();
-// waitOneYear();
-waitOneDecade();

@@ -38,8 +38,16 @@ class State {
             this.houses.reduce((acc, house) => acc + house.getEquity(this.clock.getTime()), 0);
     }
 
+    getClock() {
+        return this.clock;
+    }
+
     getBank() {
         return this.bank;
+    }
+
+    getSalary() {
+        return this.salary;
     }
 
     getSuper() {

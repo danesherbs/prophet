@@ -8,9 +8,9 @@ class Salary {
     tax: Tax;
     creationTime: number;
 
-    constructor({ salary, yearlySalaryIncrease: yearSalaryIncrease, tax, creationTime }: { salary: number; yearlySalaryIncrease: number; tax: Tax; creationTime: number; }) {
+    constructor({ salary, yearlySalaryIncrease, tax, creationTime }: { salary: number; yearlySalaryIncrease: number; tax: Tax; creationTime: number; }) {
         this.salary = salary;
-        this.yearSalaryIncrease = yearSalaryIncrease;
+        this.yearSalaryIncrease = yearlySalaryIncrease;
         this.tax = tax;
         this.creationTime = creationTime;
     }
