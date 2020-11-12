@@ -28,3 +28,20 @@ test('correct bank balance with many transactions', () => {
             100 * Math.pow(1.03, 1),
             10);
 });
+
+test('correct bank balance with withdrawls and depositys', () => {
+    const bank = new Bank(new Array(), 0.03);
+
+    expect(bank
+        .deposit(0, 100, "Payday")
+        .deposit(12, 100, "Payday")
+        .deposit(24, 100, "Payday")
+        .withdraw(24, 100, "Rent")
+        .withdraw(36, 100, "Rent")
+        .getBalance(36))
+        .toBeCloseTo(
+            100 * Math.pow(1.03, 3) +
+            100 * Math.pow(1.03, 2) -
+            100 * Math.pow(1.03, 0),
+            10);
+});
