@@ -24,7 +24,7 @@ class Salary {
     }
 
     getMonthlyNetSalary(time: number) {
-        return this.getMonthlyGrossSalary(time) - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossSalary(time));
+        return this.getMonthlyGrossSalary(time) - this.tax.getMonthlyIncomeTax(this.getSalary(time));
     }
 
     getMonthlyNetSuperContribution(time: number) {
