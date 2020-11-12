@@ -7,7 +7,7 @@ import { Super } from "../super";
 
 
 let clock = new Clock();
-let tax = new Tax(new Array(), new Array());
+let tax = new Tax({ declared: new Array(), paid: new Array() });
 let salary = new Salary({ salary: 120000, yearSalaryIncrease: 0.05, tax, creationTime: 0 });
 let superan = new Super({ transactions: new Array(), interestRate: 0.1 });
 let bank = new Bank({ transactions: new Array(), interestRate: 0.03 });
