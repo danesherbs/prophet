@@ -1,6 +1,3 @@
-import { Clock } from "./clock";
-
-
 class Expense {
 
     yearlyIncrease: number;

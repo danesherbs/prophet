@@ -32,7 +32,7 @@ const bank = new Bank({
 const superan = new Super({
     tax: tax,
     transactions: new Array(),
-    interestRate: 0.1,
+    interestRate: 0.10,
     contributionRate: 0.125,
 });
 
@@ -50,7 +50,7 @@ const houses = new Array(
     //     loan: 550000,
     //     interestRate: 0.03,
     //     appreciation: 0.03,
-    //     monthlyRentalIncome: 2500,
+    //     monthlyRentalIncome: 2_500,
     //     yearlyRentalIncomeIncrease: 0.03,
     //     buildingDepreciation: 0.02,
     //     purchaseTime: 0

@@ -49,8 +49,8 @@ test('correct salary transition', () => {
         expenses: new Array(),
     });
 
-    expect(state.registerSalary(salary).getBank().getBalance(0)).toBeCloseTo(salary.getMonthlyNetSalary(0), 10);
-    expect(state.registerSalary(salary).getSuper().getBalance(0)).toBeCloseTo(superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary(0)), 10);
+    expect(state.receiveMonthlySalaryPayment(salary).getBank().getBalance(0)).toBeCloseTo(salary.getMonthlyNetSalary(0), 10);
+    expect(state.receiveMonthlySalaryPayment(salary).getSuper().getBalance(0)).toBeCloseTo(superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary(0)), 10);
     // expect(state.registerSalary(salary).getTax().getTaxRecords()).toEqual(new Array([0, 100, TaxType.Income], [0, 100, TaxType.Super]));
 });
 
@@ -145,3 +145,5 @@ test('correct net wealth after one month with salary only', () => {
         superan.getMonthlyNetSuperContribution(120_000) * (1 + superan.getMonthlyInterestRate())
         , 10);
 });
+
+// TODO: Add tax refund test with property

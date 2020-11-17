@@ -20,7 +20,25 @@ class State {
     expenses: Array<Expense>;
 
     constructor(
-        { clock, tax, bank, superan, salary, houses, stocks, expenses }: { clock: Clock; tax: Tax; bank: Bank; superan: Super; salary: Salary; houses: Array<House>; stocks: Array<Stock>; expenses: Array<Expense>; }) {
+        {
+            clock,
+            tax,
+            bank,
+            superan,
+            salary,
+            houses,
+            stocks,
+            expenses
+        }: {
+            clock: Clock;
+            tax: Tax;
+            bank: Bank;
+            superan: Super;
+            salary: Salary;
+            houses: Array<House>;
+            stocks: Array<Stock>;
+            expenses: Array<Expense>;
+        }) {
         this.clock = clock;
         this.tax = tax;
         this.bank = bank;
@@ -62,7 +80,7 @@ class State {
         return this.stocks;
     }
 
-    registerSalary(salary: Salary) {
+    receiveMonthlySalaryPayment(salary: Salary) {
         return new State({
             clock: this.clock,
             tax: this.tax
@@ -80,13 +98,26 @@ class State {
         });
     }
 
-    registerHouse(house: House) {
+    receiveMonthlyRentalIncome(house: House) {
         return new State({
             clock: this.clock,
             tax: this.tax
                 .declareIncome(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime())),
             bank: this.bank
-                .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income")
+                .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income"),
+            superan: this.superan,
+            salary: this.salary,
+            houses: this.houses,
+            stocks: this.stocks,
+            expenses: this.expenses
+        });
+    }
+
+    payMonthlyInterestPayment(house: House) {
+        return new State({
+            clock: this.clock,
+            tax: this.tax,
+            bank: this.bank
                 .withdraw(this.clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment"),
             superan: this.superan,
             salary: this.salary,
@@ -96,7 +127,7 @@ class State {
         });
     }
 
-    registerExpense(expense: Expense) {
+    payMonthlyExpense(expense: Expense) {
         return new State({
             clock: this.clock,
             tax: this.tax,
@@ -141,20 +172,49 @@ class State {
         });
     }
 
+    buyHouse(house: House) {
+        return new State({
+            clock: this.clock,
+            tax: this.tax,
+            bank: this.bank
+                .withdraw(this.clock.getTime(), house.getDownPayment(), "Downpayment for house"),
+            superan: this.superan,
+            salary: this.salary,
+            houses: new Array(...this.houses, house),
+            stocks: this.stocks,
+            expenses: this.expenses
+        });
+    }
+
+    buyStock(stock: Stock) {
+        return new State({
+            clock: this.clock,
+            tax: this.tax,
+            bank: this.bank
+                .withdraw(this.clock.getTime(), stock.getPrice(this.clock.getTime()) * stock.getNumberOfUnits(), "Buy stock"),
+            superan: this.superan,
+            salary: this.salary,
+            houses: this.houses,
+            stocks: new Array(...this.stocks, stock),
+            expenses: this.expenses
+        });
+    }
+
     waitOneMonth() {
         let state: State = this;
 
         // Salary
-        state = state.registerSalary(this.salary);
+        state = state.receiveMonthlySalaryPayment(this.salary);
 
         // Expenses
         this.expenses.forEach((expense) => {
-            state = state.registerExpense(expense);
+            state = state.payMonthlyExpense(expense);
         })
 
         // Properties
         this.houses.forEach((house) => {
-            state = state.registerHouse(house);
+            state = state.receiveMonthlyRentalIncome(house);
+            state = state.payMonthlyInterestPayment(house);
         })
 
         state = state.registerTick();

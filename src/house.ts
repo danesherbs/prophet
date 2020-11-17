@@ -54,6 +54,10 @@ class House {
         return this.getHouseValue(time) - this.loan;
     }
 
+    getDownPayment() {
+        return this.downPayment;
+    }
+
 }
 
 export { House };

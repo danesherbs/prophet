@@ -73,3 +73,5 @@ test('correct monthly super tax with multiple brackets', () => {
 
     expect(tax.getMonthlySuperTax(10_000)).toEqual(10_000 * 0.15);
 });
+
+// TODO: Add tax refund test
