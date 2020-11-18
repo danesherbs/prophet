@@ -38,15 +38,41 @@ class Stock {
     }
 
     buyUnits(time: number, number: number) {
-        // throw warning if not integer?
-        return new Stock(
-            { rateOfReturn: this.rateOfReturn, initialTime: this.getInitialTime(), initialPrice: this.getInitialPrice(), transactions: new Array(...this.transactions, [time, number]) });
+        if (!Number.isInteger(time)) {
+            throw new TypeError("Excpect time to be an integer but got " + time);
+        }
+
+        if (!Number.isInteger(number)) {
+            throw new TypeError("Excpect number of units to be an integer but got " + number);
+        }
+
+        if (number <= 0) {
+            throw new RangeError("Excpect number of units to be non-negative but got " + number);
+        }
+
+        return new Stock({
+            rateOfReturn: this.rateOfReturn,
+            initialTime: this.getInitialTime(),
+            initialPrice: this.getInitialPrice(),
+            transactions: new Array(...this.transactions, [time, number]),
+        });
     }
 
     sellUnits(time: number, number: number) {
-        // throw warning if not integer?
+        if (!Number.isInteger(time)) {
+            throw new TypeError("Excpect time to be an integer but got " + time);
+        }
+
+        if (!Number.isInteger(number)) {
+            throw new TypeError("Excpect number of units to be an integer but got " + number);
+        }
+
+        if (number <= 0) {
+            throw new RangeError("Excpect number of units to be non-negative but got " + number);
+        }
+
         if (number > this.getNumberOfUnits()) {
-            console.error("Sold", number, "units but only have", this.getNumberOfUnits());
+            throw new RangeError("Tried to sell " + number + " units but only have " + this.getNumberOfUnits());
         }
 
         return new Stock(

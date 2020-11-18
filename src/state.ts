@@ -80,6 +80,10 @@ class State {
         return this.stocks;
     }
 
+    getHouses() {
+        return this.houses;
+    }
+
     receiveMonthlySalaryPayment(salary: Salary) {
         return new State({
             clock: this.clock,
@@ -198,6 +202,11 @@ class State {
             stocks: new Array(...this.stocks, stock),
             expenses: this.expenses
         });
+    }
+
+    isLegal() {
+        return this.getBank().getBalance(this.getClock().getTime()) >= 0 &&
+            this.getHouses().reduce((acc, house) => acc + house.getLoan(), 0) <= 10 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime());
     }
 
     waitOneMonth() {

@@ -9,6 +9,7 @@ import { Clock } from "../clock";
 
 
 enum Action {
+    NoOp,
     BuyHouse,
     BuyStock,
 }
@@ -30,103 +31,72 @@ class Environment {
     }
 
     getObservation() {
-        return new Array();
+        return [
+            this.state.getBank().getBalance(this.state.getClock().getTime()),
+        ];
     }
 
     getStateSpace() {
-        return new Array();
+        return this.getObservation().length;
     }
 
     getActionSpace() {
 
         // TODO: figure out what to do if some actions are illegal in current state?
+        // TODO: count enums in robust way
 
-        return [
-            Action.BuyHouse,
-            Action.BuyStock,
-        ]
+        return Object.values(Action).length / 2;
     }
 
     getInfo() {
-        return {};
+        return { time: this.state.getClock().getTime() };
     }
 
     isDone() {
-        return false;
-    }
-
-    reset() {
-        const clock = new Clock(0);
-
-        const tax = new Tax({
-            incomeTaxBrackets: new Array(),
-            superTaxRate: 0.15,
-            declared: new Array(),
-            paid: new Array()
-        });
-
-        const bank = new Bank({
-            transactions: new Array(),
-            interestRate: 0.03
-        });
-
-        const superan = new Super({
-            tax: tax,
-            transactions: new Array(),
-            interestRate: 0.1,
-            contributionRate: 0.125,
-        });
-
-        const salary = new Salary({
-            tax: tax,
-            yearlyGrossSalary: 120_000,
-            yearlySalaryIncrease: 0.05,
-            creationTime: clock.getTime()
-        });
-
-        const state = new State({
-            clock: clock,
-            tax: tax,
-            bank: bank,
-            superan: superan,
-            salary: salary,
-            houses: new Array(),
-            stocks: new Array(),
-            expenses: new Array(),
-        });
-
-        return new Environment(state);
+        return this.state.getClock().getTime() === 12;
     }
 
     step(action: Action): Environment {
+        let newState = this.state;
+
         switch (action) {
             case Action.BuyHouse:
-                return new Environment(
-                    this.state.buyHouse(
-                        new House({
-                            tax: this.state.getTax(),
-                            downPayment: 50_000,
-                            loan: 550_000,
-                            interestRate: 0.03,
-                            appreciation: 0.03,
-                            monthlyRentalIncome: 2500,
-                            yearlyRentalIncomeIncrease: 0.03,
-                            buildingDepreciation: 0.02,
-                            purchaseTime: 0
-                        })));
+                newState = this.state.buyHouse(
+                    new House({
+                        tax: this.state.getTax(),
+                        downPayment: 50_000,
+                        loan: 550_000,
+                        interestRate: 0.03,
+                        appreciation: 0.03,
+                        monthlyRentalIncome: 2500,
+                        yearlyRentalIncomeIncrease: 0.03,
+                        buildingDepreciation: 0.02,
+                        purchaseTime: 0
+                    })).waitOneMonth();
+                break;
             case Action.BuyStock:
-                return new Environment(
-                    this.state.buyStock(
-                        new Stock({
-                            rateOfReturn: 0.1,
-                            initialTime: 0,
-                            initialPrice: 500,
-                            transactions: [[0, 100]],
-                        })));
+                newState = this.state.buyStock(
+                    new Stock({
+                        rateOfReturn: 0.1,
+                        initialTime: 0,
+                        initialPrice: 500,
+                        transactions: [[0, 100]],
+                    })).waitOneMonth();
+                break;
+            case Action.NoOp:
+                newState = this.state.waitOneMonth();
+                break;
             default:
-                return this;
+                console.error('Action', action, 'not understood. Ignoring action.');
         }
 
+        if (newState.isLegal()) {
+            this.state = newState;
+        }
+
+        this.state = this.state.waitOneMonth();
+
+        return this;
     }
 
 }

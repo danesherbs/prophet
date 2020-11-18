@@ -68,7 +68,6 @@ async function runServer() {
 
     for await (const [msg] of sock) {
         message = JSON.parse(msg.toString()) as Response;
-        // console.log('Received', message);
 
         if (message["type"] === "function" && message["data"] === "reset") {
             env = reset();

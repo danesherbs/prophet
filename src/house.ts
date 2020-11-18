@@ -58,6 +58,10 @@ class House {
         return this.downPayment;
     }
 
+    getLoan() {
+        return this.loan;
+    }
+
 }
 
 export { House };
