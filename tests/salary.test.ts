@@ -17,10 +17,17 @@ test('correct yearly salary increases', () => {
         creationTime: 0
     });
 
-    expect(salary.getYearlyGrossSalary(12 * 0)).toBeCloseTo(120_000 * Math.pow(1.05, 0), 10);
-    expect(salary.getYearlyGrossSalary(12 * 1)).toBeCloseTo(120_000 * Math.pow(1.05, 1), 10);
-    expect(salary.getYearlyGrossSalary(12 * 2)).toBeCloseTo(120_000 * Math.pow(1.05, 2), 10);
-    expect(salary.getYearlyGrossSalary(12 * 3)).toBeCloseTo(120_000 * Math.pow(1.05, 3), 10);
+    expect(salary.getYearlyGrossSalary(12 * 0))
+        .toBeCloseTo(120_000 * Math.pow(1.05, 0), 10);
+
+    expect(salary.getYearlyGrossSalary(12 * 1))
+        .toBeCloseTo(120_000 * Math.pow(1.05, 1), 10);
+
+    expect(salary.getYearlyGrossSalary(12 * 2))
+        .toBeCloseTo(120_000 * Math.pow(1.05, 2), 10);
+
+    expect(salary.getYearlyGrossSalary(12 * 3))
+        .toBeCloseTo(120_000 * Math.pow(1.05, 3), 10);
 });
 
 test('correct gross monthly salary', () => {
@@ -38,8 +45,11 @@ test('correct gross monthly salary', () => {
         creationTime: 0
     });
 
-    expect(salary.getMonthlyGrossSalary(0)).toEqual(10_000);
-    expect(salary.getMonthlyGrossSalary(36)).toEqual(120_000 * Math.pow(1.05, 3) / 12);
+    expect(salary.getMonthlyGrossSalary(0))
+        .toEqual(10_000);
+
+    expect(salary.getMonthlyGrossSalary(36))
+        .toEqual(120_000 * Math.pow(1.05, 3) / 12);
 });
 
 test('correct net monthly salary', () => {
@@ -60,8 +70,11 @@ test('correct net monthly salary', () => {
         creationTime: 0
     });
 
-    expect(salary.getMonthlyNetSalary(0)).toEqual(10_000 - (60_000 - 1) * 0.2 / 12);
-    expect(salary.getMonthlyNetSalary(36)).toEqual(salary.getMonthlyGrossSalary(36) - tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(36)));
+    expect(salary.getMonthlyNetSalary(0))
+        .toEqual(10_000 - (60_000 - 1) * 0.2 / 12);
+
+    expect(salary.getMonthlyNetSalary(36))
+        .toEqual(salary.getMonthlyGrossSalary(36) - tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(36)));
 });
 
 test('correct yearly net salary with rough ATO tax rates', () => {
@@ -85,7 +98,8 @@ test('correct yearly net salary with rough ATO tax rates', () => {
         creationTime: 0
     });
 
-    expect(salary.getYearlyNetSalary(0)).toBeCloseTo(87_968.885, 2);
+    expect(salary.getYearlyNetSalary(0))
+        .toBeCloseTo(87_968.885, 2);
 });
 
 test('correct net super contributions', () => {
@@ -103,6 +117,9 @@ test('correct net super contributions', () => {
         creationTime: 0
     });
 
-    expect(salary.getMonthlyNetSuperContribution(0)).toEqual((120_000 / 12) * 0.85);
-    expect(salary.getMonthlyNetSuperContribution(36)).toEqual((120_000 * Math.pow(1.05, 3) / 12) * 0.85);
+    expect(salary.getMonthlyNetSuperContribution(0))
+        .toEqual((120_000 / 12) * 0.85);
+
+    expect(salary.getMonthlyNetSuperContribution(36))
+        .toEqual((120_000 * Math.pow(1.05, 3) / 12) * 0.85);
 });
