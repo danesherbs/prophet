@@ -31,15 +31,11 @@ class House {
     }
 
     getMonthlyInterestPayment() {
-        return this.loan * this.getMonthlyInterestRate();
+        return this.loan * this.interestRate / 12;
     }
 
     getMonthlyGrossRentalIncome(time: number) {
         return this.monthlyRentalIncome * Math.pow(1 + this.yearlyRentalIncomeIncrease, Math.floor((time - this.purchaseTime) / 12));
-    }
-
-    getMonthlyNetRentalIncome(time: number) {
-        return this.getMonthlyGrossRentalIncome(time) - this.tax.getMonthlyIncomeTax(this.getMonthlyGrossRentalIncome(time));
     }
 
     getHouseValue(time: number) {
@@ -55,10 +51,12 @@ class House {
     }
 
     getDownPayment() {
+        /* istanbul ignore next */
         return this.downPayment;
     }
 
     getLoan() {
+        /* istanbul ignore next */
         return this.loan;
     }
 
