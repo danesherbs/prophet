@@ -57,30 +57,37 @@ class State {
     }
 
     getClock() {
+        /* istanbul ignore next */
         return this.clock;
     }
 
     getBank() {
+        /* istanbul ignore next */
         return this.bank;
     }
 
     getSalary() {
+        /* istanbul ignore next */
         return this.salary;
     }
 
     getSuper() {
+        /* istanbul ignore next */
         return this.superan;
     }
 
     getTax() {
+        /* istanbul ignore next */
         return this.tax;
     }
 
     getStocks() {
+        /* istanbul ignore next */
         return this.stocks;
     }
 
     getHouses() {
+        /* istanbul ignore next */
         return this.houses;
     }
 
@@ -106,9 +113,16 @@ class State {
         return new State({
             clock: this.clock,
             tax: this.tax
-                .declareIncome(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime())),
+                .declareIncome(
+                    this.clock.getTime(),
+                    house.getMonthlyGrossRentalIncome(this.clock.getTime())
+                ),
             bank: this.bank
-                .deposit(this.clock.getTime(), house.getMonthlyGrossRentalIncome(this.clock.getTime()), "Rental income"),
+                .deposit(
+                    this.clock.getTime(),
+                    house.getMonthlyGrossRentalIncome(this.clock.getTime()),
+                    "Rental income"
+                ),
             superan: this.superan,
             salary: this.salary,
             houses: this.houses,
@@ -122,7 +136,11 @@ class State {
             clock: this.clock,
             tax: this.tax,
             bank: this.bank
-                .withdraw(this.clock.getTime(), house.getMonthlyInterestPayment(), "Interest payment"),
+                .withdraw(
+                    this.clock.getTime(),
+                    house.getMonthlyInterestPayment(),
+                    "Interest payment"
+                ),
             superan: this.superan,
             salary: this.salary,
             houses: this.houses,
@@ -136,7 +154,11 @@ class State {
             clock: this.clock,
             tax: this.tax,
             bank: this.bank
-                .withdraw(this.clock.getTime(), expense.getMonthlyAmount(this.clock.getTime()), expense.getDescription()),
+                .withdraw(
+                    this.clock.getTime(),
+                    expense.getMonthlyAmount(this.clock.getTime()),
+                    expense.getDescription()
+                ),
             superan: this.superan,
             salary: this.salary,
             houses: this.houses,
@@ -145,17 +167,23 @@ class State {
         });
     }
 
-    registerTick() {
-        if ((this.clock.getTime() - 1) % 12 === 0) {
-
-            // TODO: refund/pay remaing tax
+    private registerTick() {
+        if (this.clock.getTime() % 11 === 0) {
+            const newTax = this.tax
+                .declareLoss(
+                    this.clock.getTime(),
+                    this.houses.reduce((acc, house) => acc + house.getYearlyDepreciation(this.clock.getTime()), 0)
+                );
 
             return new State({
                 clock: this.clock.tick(),
-                tax: this.tax
-                    .declareLoss(this.clock.getTime(),
-                        this.houses.reduce((acc, house) => acc + house.getYearlyDepreciation(this.clock.getTime()), 0)),
-                bank: this.bank,
+                tax: newTax,
+                bank: this.bank
+                    .deposit(
+                        this.clock.getTime(),
+                        newTax.getNetTaxOverLastTwelveMonths(this.clock.getTime()),
+                        "Tax correction",
+                    ),
                 superan: this.superan,
                 salary: this.salary,
                 houses: this.houses,
@@ -181,10 +209,14 @@ class State {
             clock: this.clock,
             tax: this.tax,
             bank: this.bank
-                .withdraw(this.clock.getTime(), house.getDownPayment(), "Downpayment for house"),
+                .withdraw(
+                    this.clock.getTime(),
+                    house.getDownPayment(),
+                    "Downpayment for house"
+                ),
             superan: this.superan,
             salary: this.salary,
-            houses: new Array(...this.houses, house),
+            houses: [...this.houses, house],
             stocks: this.stocks,
             expenses: this.expenses
         });
@@ -195,11 +227,15 @@ class State {
             clock: this.clock,
             tax: this.tax,
             bank: this.bank
-                .withdraw(this.clock.getTime(), stock.getPrice(this.clock.getTime()) * stock.getNumberOfUnits(), "Buy stock"),
+                .withdraw(
+                    this.clock.getTime(),
+                    stock.getPrice(this.clock.getTime()) * stock.getNumberOfUnits(),
+                    "Buy stock"
+                ),
             superan: this.superan,
             salary: this.salary,
             houses: this.houses,
-            stocks: new Array(...this.stocks, stock),
+            stocks: [...this.stocks, stock],
             expenses: this.expenses
         });
     }
