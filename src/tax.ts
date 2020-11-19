@@ -41,29 +41,58 @@ class Tax {
     }
 
     getTaxRecords() {
+        /* istanbul ignore next */
         return this.declared;
     }
 
     getTaxPaid() {
+        /* istanbul ignore next */
         return this.paid;
     }
 
-    getDeclaredIncomeInCalendarYear(time: number) {
+    getDeclaredIncomeOverLastTwelveMonths(time: number) {
+        /*
+        Gets declared income in last 12 months, upto and including the current month.
+
+        Example:
+        --------
+        If called on June 2020, it'd calculate the declared income from July 2019 to June 2020.
+        */
         return this.declared
-            .filter(([t, _, type]) => time - (time % 12) <= t && t <= time && type === DeclarationType.Income)
-            .reduce((acc, [_, amount]) => acc + amount, 0)
+            .filter(([t, , type]) => time - 12 < t && t <= time && type === DeclarationType.Income)
+            .reduce((acc, [, amount,]) => acc + amount, 0);
     }
 
-    getPaidIncomeTaxInCalendarYear(time: number) {
+    getLossesOverLastTwelveMonths(time: number) {
+        /*
+        Gets losses in last 12 months, upto and including the current month.
+
+        Example:
+        --------
+        If called on June 2020, it'd calculate the losses from July 2019 to June 2020.
+        */
+        return this.declared
+            .filter(([t, , type]) => time - 12 < t && t <= time && type === DeclarationType.Loss)
+            .reduce((acc, [, amount]) => acc + amount, 0)
+    }
+
+    getPaidIncomeTaxOverLastTwelveMonths(time: number) {
+        /*
+        Gets paid income tax in last 12 months, upto and including the current month.
+
+        Example:
+        --------
+        If called on June 2020, it'd calculate the paid income tax from July 2019 to June 2020.
+        */
         return this.paid
-            .filter(([t, _, type]) => time - (time % 12) <= t && t <= time && type === TaxType.Income)
-            .reduce((acc, [_, amount]) => acc + amount, 0)
+            .filter(([t, , type]) => time - 12 < t && t <= time && type === TaxType.Income)
+            .reduce((acc, [, amount]) => acc + amount, 0)
     }
 
-    getEndOfYearNetTax(time: number, deductions: number) {
-        return this.getYearlyIncomeTax(this.getDeclaredIncomeInCalendarYear(time))
-            - this.getPaidIncomeTaxInCalendarYear(time)
-            - deductions;
+    getNetTaxOverLastTwelveMonths(time: number) {
+        return this.getYearlyIncomeTax(this.getDeclaredIncomeOverLastTwelveMonths(time))
+            - this.getPaidIncomeTaxOverLastTwelveMonths(time)
+            - this.getLossesOverLastTwelveMonths(time);
     }
 
     declareIncome(time: number, amount: number) {
