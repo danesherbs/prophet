@@ -18,7 +18,7 @@ test('house value appreciating correctly', () => {
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
         yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciation: 0.025,
+        buildingDepreciationRate: 0.025,
         purchaseTime: 0
     });
 
@@ -41,7 +41,7 @@ test('house equity is value minus loan', () => {
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
         yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciation: 0.025,
+        buildingDepreciationRate: 0.025,
         purchaseTime: 0
     });
 
@@ -65,7 +65,7 @@ test('house rental income grows correctly', () => {
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
         yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciation: 0.025,
+        buildingDepreciationRate: 0.025,
         purchaseTime: 0
     });
 
@@ -89,7 +89,7 @@ test('correct monthly interest rate', () => {
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
         yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciation: 0.025,
+        buildingDepreciationRate: 0.025,
         purchaseTime: 0
     });
 
@@ -112,7 +112,7 @@ test('correct monthly interest payments', () => {
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
         yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciation: 0.025,
+        buildingDepreciationRate: 0.025,
         purchaseTime: 0
     });
 
@@ -135,10 +135,10 @@ test('correct yearly depreciation amount', () => {
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
         yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciation: 0.025,
+        buildingDepreciationRate: 0.025,
         purchaseTime: 0
     });
 
-    expect(house.getYearlyDepreciation(0)).toEqual(600_000 * 0.025);
-    expect(house.getYearlyDepreciation(36)).toBeCloseTo(600_000 * Math.pow(1.03, 3) * 0.025, 8);
+    expect(house.getYearlyDepreciationAmount(0)).toEqual(600_000 * 0.025);
+    expect(house.getYearlyDepreciationAmount(36)).toBeCloseTo(600_000 * Math.pow(1.03, 3) * 0.025, 8);
 });

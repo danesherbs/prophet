@@ -10,11 +10,11 @@ class House {
     appreciation: number;
     monthlyRentalIncome: number;
     yearlyRentalIncomeIncrease: number;
-    buildingDepreciation: number;
+    buildingDepreciationRate: number;
     purchaseTime: number;
 
     constructor(
-        { tax, downPayment, loan, interestRate, appreciation, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciation, purchaseTime }: { tax: Tax; downPayment: number; loan: number; interestRate: number; appreciation: number; monthlyRentalIncome: number; yearlyRentalIncomeIncrease: number; buildingDepreciation: number; purchaseTime: number; }) {
+        { tax, downPayment, loan, interestRate, appreciation, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciationRate, purchaseTime }: { tax: Tax; downPayment: number; loan: number; interestRate: number; appreciation: number; monthlyRentalIncome: number; yearlyRentalIncomeIncrease: number; buildingDepreciationRate: number; purchaseTime: number; }) {
         this.tax = tax;
         this.downPayment = downPayment;
         this.loan = loan;
@@ -22,7 +22,7 @@ class House {
         this.appreciation = appreciation;
         this.monthlyRentalIncome = monthlyRentalIncome;
         this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
-        this.buildingDepreciation = buildingDepreciation;
+        this.buildingDepreciationRate = buildingDepreciationRate;
         this.purchaseTime = purchaseTime;
     }
 
@@ -42,8 +42,16 @@ class House {
         return (this.downPayment + this.loan) * Math.pow(1 + this.getMonthlyInterestRate(), time - this.purchaseTime);
     }
 
-    getYearlyDepreciation(time: number) {
-        return this.getHouseValue(time) * this.buildingDepreciation;
+    getMonthlyDepreciationRate() {
+        return Math.pow(1 + this.buildingDepreciationRate, 1 / 12) - 1;
+    }
+
+    getMonthlyDepreciationAmount(time: number) {
+        return this.getHouseValue(time) * this.getMonthlyDepreciationRate();
+    }
+
+    getYearlyDepreciationAmount(time: number) {
+        return this.getHouseValue(time) * this.buildingDepreciationRate;
     }
 
     getEquity(time: number) {
