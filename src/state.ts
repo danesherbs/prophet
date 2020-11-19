@@ -92,6 +92,10 @@ class State {
     }
 
     receiveMonthlySalaryPayment(salary: Salary) {
+        if (salary.getYearlyGrossSalary(this.clock.getTime()) < 1e-3) {
+            return this;
+        }
+
         return new State({
             clock: this.clock,
             tax: this.tax
@@ -149,6 +153,23 @@ class State {
         });
     }
 
+    declareMonthlyDepreciationLoss(house: House) {
+        return new State({
+            clock: this.clock,
+            tax: this.tax
+                .declareLoss(
+                    this.clock.getTime(),
+                    house.getMonthlyDepreciationAmount(this.clock.getTime()),
+                ),
+            bank: this.bank,
+            superan: this.superan,
+            salary: this.salary,
+            houses: this.houses,
+            stocks: this.stocks,
+            expenses: this.expenses
+        });
+    }
+
     payMonthlyExpense(expense: Expense) {
         return new State({
             clock: this.clock,
@@ -167,21 +188,22 @@ class State {
         });
     }
 
-    private registerTick() {
-        if (this.clock.getTime() % 11 === 0) {
-            const newTax = this.tax
-                .declareLoss(
-                    this.clock.getTime(),
-                    this.houses.reduce((acc, house) => acc + house.getYearlyDepreciation(this.clock.getTime()), 0)
-                );
+    isEndOfFinancialYear() {
+        return this.clock.getTime() > 0 && this.clock.getTime() % 11 === 0;
+    }
 
+    private registerTick() {
+        if (
+            this.isEndOfFinancialYear() &&
+            this.tax.getNetTaxOverLastTwelveMonths(this.clock.getTime()) > 1e-3
+        ) {
             return new State({
                 clock: this.clock.tick(),
-                tax: newTax,
+                tax: this.tax,
                 bank: this.bank
                     .deposit(
                         this.clock.getTime(),
-                        newTax.getNetTaxOverLastTwelveMonths(this.clock.getTime()),
+                        this.tax.getNetTaxOverLastTwelveMonths(this.clock.getTime()),
                         "Tax correction",
                     ),
                 superan: this.superan,
@@ -263,6 +285,7 @@ class State {
         this.houses.forEach((house) => {
             state = state.receiveMonthlyRentalIncome(house);
             state = state.payMonthlyInterestPayment(house);
+            state = state.declareMonthlyDepreciationLoss(house);
         })
 
         state = state.registerTick();
