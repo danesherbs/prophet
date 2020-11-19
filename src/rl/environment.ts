@@ -1,11 +1,6 @@
 import { State } from "../state";
 import { Stock } from "../stock";
 import { House } from "../house";
-import { Salary } from "../salary";
-import { Super } from "../super";
-import { Bank } from "../bank";
-import { Tax } from "../tax";
-import { Clock } from "../clock";
 
 
 enum Action {
@@ -56,6 +51,17 @@ class Environment {
         return this.state.getClock().getTime() === 12;
     }
 
+    render() {
+        return {
+            'Time': this.state.getClock().getTime(),
+            'Salary': this.state.getSalary().getYearlyGrossSalary(this.state.getClock().getTime()),
+            'Bank balance:': this.state.getBank().getBalance(this.state.getClock().getTime()),
+            'Super balance:': this.state.getSuper().getBalance(this.state.getClock().getTime()),
+            'Stock balance:': this.state.getStocks().reduce((acc, stock) => acc + stock.getNumberOfUnits() * stock.getPrice(this.state.getClock().getTime()), 0),
+            'Total net worth': this.state.getNetWealth(),
+        }
+    }
+
     step(action: Action): Environment {
         let newState = this.state;
 
@@ -72,7 +78,7 @@ class Environment {
                         yearlyRentalIncomeIncrease: 0.03,
                         buildingDepreciation: 0.02,
                         purchaseTime: 0
-                    })).waitOneMonth();
+                    }));
                 break;
             case Action.BuyStock:
                 newState = this.state.buyStock(
@@ -81,16 +87,15 @@ class Environment {
                         initialTime: 0,
                         initialPrice: 500,
                         transactions: [[0, 100]],
-                    })).waitOneMonth();
+                    }));
                 break;
             case Action.NoOp:
-                newState = this.state.waitOneMonth();
                 break;
             default:
                 console.error('Action', action, 'not understood. Ignoring action.');
         }
 
-        if (newState.isLegal()) {
+        if (newState.isValid()) {
             this.state = newState;
         }
 

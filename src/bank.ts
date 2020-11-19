@@ -5,29 +5,29 @@ class Bank {
     transactions: Array<Transaction>;
     interestRate: number;
 
-    constructor({ transactions, interestRate }: { transactions: Array<Transaction>; interestRate: number; }) {
+    constructor({
+        transactions,
+        interestRate
+    }: {
+        transactions: Array<Transaction>;
+        interestRate: number;
+    }) {
         this.transactions = transactions;
         this.interestRate = interestRate;
     }
 
     deposit(time: number, amount: number, description: string) {
-        if (Math.abs(amount) <= 1e-6) {
-            return this;
-        }
-
-        return new Bank(
-            { transactions: new Array<Transaction>(...this.transactions, [time, amount, description]), interestRate: this.interestRate });
+        return new Bank({
+            transactions: new Array<Transaction>(...this.transactions, [time, amount, description]),
+            interestRate: this.interestRate
+        });
     }
 
     withdraw(time: number, amount: number, description: string) {
-        // Throw a warning if withdrawing more than balance?
-
-        if (Math.abs(amount) <= 1e-6) {
-            return this;
-        }
-
-        return new Bank(
-            { transactions: new Array<Transaction>(...this.transactions, [time, -amount, description]), interestRate: this.interestRate });
+        return new Bank({
+            transactions: new Array<Transaction>(...this.transactions, [time, -amount, description]),
+            interestRate: this.interestRate
+        });
     }
 
     getMonthlyInterestRate() {
@@ -42,6 +42,21 @@ class Bank {
         return this.transactions
             .map(([then, amount]) => amount * Math.pow(1 + this.getMonthlyInterestRate(), now - then))
             .reduce((acc, amount) => acc + amount, 0)
+    }
+
+    isValidTransactions() {
+        const [valid,] = this.getTransactions()
+            .reduce(([valid, balance], [, amount,]) => [valid && ((balance as number) - amount >= 0), (balance as number) + amount], [true, 0.0]);
+
+        return valid;
+    }
+
+    isValidInterestRate() {
+        return 0 <= this.interestRate && this.interestRate <= 0.07;
+    }
+
+    isValid() {
+        return this.isValidInterestRate() && this.isValidTransactions();
     }
 
 }

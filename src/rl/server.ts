@@ -76,6 +76,8 @@ async function runServer() {
             await sock.send(JSON.stringify({ "obs_space": env.getStateSpace() }));
         } else if (message["type"] === "function" && message["data"] === "action_space") {
             await sock.send(JSON.stringify({ "action_space": env.getActionSpace() }));
+        } else if (message["type"] === "function" && message["data"] === "render") {
+            await sock.send(JSON.stringify({ "render": env.render() }));
         } else if (message["type"] === "function" && message["data"] === "quit") {
             break;
         } else if (message["type"] === "action") {

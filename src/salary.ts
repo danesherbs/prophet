@@ -8,7 +8,17 @@ class Salary {
     tax: Tax;
     creationTime: number;
 
-    constructor({ yearlyGrossSalary, yearlySalaryIncrease, tax, creationTime }: { yearlyGrossSalary: number; yearlySalaryIncrease: number; tax: Tax; creationTime: number; }) {
+    constructor({
+        yearlyGrossSalary,
+        yearlySalaryIncrease,
+        tax,
+        creationTime
+    }: {
+        yearlyGrossSalary: number;
+        yearlySalaryIncrease: number;
+        tax: Tax;
+        creationTime: number;
+    }) {
         this.yearlyGrossSalary = yearlyGrossSalary;
         this.yearSalaryIncrease = yearlySalaryIncrease;
         this.tax = tax;

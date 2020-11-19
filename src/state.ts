@@ -204,9 +204,12 @@ class State {
         });
     }
 
-    isLegal() {
-        return this.getBank().getBalance(this.getClock().getTime()) >= 0 &&
-            this.getHouses().reduce((acc, house) => acc + house.getLoan(), 0) <= 10 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime());
+    isValidLoans() {
+        return this.getHouses().reduce((acc, house) => acc + house.getLoan(), 0) <= 10 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime());
+    }
+
+    isValid() {
+        return this.getBank().isValid() && this.isValidLoans();
     }
 
     waitOneMonth() {
