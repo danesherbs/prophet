@@ -40,6 +40,13 @@ const salary = new Salary({
     creationTime: clock.getTime()
 });
 
+const expense = new Expense({
+    yearlyIncrease: 0.03,
+    weeklyAmount: 240,
+    description: "Living expenses",
+    initialTime: clock.getTime(),
+})
+
 const house = new House({
     tax: tax,
     downPayment: 50_000,
@@ -70,7 +77,7 @@ test('correct salary transition', () => {
     // expect(state.registerSalary(salary).getTax().getTaxRecords()).toEqual(new Array([0, 100, TaxType.Income], [0, 100, TaxType.Super]));
 });
 
-test('correct net wealth with salary only', () => {
+test('correct net wealth after a month with salary only', () => {
     const state = new State({
         clock: clock,
         tax: tax,
@@ -87,14 +94,44 @@ test('correct net wealth with salary only', () => {
 
     expect(state.waitOneMonth().getNetWealth())
         .toBeCloseTo(
-            salary.getMonthlyNetSalary(1) * (1 + bank.getMonthlyInterestRate()) +
+            salary.getMonthlyNetSalary(0) * (1 + bank.getMonthlyInterestRate()) +
             superan.getMonthlyNetSuperContribution(120_000) * (1 + superan.getMonthlyInterestRate())
             , 10);
 
     expect(state.waitOneMonth().waitOneMonth().getNetWealth())
         .toBeCloseTo(
+            salary.getMonthlyNetSalary(0) * Math.pow(1 + bank.getMonthlyInterestRate(), 2) +
             salary.getMonthlyNetSalary(1) * (1 + bank.getMonthlyInterestRate()) +
-            salary.getMonthlyNetSalary(2) * Math.pow(1 + bank.getMonthlyInterestRate(), 2) +
+            superan.getMonthlyNetSuperContribution(120_000) * (1 + superan.getMonthlyInterestRate()) +
+            superan.getMonthlyNetSuperContribution(120_000) * Math.pow(1 + superan.getMonthlyInterestRate(), 2)
+            , 10);
+});
+
+test('correct net wealth after a month with salary and expense', () => {
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: new Array(),
+        stocks: new Array(),
+        expenses: [expense],
+    });
+
+    expect(state.getNetWealth())
+        .toEqual(0);
+
+    expect(state.waitOneMonth().getNetWealth())
+        .toBeCloseTo(
+            (salary.getMonthlyNetSalary(0) - expense.getMonthlyAmount(0)) * (1 + bank.getMonthlyInterestRate())
+            + superan.getMonthlyNetSuperContribution(120_000) * (1 + superan.getMonthlyInterestRate())
+            , 10);
+
+    expect(state.waitOneMonth().waitOneMonth().getNetWealth())
+        .toBeCloseTo(
+            (salary.getMonthlyNetSalary(1) - expense.getMonthlyAmount(1)) * Math.pow(1 + bank.getMonthlyInterestRate(), 2) +
+            (salary.getMonthlyNetSalary(0) - expense.getMonthlyAmount(0)) * (1 + bank.getMonthlyInterestRate()) +
             superan.getMonthlyNetSuperContribution(120_000) * (1 + superan.getMonthlyInterestRate()) +
             superan.getMonthlyNetSuperContribution(120_000) * Math.pow(1 + superan.getMonthlyInterestRate(), 2)
             , 10);
@@ -155,6 +192,30 @@ test('correct state change when buying a house', () => {
     expect(state.buyHouse(house).getBank().getBalance(0)).toEqual(state.getBank().getBalance(0) - 50_000);
 });
 
+test('correct state change when paying an expense', () => {
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: new Array(),
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    // Unchanged
+    expect(state.payMonthlyExpense(expense).getClock()).toEqual(state.getClock());
+    expect(state.payMonthlyExpense(expense).getStocks()).toEqual(state.getStocks());
+    expect(state.payMonthlyExpense(expense).getSuper()).toEqual(state.getSuper());
+    expect(state.payMonthlyExpense(expense).getTax()).toEqual(state.getTax());
+    expect(state.payMonthlyExpense(expense).getSalary()).toEqual(state.getSalary());
+    expect(state.payMonthlyExpense(expense).getHouses()).toEqual(state.getHouses());
+
+    // Changed
+    expect(state.payMonthlyExpense(expense).getBank().getBalance(0)).toEqual(state.getBank().getBalance(0) - (240 * 52) / 12);
+});
+
 test('correct state change after one month when owning single house', () => {
     const salary = new Salary({
         tax: tax,
@@ -203,7 +264,7 @@ test('correct state change after one month when owning single house', () => {
             .getBalance(0) * (1 + bank.getMonthlyInterestRate()));
 });
 
-test('unpaid tax is paid back at beginning of financial year', () => {
+test('unpaid tax is paid at beginning of financial year', () => {
     const house = new House({
         tax: tax,
         downPayment: 50_000,
