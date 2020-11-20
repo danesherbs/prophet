@@ -89,7 +89,7 @@ class Tax {
             .reduce((acc, [, amount]) => acc + amount, 0)
     }
 
-    getNetTaxOverLastTwelveMonths(time: number) {
+    getNetUnpaidTaxOverLastTwelveMonths(time: number) {
         return this.getYearlyIncomeTax(this.getDeclaredIncomeOverLastTwelveMonths(time))
             - this.getPaidIncomeTaxOverLastTwelveMonths(time)
             - this.getLossesOverLastTwelveMonths(time);

@@ -76,7 +76,7 @@ class Environment {
                         appreciation: 0.03,
                         monthlyRentalIncome: 2500,
                         yearlyRentalIncomeIncrease: 0.03,
-                        buildingDepreciation: 0.02,
+                        buildingDepreciationRate: 0.02,
                         purchaseTime: 0
                     }));
                 break;

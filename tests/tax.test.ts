@@ -170,14 +170,12 @@ test('correct net tax owed over last year', () => {
         .payTax(1, 30_000, TaxType.Income)
         .declareLoss(1, 10_000);
 
-    expect(tax.getNetTaxOverLastTwelveMonths(0))
+    expect(tax.getNetUnpaidTaxOverLastTwelveMonths(0))
         .toEqual(0);
 
-    expect(tax.getNetTaxOverLastTwelveMonths(11))
+    expect(tax.getNetUnpaidTaxOverLastTwelveMonths(11))
         .toEqual(120_000 * 0.5 - 30_000 - 10_000);
 
-    expect(tax.getNetTaxOverLastTwelveMonths(13))
+    expect(tax.getNetUnpaidTaxOverLastTwelveMonths(13))
         .toEqual(0);
 });
-
-// TODO: Add tax refund test

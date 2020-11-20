@@ -99,13 +99,28 @@ class State {
         return new State({
             clock: this.clock,
             tax: this.tax
-                .declareIncome(this.clock.getTime(), salary.getMonthlyGrossSalary(this.clock.getTime()))
-                .payTax(this.clock.getTime(), this.tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(this.clock.getTime())), TaxType.Income)
-                .payTax(this.clock.getTime(), this.tax.getMonthlySuperTax(salary.getYearlyGrossSalary(this.clock.getTime())), TaxType.Super),
+                .declareIncome(
+                    this.clock.getTime(),
+                    salary.getMonthlyGrossSalary(this.clock.getTime()))
+                .payTax(
+                    this.clock.getTime(),
+                    this.tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(this.clock.getTime())),
+                    TaxType.Income)
+                .payTax(this.clock.getTime(),
+                    this.tax.getMonthlySuperTax(salary.getYearlyGrossSalary(this.clock.getTime())),
+                    TaxType.Super
+                ),
             bank: this.bank
-                .deposit(this.clock.getTime(), salary.getMonthlyNetSalary(this.clock.getTime()), "Salary"),
+                .deposit(
+                    this.clock.getTime(),
+                    salary.getMonthlyNetSalary(this.clock.getTime()),
+                    "Salary"
+                ),
             superan: this.superan
-                .deposit(this.clock.getTime(), this.superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary(this.clock.getTime()))),
+                .deposit(
+                    this.clock.getTime(),
+                    this.superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary(this.clock.getTime()))
+                ),
             salary: this.salary,
             houses: this.houses,
             stocks: this.stocks,
@@ -188,22 +203,22 @@ class State {
         });
     }
 
-    isEndOfFinancialYear() {
-        return this.clock.getTime() > 0 && this.clock.getTime() % 11 === 0;
+    isStartOfFinancialYear() {
+        return this.clock.getTime() % 12 === 0;
     }
 
     private registerTick() {
         if (
-            this.isEndOfFinancialYear() &&
-            this.tax.getNetTaxOverLastTwelveMonths(this.clock.getTime()) > 1e-3
+            this.isStartOfFinancialYear() &&
+            this.tax.getNetUnpaidTaxOverLastTwelveMonths(this.clock.getTime() - 1) > 1e-3
         ) {
             return new State({
                 clock: this.clock.tick(),
                 tax: this.tax,
                 bank: this.bank
-                    .deposit(
+                    .withdraw(
                         this.clock.getTime(),
-                        this.tax.getNetTaxOverLastTwelveMonths(this.clock.getTime()),
+                        this.tax.getNetUnpaidTaxOverLastTwelveMonths(this.clock.getTime() - 1),
                         "Tax correction",
                     ),
                 superan: this.superan,
@@ -213,6 +228,8 @@ class State {
                 expenses: this.expenses
             });
         }
+
+        // TODO: carry losses forward into next year if net tax is negative
 
         return new State({
             clock: this.clock.tick(),
@@ -289,6 +306,16 @@ class State {
         })
 
         state = state.registerTick();
+
+        return state;
+    }
+
+    waitOneYear() {
+        let state: State = this;
+
+        for (let i = 0; i < 12; i++) {
+            state = state.waitOneMonth();
+        }
 
         return state;
     }

@@ -47,11 +47,7 @@ class House {
     }
 
     getMonthlyDepreciationAmount(time: number) {
-        return this.getHouseValue(time) * this.getMonthlyDepreciationRate();
-    }
-
-    getYearlyDepreciationAmount(time: number) {
-        return this.getHouseValue(time) * this.buildingDepreciationRate;
+        return 0.66 * this.getHouseValue(time) * this.getMonthlyDepreciationRate();
     }
 
     getEquity(time: number) {

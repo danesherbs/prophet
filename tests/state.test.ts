@@ -1,5 +1,5 @@
 import { Clock } from "../src/clock";
-import { Tax } from "../src/tax";
+import { Tax, TaxType } from "../src/tax";
 import { Bank } from "../src/bank";
 import { Salary } from "../src/salary";
 import { House } from "../src/house";
@@ -9,35 +9,51 @@ import { State } from "../src/state";
 import { Expense } from "../src/expense";
 
 
+const clock = new Clock(0);
+
+const tax = new Tax({
+    incomeTaxBrackets: new Array(
+        [[0.0, 50_000], 0.0],
+        [[50_001, Infinity], 0.2],
+    ),
+    superTaxRate: 0.15,
+    declared: new Array(),
+    paid: new Array()
+});
+
+const bank = new Bank({
+    transactions: new Array(),
+    interestRate: 0.03
+});
+
+const superan = new Super({
+    tax: tax,
+    transactions: new Array(),
+    interestRate: 0.1,
+    contributionRate: 0.125,
+});
+
+const salary = new Salary({
+    tax: tax,
+    yearlyGrossSalary: 120_000,
+    yearlySalaryIncrease: 0.05,
+    creationTime: clock.getTime()
+});
+
+const house = new House({
+    tax: tax,
+    downPayment: 50_000,
+    loan: 550_000,
+    interestRate: 0.03,
+    appreciation: 0.03,
+    monthlyRentalIncome: 2_500,
+    yearlyRentalIncomeIncrease: 0.03,
+    buildingDepreciationRate: 0.025,
+    purchaseTime: 0
+});
+
+
 test('correct salary transition', () => {
-    const clock = new Clock(0);
-
-    const tax = new Tax({
-        incomeTaxBrackets: new Array(),
-        superTaxRate: 0.15,
-        declared: new Array(),
-        paid: new Array()
-    });
-
-    const bank = new Bank({
-        transactions: new Array(),
-        interestRate: 0.03
-    });
-
-    const superan = new Super({
-        tax: tax,
-        transactions: new Array(),
-        interestRate: 0.1,
-        contributionRate: 0.125,
-    });
-
-    const salary = new Salary({
-        tax: tax,
-        yearlyGrossSalary: 120_000,
-        yearlySalaryIncrease: 0.05,
-        creationTime: clock.getTime()
-    });
-
     const state = new State({
         clock: clock,
         tax: tax,
@@ -55,37 +71,6 @@ test('correct salary transition', () => {
 });
 
 test('correct net wealth with salary only', () => {
-    const clock = new Clock(0);
-
-    const tax = new Tax({
-        incomeTaxBrackets: new Array(
-            [[0.0, 50_000], 0.0],
-            [[50_001, Infinity], 0.2],
-        ),
-        superTaxRate: 0.15,
-        declared: new Array(),
-        paid: new Array()
-    });
-
-    const bank = new Bank({
-        transactions: new Array(),
-        interestRate: 0.03
-    });
-
-    const superan = new Super({
-        tax: tax,
-        transactions: new Array(),
-        interestRate: 0.1,
-        contributionRate: 0.125,
-    });
-
-    const salary = new Salary({
-        tax: tax,
-        yearlyGrossSalary: 120_000,
-        yearlySalaryIncrease: 0.05,
-        creationTime: clock.getTime()
-    });
-
     const state = new State({
         clock: clock,
         tax: tax,
@@ -116,37 +101,6 @@ test('correct net wealth with salary only', () => {
 });
 
 test('correct state change when buying stock', () => {
-    const clock = new Clock(0);
-
-    const tax = new Tax({
-        incomeTaxBrackets: new Array(
-            [[0.0, 50_000], 0.0],
-            [[50_001, Infinity], 0.2],
-        ),
-        superTaxRate: 0.15,
-        declared: new Array(),
-        paid: new Array()
-    });
-
-    const bank = new Bank({
-        transactions: new Array(),
-        interestRate: 0.03
-    });
-
-    const superan = new Super({
-        tax: tax,
-        transactions: new Array(),
-        interestRate: 0.1,
-        contributionRate: 0.125,
-    });
-
-    const salary = new Salary({
-        tax: tax,
-        yearlyGrossSalary: 120_000,
-        yearlySalaryIncrease: 0.05,
-        creationTime: clock.getTime()
-    });
-
     const stock = new Stock({
         rateOfReturn: 0.1,
         initialTime: 0,
@@ -178,49 +132,6 @@ test('correct state change when buying stock', () => {
 });
 
 test('correct state change when buying a house', () => {
-    const clock = new Clock(0);
-
-    const tax = new Tax({
-        incomeTaxBrackets: new Array(
-            [[0.0, 50_000], 0.0],
-            [[50_001, Infinity], 0.2],
-        ),
-        superTaxRate: 0.15,
-        declared: new Array(),
-        paid: new Array()
-    });
-
-    const bank = new Bank({
-        transactions: new Array(),
-        interestRate: 0.03
-    });
-
-    const superan = new Super({
-        tax: tax,
-        transactions: new Array(),
-        interestRate: 0.1,
-        contributionRate: 0.125,
-    });
-
-    const salary = new Salary({
-        tax: tax,
-        yearlyGrossSalary: 120_000,
-        yearlySalaryIncrease: 0.05,
-        creationTime: clock.getTime()
-    });
-
-    const house = new House({
-        tax: tax,
-        downPayment: 50_000,
-        loan: 550_000,
-        interestRate: 0.03,
-        appreciation: 0.03,
-        monthlyRentalIncome: 2_500,
-        yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciationRate: 0.025,
-        purchaseTime: 0
-    });
-
     const state = new State({
         clock: clock,
         tax: tax,
@@ -244,48 +155,12 @@ test('correct state change when buying a house', () => {
     expect(state.buyHouse(house).getBank().getBalance(0)).toEqual(state.getBank().getBalance(0) - 50_000);
 });
 
-test('correct state change when time passing and owning one house', () => {
-    const clock = new Clock(0);
-
-    const tax = new Tax({
-        incomeTaxBrackets: new Array(
-            [[0.0, 50_000], 0.0],
-            [[50_001, Infinity], 0.2],
-        ),
-        superTaxRate: 0.15,
-        declared: new Array(),
-        paid: new Array()
-    });
-
-    const bank = new Bank({
-        transactions: new Array(),
-        interestRate: 0.03
-    });
-
-    const superan = new Super({
-        tax: tax,
-        transactions: new Array(),
-        interestRate: 0.1,
-        contributionRate: 0.125,
-    });
-
+test('correct state change after one month when owning single house', () => {
     const salary = new Salary({
         tax: tax,
         yearlyGrossSalary: 0,
         yearlySalaryIncrease: 0,
         creationTime: clock.getTime()
-    });
-
-    const house = new House({
-        tax: tax,
-        downPayment: 50_000,
-        loan: 550_000,
-        interestRate: 0.03,
-        appreciation: 0.03,
-        monthlyRentalIncome: 2_500,
-        yearlyRentalIncomeIncrease: 0.03,
-        buildingDepreciationRate: 0.025,
-        purchaseTime: 0
     });
 
     const state = new State({
@@ -328,4 +203,40 @@ test('correct state change when time passing and owning one house', () => {
             .getBalance(0) * (1 + bank.getMonthlyInterestRate()));
 });
 
-// TODO: Add tax refund test with property
+test('unpaid tax is paid back at beginning of financial year', () => {
+    const house = new House({
+        tax: tax,
+        downPayment: 50_000,
+        loan: 550_000,
+        interestRate: 0.03,
+        appreciation: 0.03,
+        monthlyRentalIncome: 5_000,
+        yearlyRentalIncomeIncrease: 0.03,
+        buildingDepreciationRate: 0.025,
+        purchaseTime: 0
+    });
+
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: [house],
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    expect(state.waitOneYear().waitOneMonth().getClock().getTime())
+        .toEqual(13);
+
+    expect(state.waitOneYear().waitOneMonth().getBank().getTransactions()
+        .reduce((acc, [, , info]) => acc || info === "Tax correction", false))
+        .toBeTruthy();
+
+    const [time, amount, description] = state.waitOneYear().waitOneMonth().getBank().getTransactions().find(([, , info]) => info === "Tax correction") as [number, number, string];
+
+    expect(time).toEqual(12);
+    expect(amount).toBeCloseTo(-state.waitOneYear().waitOneMonth().getTax().getNetUnpaidTaxOverLastTwelveMonths(11), 10);
+    expect(description).toEqual("Tax correction");
+});
