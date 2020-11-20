@@ -1,25 +1,18 @@
 import { Stock } from "../src/stock";
 
 
-test('correct monthly rate of return', () => {
-    const stock = new Stock({
-        rateOfReturn: 0.1,
-        initialTime: 0,
-        initialPrice: 500,
-        transactions: new Array()
-    });
+const stock = new Stock({
+    rateOfReturn: 0.1,
+    initialTime: 0,
+    initialPrice: 500,
+    transactions: new Array()
+});
 
+test('correct monthly rate of return', () => {
     expect(500 * Math.pow(1 + stock.getMonthlyRateOfReturn(), 12)).toBeCloseTo(500 * 1.10, 10);
 });
 
 test('compounding correctly', () => {
-    const stock = new Stock({
-        rateOfReturn: 0.1,
-        initialTime: 0,
-        initialPrice: 500,
-        transactions: new Array()
-    });
-
     expect(stock.getPrice(36)).toBeCloseTo(500 * Math.pow(1.10, 3), 10);
 });
 
@@ -35,13 +28,6 @@ test('correct number of units', () => {
 });
 
 test('buy units buys correct number', () => {
-    const stock = new Stock({
-        rateOfReturn: 0.1,
-        initialTime: 0,
-        initialPrice: 500,
-        transactions: new Array(),
-    });
-
     expect(stock.buyUnits(0, 5).getNumberOfUnits()).toEqual(5);
     expect(() => { stock.buyUnits(0, 0) }).toThrow(RangeError);
     expect(() => { stock.buyUnits(0, -10) }).toThrow(RangeError);

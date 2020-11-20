@@ -284,7 +284,7 @@ class State {
     }
 
     isValid() {
-        return this.getBank().isValid() && this.isValidLoans();
+        return this.bank.isValid() && this.isValidLoans();
     }
 
     waitOneMonth() {
