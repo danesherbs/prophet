@@ -261,6 +261,33 @@ class State {
         });
     }
 
+    sellHouse(house: House) {
+        // TODO: declare capital loss if lost money
+        return new State({
+            clock: this.clock,
+            tax: this.tax
+                .declareIncome(
+                    this.clock.getTime(),
+                    house.getEquity(this.clock.getTime()) - house.getDownPayment()
+                ),
+            bank: this.bank
+                .deposit(
+                    this.clock.getTime(),
+                    house.getEquity(this.clock.getTime()),
+                    "Sold house"
+                ),
+            superan: this.superan,
+            salary: this.salary,
+            houses: this.houses
+                .splice(
+                    this.houses.findIndex(
+                        h => JSON.stringify(h) === JSON.stringify(house)
+                    ), 1),
+            stocks: this.stocks,
+            expenses: this.expenses
+        });
+    }
+
     buyStock(stock: Stock) {
         return new State({
             clock: this.clock,
@@ -279,8 +306,35 @@ class State {
         });
     }
 
+    sellStock(stock: Stock) {
+        // TODO: declare capital loss if lost money
+        return new State({
+            clock: this.clock,
+            tax: this.tax
+                .declareIncome(
+                    this.clock.getTime(),
+                    (stock.getPrice(this.clock.getTime()) - stock.getInitialPrice()) * stock.getNumberOfUnits()
+                ),
+            bank: this.bank
+                .deposit(
+                    this.clock.getTime(),
+                    stock.getPrice(this.clock.getTime()) * stock.getNumberOfUnits(),
+                    "Sold stock"
+                ),
+            superan: this.superan,
+            salary: this.salary,
+            houses: this.houses,
+            stocks: this.stocks
+                .splice(
+                    this.houses.findIndex(
+                        s => JSON.stringify(s) === JSON.stringify(stock)
+                    ), 1),
+            expenses: this.expenses
+        });
+    }
+
     isValidLoans() {
-        return this.getHouses().reduce((acc, house) => acc + house.getLoan(), 0) <= 10 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime());
+        return this.getHouses().reduce((acc, house) => acc + house.getLoan(), 0) <= 8 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime());
     }
 
     isValid() {

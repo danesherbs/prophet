@@ -13,7 +13,13 @@ const reset = (): Environment => {
     const clock = new Clock(0);
 
     const tax = new Tax({
-        incomeTaxBrackets: new Array(),
+        incomeTaxBrackets: new Array(
+            [[0.0, 18_200], 0.0],
+            [[18_201, 37_000], 0.19],
+            [[37_001, 87_000], 0.325],
+            [[87_001, 180_000], 0.37],
+            [[180_001, Infinity], 0.45],
+        ),
         superTaxRate: 0.15,
         declared: new Array(),
         paid: new Array()

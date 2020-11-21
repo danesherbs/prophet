@@ -48,7 +48,7 @@ class Environment {
     }
 
     isDone() {
-        return this.state.getClock().getTime() === 12;
+        return this.state.getClock().getTime() === 120;
     }
 
     render() {
@@ -95,7 +95,7 @@ class Environment {
                 console.error('Action', action, 'not understood. Ignoring action.');
         }
 
-        if (newState.isValid()) {
+        if ((newState.getBank().getBalance(this.state.getClock().getTime()) >= 0) && newState.isValidLoans()) {
             this.state = newState;
         }
 

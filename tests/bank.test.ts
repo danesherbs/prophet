@@ -7,12 +7,16 @@ const bank = new Bank({
 });
 
 test('componding monthly correctly', () => {
-    expect(Math.pow(1 + bank.getMonthlyInterestRate(), 12)).toBeCloseTo(1.03, 10);
+    expect(Math.pow(1 + bank.getMonthlyInterestRate(), 12))
+        .toBeCloseTo(1.03, 10);
 });
 
 test('correct bank balance with one transaction', () => {
-    expect(bank.deposit(0, 100, "Payday").getBalance(0)).toBeCloseTo(100, 10);
-    expect(bank.deposit(0, 100, "Payday").getBalance(60)).toBeCloseTo(100 * Math.pow(1.03, 5), 10);
+    expect(bank.deposit(0, 100, "Payday").getBalance(0))
+        .toBeCloseTo(100, 10);
+
+    expect(bank.deposit(0, 100, "Payday").getBalance(60))
+        .toBeCloseTo(100 * Math.pow(1.03, 5), 10);
 });
 
 test('correct bank balance with many transactions', () => {
@@ -71,8 +75,11 @@ test('negative balance is invalid', () => {
         interestRate: 0.03
     });
 
-    expect(bank.isValidTransactions()).toBeFalsy();
-    expect(bank.isValid()).toBeFalsy();
+    expect(bank.isValidTransactions())
+        .toBeFalsy();
+
+    expect(bank.isValid())
+        .toBeFalsy();
 });
 
 test('unrealistic interest rate is invalid', () => {
@@ -81,6 +88,9 @@ test('unrealistic interest rate is invalid', () => {
         interestRate: 0.20
     });
 
-    expect(bank.isValidInterestRate()).toBeFalsy();
-    expect(bank.isValid()).toBeFalsy();
+    expect(bank.isValidInterestRate())
+        .toBeFalsy();
+
+    expect(bank.isValid())
+        .toBeFalsy();
 });

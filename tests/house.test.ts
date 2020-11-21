@@ -66,3 +66,8 @@ test('correct monthly depreciation amount', () => {
         .reduce((acc: number, month: number) => acc + house.getMonthlyDepreciationAmount(month), 0))
         .toBeCloseTo(30668.57, 2);
 });
+
+test('can compare houses as JSON objects', () => {
+    expect(JSON.stringify(house) === JSON.stringify(house))
+        .toBeTruthy;
+});

@@ -45,10 +45,17 @@ class Bank {
     }
 
     isValidTransactions() {
-        const [valid,] = this.getTransactions()
-            .reduce(([valid, balance], [, amount,]) => [valid && ((balance as number) - amount >= 0), (balance as number) + amount], [true, 0.0]);
+        let balance = 0;
 
-        return valid;
+        for (var [, amount,] of this.transactions) {
+            balance += amount;
+
+            if (balance < 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     isValidInterestRate() {

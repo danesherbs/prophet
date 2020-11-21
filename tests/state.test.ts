@@ -7,6 +7,7 @@ import { Stock } from "../src/stock";
 import { Super } from "../src/super";
 import { State } from "../src/state";
 import { Expense } from "../src/expense";
+import * as _ from 'lodash';
 
 
 const clock = new Clock(0);
@@ -168,6 +169,54 @@ test('correct state change when buying stock', () => {
     expect(state.buyStock(stock).getBank().getBalance(0)).toEqual(state.getBank().getBalance(0) - 5_000);
 });
 
+test('correct state change when selling stock', () => {
+    const stock = new Stock({
+        rateOfReturn: 0.1,
+        initialTime: 0,
+        initialPrice: 500,
+        transactions: [[0, 10]],
+    });
+
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: new Array(),
+        stocks: [stock, stock],
+        expenses: new Array(),
+    });
+
+    // Unchanged
+    expect(state.sellStock(stock).getClock())
+        .toEqual(state.getClock());
+
+    expect(state.buyStock(stock).getHouses())
+        .toEqual(state.getHouses());
+
+    expect(state.sellStock(stock).getSuper())
+        .toEqual(state.getSuper());
+
+    expect(state.sellStock(stock).getSalary())
+        .toEqual(state.getSalary());
+
+    // Changed
+    expect(state.getHouses().findIndex(s => JSON.stringify(s) === JSON.stringify(stock)))
+        .toEqual(0);
+
+    expect(state.sellStock(stock).getStocks())
+        .toEqual([stock]);
+
+    expect(state.sellStock(stock).getBank().getBalance(0))
+        .toEqual(state.getBank().getBalance(0) + 5_000);
+
+    expect(state.sellStock(stock).getTax())
+        .toEqual(state.getTax().declareIncome(0, 0));
+
+    // TODO: sell after one month
+});
+
 test('correct state change when buying a house', () => {
     const state = new State({
         clock: clock,
@@ -190,6 +239,47 @@ test('correct state change when buying a house', () => {
     // Changed
     expect(state.buyHouse(house).getHouses()).toEqual([house, house]);
     expect(state.buyHouse(house).getBank().getBalance(0)).toEqual(state.getBank().getBalance(0) - 50_000);
+});
+
+test('correct state change when selling a house', () => {
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: [house, house],
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    // Unchanged
+    expect(state.sellHouse(house).getClock())
+        .toEqual(state.getClock());
+
+    expect(state.sellHouse(house).getStocks())
+        .toEqual(state.getStocks());
+
+    expect(state.sellHouse(house).getSuper())
+        .toEqual(state.getSuper());
+
+    expect(state.sellHouse(house).getSalary())
+        .toEqual(state.getSalary());
+
+    // Changed
+    expect(state.getHouses().findIndex(h => JSON.stringify(h) === JSON.stringify(house)))
+        .toEqual(0);
+
+    expect(state.sellHouse(house).getHouses())
+        .toEqual([house]);
+
+    expect(state.sellHouse(house).getBank().getBalance(0))
+        .toEqual(state.getBank().getBalance(0) + 50_000);
+
+    expect(state.sellHouse(house).getTax())
+        .toEqual(state.getTax().declareIncome(0, 0));
+
+    // TODO: sell after one month
 });
 
 test('correct state change when paying an expense', () => {
@@ -293,11 +383,91 @@ test('unpaid tax is paid at beginning of financial year', () => {
 
     expect(state.waitOneYear().waitOneMonth().getBank().getTransactions()
         .reduce((acc, [, , info]) => acc || info === "Tax correction", false))
+        .toBeTruthy();  // tax correction is in bank transaction history
+
+    const [time, amount,] = state.waitOneYear().waitOneMonth().getBank().getTransactions().find(([, , info]) => info === "Tax correction") as [number, number, string];
+
+    expect(time).toEqual(12);  // tax paid at start of financial year
+    expect(amount).toBeCloseTo(-state.waitOneYear().waitOneMonth().getTax().getNetUnpaidTaxOverLastTwelveMonths(11), 10);  // amount was unpaid tax of last financial year
+});
+
+test('can borrow a small multiple of your salary', () => {
+    const house = new House({
+        tax: tax,
+        downPayment: 50_000,
+        loan: 800_000,
+        interestRate: 0.03,
+        appreciation: 0.03,
+        monthlyRentalIncome: 5_000,
+        yearlyRentalIncomeIncrease: 0.03,
+        buildingDepreciationRate: 0.025,
+        purchaseTime: 0
+    });
+
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: [house],
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    expect(state.isValidLoans())
         .toBeTruthy();
 
-    const [time, amount, description] = state.waitOneYear().waitOneMonth().getBank().getTransactions().find(([, , info]) => info === "Tax correction") as [number, number, string];
+    expect(state.isValid())
+        .toBeTruthy();
+});
 
-    expect(time).toEqual(12);
-    expect(amount).toBeCloseTo(-state.waitOneYear().waitOneMonth().getTax().getNetUnpaidTaxOverLastTwelveMonths(11), 10);
-    expect(description).toEqual("Tax correction");
+test('cant borrow much more than your salary', () => {
+    const house = new House({
+        tax: tax,
+        downPayment: 50_000,
+        loan: 1_400_000,
+        interestRate: 0.03,
+        appreciation: 0.03,
+        monthlyRentalIncome: 5_000,
+        yearlyRentalIncomeIncrease: 0.03,
+        buildingDepreciationRate: 0.025,
+        purchaseTime: 0
+    });
+
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: [house],
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    expect(state.isValidLoans())
+        .toBeFalsy();
+
+    expect(state.isValid())
+        .toBeFalsy();
+});
+
+test('cant have negative bank balance', () => {
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: new Array(),
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    expect(state.buyHouse(house).getBank().getBalance(0) < 0)
+        .toBeTruthy();
+
+    expect(state.buyHouse(house).isValid())
+        .toBeFalsy();
 });
