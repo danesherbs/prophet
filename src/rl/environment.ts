@@ -95,7 +95,7 @@ class Environment {
                 console.error('Action', action, 'not understood. Ignoring action.');
         }
 
-        if ((newState.getBank().getBalance(this.state.getClock().getTime()) >= 0) && newState.isValidLoans()) {
+        if (newState.isValid()) {
             this.state = newState;
         }
 

@@ -56,7 +56,7 @@ const houses = [
     new House({
         tax: tax,
         downPayment: 50_000,
-        loan: 55_0000,
+        loan: 550_0000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
@@ -67,7 +67,7 @@ const houses = [
     new House({
         tax: tax,
         downPayment: 50_000,
-        loan: 55_0000,
+        loan: 550_0000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,

@@ -91,6 +91,11 @@ class State {
         return this.houses;
     }
 
+    getExpenses() {
+        /* istanbul ignore next */
+        return this.expenses;
+    }
+
     receiveMonthlySalaryPayment(salary: Salary) {
         if (salary.getYearlyGrossSalary(this.clock.getTime()) < 1e-3) {
             return this;
@@ -207,7 +212,7 @@ class State {
         return this.clock.getTime() % 12 === 0;
     }
 
-    private registerTick() {
+    registerTick() {
         if (
             this.isStartOfFinancialYear() &&
             this.tax.getNetUnpaidTaxOverLastTwelveMonths(this.clock.getTime() - 1) > 1e-3
@@ -279,7 +284,7 @@ class State {
             superan: this.superan,
             salary: this.salary,
             houses: this.houses
-                .splice(
+                .slice(
                     this.houses.findIndex(
                         h => JSON.stringify(h) === JSON.stringify(house)
                     ), 1),
@@ -325,8 +330,8 @@ class State {
             salary: this.salary,
             houses: this.houses,
             stocks: this.stocks
-                .splice(
-                    this.houses.findIndex(
+                .slice(
+                    this.stocks.findIndex(
                         s => JSON.stringify(s) === JSON.stringify(stock)
                     ), 1),
             expenses: this.expenses
