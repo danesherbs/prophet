@@ -40,16 +40,6 @@ class Tax {
         return this.superTaxRate * monthlyGrossSuperContribution;
     }
 
-    getTaxRecords() {
-        /* istanbul ignore next */
-        return this.declared;
-    }
-
-    getTaxPaid() {
-        /* istanbul ignore next */
-        return this.paid;
-    }
-
     getDeclaredIncomeOverLastTwelveMonths(time: number) {
         /*
         Gets declared income in last 12 months, upto and including the current month.
