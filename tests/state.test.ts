@@ -390,7 +390,59 @@ test('correct state change when selling a house', () => {
     expect(state.sellHouse(house).getTax())
         .toEqual(state.getTax().declareIncome(0, 0));
 
-    // TODO: sell after one month
+    // Changed after one month
+    expect(state.waitOneMonth().getHouses())
+        .toEqual([house, house]);
+
+    expect(state.waitOneMonth().sellHouse(house).getHouses())
+        .toEqual([house]);
+
+    expect(state.waitOneMonth().sellHouse(house).getBank().getBalance(1))
+        .toBeCloseTo(
+            state.waitOneMonth().getBank().getBalance(1)
+            + house.getEquity(1), 10);
+
+    // expect(state.waitOneMonth().sellHouse(house).getTax())
+    //     .toEqual(
+    //         state.getTax()
+    //             .declareIncome(0, salary.getMonthlyGrossSalary(0))
+    //             .declareIncome(0, house.getMonthlyGrossRentalIncome(0))
+    //             .payTax(0, tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(0)), TaxType.Income)
+    //             .payTax(0, tax.getMonthlySuperTax(
+    //                 superan.getMonthlyGrossSuperContribution(
+    //                     salary.getYearlyGrossSalary(0)
+    //                 )
+    //             ), TaxType.Income)
+    //     );
+
+    expect(state.waitOneMonth().sellHouse(house).getTax())
+        .toEqual(state.waitOneMonth().getTax().declareIncome(1, (house.getEquity(1) - house.getDownPayment())));
+});
+
+test('correct bank change after one month with salary and a house', () => {
+    const state = new State({
+        clock: clock,
+        tax: tax,
+        bank: bank,
+        superan: superan,
+        salary: salary,
+        houses: [house],
+        stocks: new Array(),
+        expenses: new Array(),
+    });
+
+    expect(state.getBank().getBalance(0))
+        .toEqual(0);
+
+    expect(state.waitOneMonth().sellHouse(house).getBank().getBalance(1))
+        .toBeCloseTo(
+            (
+                state.getBank().getBalance(0)
+                + salary.getMonthlyNetSalary(0)
+                + house.getMonthlyGrossRentalIncome(0)
+                - house.getMonthlyInterestPayment()
+            ) * (1 + bank.getMonthlyInterestRate())
+            + house.getEquity(1), 10);
 });
 
 test('correct state change when paying an expense', () => {
@@ -508,7 +560,12 @@ test('unpaid tax is paid at beginning of financial year', () => {
         .reduce((acc, [, , info]) => acc || info === "Tax correction", false))
         .toBeTruthy();  // tax correction is in bank transaction history
 
-    const [time, amount,] = state.waitOneYear().waitOneMonth().getBank().getTransactions().find(([, , info]) => info === "Tax correction") as [number, number, string];
+    const [time, amount,] = state
+        .waitOneYear()
+        .waitOneMonth()
+        .getBank()
+        .getTransactions()
+        .find(([, , info]) => info === "Tax correction") as [number, number, string];
 
     expect(time)
         .toEqual(12);  // tax paid at start of financial year
