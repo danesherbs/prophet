@@ -71,3 +71,14 @@ test('can compare houses as JSON objects', () => {
     expect(JSON.stringify(house) === JSON.stringify(house))
         .toBeTruthy;
 });
+
+test('correct capital gain', () => {
+    expect(house.getCapitalGain(0))
+        .toBeCloseTo(0, 10);
+
+    expect(house.getCapitalGain(12))
+        .toBeCloseTo(600_000 * Math.pow(1 + house.getMonthlyInterestRate(), 12) - 600_000, 10);
+
+    expect(house.getCapitalGain(56))
+        .toBeCloseTo(600_000 * Math.pow(1 + house.getMonthlyInterestRate(), 56) - 600_000, 10);
+});

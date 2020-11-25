@@ -403,7 +403,7 @@ test('correct state change when selling a house', () => {
             + house.getEquity(1), 10);
 
     expect(state.waitOneMonth().sellHouse(house).getTax())
-        .toEqual(state.waitOneMonth().getTax().declareIncome(1, (house.getEquity(1) - house.getDownPayment())));
+        .toEqual(state.waitOneMonth().getTax().declareIncome(1, house.getCapitalGain(1)));
 });
 
 test('correct bank change after one month with salary and a house', () => {

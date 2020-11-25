@@ -54,6 +54,10 @@ class House {
         return this.getHouseValue(time) - this.loan;
     }
 
+    getCapitalGain(time: number) {
+        return this.getEquity(time) - this.getDownPayment();
+    }
+
     getDownPayment() {
         /* istanbul ignore next */
         return this.downPayment;
