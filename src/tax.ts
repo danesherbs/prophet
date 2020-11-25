@@ -26,14 +26,14 @@ class Tax {
         this.paid = paid;
     }
 
-    getYearlyIncomeTax(income: number) {
+    getYearlyIncomeTax(yearlyGrossSalary: number) {
         return this.incomeTaxBrackets.reduce((acc, [[lo, hi], rate]) => {
-            return acc + Math.min(Math.max(0, income - lo), hi - lo) * rate;
+            return acc + Math.min(Math.max(0, yearlyGrossSalary - lo), hi - lo) * rate;
         }, 0)
     }
 
-    getMonthlyIncomeTax(income: number) {
-        return this.getYearlyIncomeTax(income) / 12;
+    getMonthlyIncomeTax(yearlyGrossSalary: number) {
+        return this.getYearlyIncomeTax(yearlyGrossSalary) / 12;
     }
 
     getMonthlySuperTax(monthlyGrossSuperContribution: number) {

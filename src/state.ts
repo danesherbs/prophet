@@ -109,10 +109,18 @@ class State {
                     salary.getMonthlyGrossSalary(this.clock.getTime()))
                 .payTax(
                     this.clock.getTime(),
-                    this.tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(this.clock.getTime())),
+                    this.tax.getMonthlyIncomeTax(
+                        salary.getYearlyGrossSalary(
+                            this.clock.getTime()
+                        )
+                    ),
                     TaxType.Income)
                 .payTax(this.clock.getTime(),
-                    this.tax.getMonthlySuperTax(salary.getYearlyGrossSalary(this.clock.getTime())),
+                    this.tax.getMonthlySuperTax(
+                        this.superan.getMonthlyGrossSuperContribution(
+                            salary.getYearlyGrossSalary(this.clock.getTime())
+                        )
+                    ),
                     TaxType.Super
                 ),
             bank: this.bank
@@ -124,7 +132,9 @@ class State {
             superan: this.superan
                 .deposit(
                     this.clock.getTime(),
-                    this.superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary(this.clock.getTime()))
+                    this.superan.getMonthlyNetSuperContribution(
+                        salary.getYearlyGrossSalary(this.clock.getTime())
+                    )
                 ),
             salary: this.salary,
             houses: this.houses,

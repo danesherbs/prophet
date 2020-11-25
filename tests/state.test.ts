@@ -119,7 +119,11 @@ test('correct salary transition', () => {
     expect(state.receiveMonthlySalaryPayment(salary).getSuper().getBalance(0))
         .toBeCloseTo(superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary(0)), 10);
 
-    // expect(state.registerSalary(salary).getTax().getTaxRecords()).toEqual(new Array([0, 100, TaxType.Income], [0, 100, TaxType.Super]));
+    expect(state.receiveMonthlySalaryPayment(salary).getTax())
+        .toEqual(state.getTax()
+            .declareIncome(0, salary.getMonthlyGrossSalary(0))
+            .payTax(0, tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(0)), TaxType.Income)
+            .payTax(0, tax.superTaxRate * superan.getMonthlyGrossSuperContribution(salary.getYearlyGrossSalary(0)), TaxType.Super));
 });
 
 test('correct net wealth after a month with salary only', () => {
@@ -286,12 +290,30 @@ test('correct state change when selling stock', () => {
         .toEqual([stock]);
 
     expect(state.sellStock(stock).getBank().getBalance(0))
-        .toEqual(state.getBank().getBalance(0) + 5_000);
+        .toEqual(5_000);
 
     expect(state.sellStock(stock).getTax())
         .toEqual(state.getTax().declareIncome(0, 0));
 
-    // TODO: sell after one month
+    // Changed after one month
+    expect(state.waitOneMonth().getStocks())
+        .toEqual([stock, stock]);
+
+    expect(state.waitOneMonth().sellStock(stock).getStocks())
+        .toEqual([stock]);
+
+    expect(state.waitOneMonth().sellStock(stock).getBank().getBalance(1))
+        .toBeCloseTo(
+            salary.getMonthlyNetSalary(0) * (1 + bank.getMonthlyInterestRate())
+            + stock.getPrice(1) * stock.getNumberOfUnits(), 10);
+
+    expect(state.waitOneMonth().sellStock(stock).getTax())
+        .toEqual(
+            state.getTax()
+                .declareIncome(0, salary.getMonthlyGrossSalary(0))
+                .payTax(0, tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(0)), TaxType.Income)
+                .payTax(0, salary.getYearlyGrossSalary(0) * superan.contributionRate * tax.superTaxRate / 12, TaxType.Super)
+                .declareIncome(1, (stock.getPrice(1) - stock.getInitialPrice()) * stock.getNumberOfUnits()));
 });
 
 test('correct state change when buying a house', () => {
