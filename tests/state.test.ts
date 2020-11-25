@@ -402,19 +402,6 @@ test('correct state change when selling a house', () => {
             state.waitOneMonth().getBank().getBalance(1)
             + house.getEquity(1), 10);
 
-    // expect(state.waitOneMonth().sellHouse(house).getTax())
-    //     .toEqual(
-    //         state.getTax()
-    //             .declareIncome(0, salary.getMonthlyGrossSalary(0))
-    //             .declareIncome(0, house.getMonthlyGrossRentalIncome(0))
-    //             .payTax(0, tax.getMonthlyIncomeTax(salary.getYearlyGrossSalary(0)), TaxType.Income)
-    //             .payTax(0, tax.getMonthlySuperTax(
-    //                 superan.getMonthlyGrossSuperContribution(
-    //                     salary.getYearlyGrossSalary(0)
-    //                 )
-    //             ), TaxType.Income)
-    //     );
-
     expect(state.waitOneMonth().sellHouse(house).getTax())
         .toEqual(state.waitOneMonth().getTax().declareIncome(1, (house.getEquity(1) - house.getDownPayment())));
 });
