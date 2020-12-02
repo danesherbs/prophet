@@ -1,4 +1,4 @@
-import { Clock } from "../src/clock";
+import Clock from "../src/clock";
 
 
 const clock = new Clock(0);

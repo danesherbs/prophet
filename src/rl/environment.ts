@@ -70,8 +70,8 @@ class Environment {
                 newState = this.state.buyHouse(
                     new House({
                         tax: this.state.getTax(),
-                        downPayment: 50_000,
                         loan: 550_000,
+                        houseValue: 600_000,
                         interestRate: 0.03,
                         appreciation: 0.03,
                         monthlyRentalIncome: 2500,

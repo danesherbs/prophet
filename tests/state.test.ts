@@ -1,12 +1,12 @@
-import { Clock } from "../src/clock";
-import { Tax, TaxType } from "../src/tax";
-import { Bank } from "../src/bank";
-import { Salary } from "../src/salary";
-import { House } from "../src/house";
-import { Stock } from "../src/stock";
-import { Super } from "../src/super";
-import { State } from "../src/state";
-import { Expense } from "../src/expense";
+import Clock from "../src/clock";
+import Tax, { TaxType } from "../src/tax";
+import Bank from "../src/bank";
+import Salary from "../src/salary";
+import House from "../src/house";
+import Stock from "../src/stock";
+import Super from "../src/super";
+import State from "../src/state";
+import Expense from "../src/expense";
 import * as _ from 'lodash';
 
 
@@ -50,8 +50,8 @@ const expense = new Expense({
 
 const house = new House({
     tax: tax,
-    downPayment: 50_000,
     loan: 550_000,
+    houseValue: 600_000,
     interestRate: 0.03,
     appreciation: 0.03,
     monthlyRentalIncome: 2_500,
@@ -519,8 +519,8 @@ test('correct state change after one month when owning single house', () => {
 test('unpaid tax is paid at beginning of financial year', () => {
     const house = new House({
         tax: tax,
-        downPayment: 50_000,
         loan: 550_000,
+        houseValue: 600_000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 5_000,
@@ -564,8 +564,8 @@ test('unpaid tax is paid at beginning of financial year', () => {
 test('can borrow a small multiple of your salary', () => {
     const house = new House({
         tax: tax,
-        downPayment: 50_000,
         loan: 800_000,
+        houseValue: 600_000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 5_000,
@@ -595,8 +595,8 @@ test('can borrow a small multiple of your salary', () => {
 test('cant borrow much more than your salary', () => {
     const house = new House({
         tax: tax,
-        downPayment: 50_000,
         loan: 1_400_000,
+        houseValue: 1_450_000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 5_000,

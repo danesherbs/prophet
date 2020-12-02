@@ -1,12 +1,12 @@
-import { Clock } from "../clock";
-import { Tax } from "../tax";
-import { Bank } from "../bank";
-import { Salary } from "../salary";
-import { House } from "../house";
-import { Stock } from "../stock";
-import { Super } from "../super";
-import { State } from "../state";
-import { Expense } from "../expense";
+import Clock from "../clock";
+import Tax from "../tax";
+import Bank from "../bank";
+import Salary from "../salary";
+import House from "../house";
+import Stock from "../stock";
+import Super from "../super";
+import State from "../state";
+import Expense from "../expense";
 
 
 const clock = new Clock(0);
@@ -55,8 +55,8 @@ const expenses = new Array(
 const houses = [
     new House({
         tax: tax,
-        downPayment: 50_000,
         loan: 550_0000,
+        houseValue: 600_000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
@@ -66,8 +66,8 @@ const houses = [
     }),
     new House({
         tax: tax,
-        downPayment: 50_000,
         loan: 550_0000,
+        houseValue: 600_000,
         interestRate: 0.03,
         appreciation: 0.03,
         monthlyRentalIncome: 2_500,
@@ -88,7 +88,7 @@ let state = new State({
     expenses: expenses,
 });
 
-for (let i = 0; i < 12 * 10; i++) {
+for (let i = 0; i < 12 * 1; i++) {
     state = state.waitOneMonth();
 
     console.log('Time:', state.getClock().getTime());

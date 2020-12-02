@@ -1,12 +1,12 @@
-import { Clock } from "../src/clock";
-import { Tax } from "../src/tax";
-import { Bank } from "../src/bank";
-import { Salary } from "../src/salary";
-import { House } from "../src/house";
-import { Stock } from "../src/stock";
-import { Super } from "../src/super";
-import { State } from "../src/state";
-import { Expense } from "../src/expense";
+import Clock from "../src/clock";
+import Tax from "../src/tax";
+import Bank from "../src/bank";
+import Salary from "../src/salary";
+import House from "../src/house";
+import Stock from "../src/stock";
+import Super from "../src/super";
+import State from "../src/state";
+import Expense from "../src/expense";
 
 
 const clock = new Clock(0);

@@ -1,7 +1,14 @@
-import { Tax } from "./tax";
+import Tax from "./tax";
 
 
 type Transaction = [number, number];
+
+interface Props {
+    tax: Tax,
+    transactions: Array<Transaction>,
+    interestRate: number,
+    contributionRate: number,
+}
 
 class Super {
 
@@ -10,7 +17,7 @@ class Super {
     interestRate: number;
     contributionRate: number;
 
-    constructor({ tax, transactions, interestRate, contributionRate }: { tax: Tax; transactions: Array<Transaction>; interestRate: number; contributionRate: number; }) {
+    constructor({ tax, transactions, interestRate, contributionRate }: Props) {
         this.tax = tax;
         this.transactions = transactions;
         this.interestRate = interestRate;
@@ -51,4 +58,5 @@ class Super {
 
 }
 
-export { Super };
+
+export default Super;

@@ -22,4 +22,5 @@ class Expense {
 
 }
 
-export { Expense };
+
+export default Expense;

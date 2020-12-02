@@ -1,4 +1,4 @@
-import { Stock } from "../src/stock";
+import Stock from "../src/stock";
 
 
 const stock = new Stock({

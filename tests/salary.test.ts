@@ -1,5 +1,5 @@
-import { Tax } from "../src/tax";
-import { Salary } from "../src/salary";
+import Tax from "../src/tax";
+import Salary from "../src/salary";
 
 
 test('correct yearly salary increases', () => {

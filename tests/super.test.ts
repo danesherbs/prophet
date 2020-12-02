@@ -1,5 +1,5 @@
-import { Tax } from "../src/tax";
-import { Super } from "../src/super";
+import Tax from "../src/tax";
+import Super from "../src/super";
 
 
 const tax = new Tax({

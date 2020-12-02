@@ -117,4 +117,5 @@ class Tax {
 
 }
 
-export { Tax, TaxType };
+export default Tax;
+export { TaxType };

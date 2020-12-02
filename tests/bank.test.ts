@@ -1,4 +1,4 @@
-import { Bank } from "../src/bank";
+import Bank from "../src/bank";
 
 
 const bank = new Bank({

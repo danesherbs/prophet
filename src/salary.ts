@@ -1,32 +1,29 @@
-import { Tax } from "./tax";
+import Tax from "./tax";
 
+
+interface Props {
+    yearlyGrossSalary: number,
+    yearlySalaryIncrease: number,
+    tax: Tax,
+    creationTime: number,
+}
 
 class Salary {
 
     yearlyGrossSalary: number;
-    yearSalaryIncrease: number;
+    yearlySalaryIncrease: number;
     tax: Tax;
     creationTime: number;
 
-    constructor({
-        yearlyGrossSalary,
-        yearlySalaryIncrease,
-        tax,
-        creationTime
-    }: {
-        yearlyGrossSalary: number;
-        yearlySalaryIncrease: number;
-        tax: Tax;
-        creationTime: number;
-    }) {
+    constructor({ yearlyGrossSalary, yearlySalaryIncrease, tax, creationTime }: Props) {
         this.yearlyGrossSalary = yearlyGrossSalary;
-        this.yearSalaryIncrease = yearlySalaryIncrease;
+        this.yearlySalaryIncrease = yearlySalaryIncrease;
         this.tax = tax;
         this.creationTime = creationTime;
     }
 
     getYearlyGrossSalary(time: number) {
-        return this.yearlyGrossSalary * Math.pow(1 + this.yearSalaryIncrease, Math.floor((time - this.creationTime) / 12));
+        return this.yearlyGrossSalary * Math.pow(1 + this.yearlySalaryIncrease, Math.floor((time - this.creationTime) / 12));
     }
 
     getYearlyNetSalary(time: number) {
@@ -47,4 +44,6 @@ class Salary {
 
 }
 
-export { Salary };
+
+export default Salary;
+export type { Props };

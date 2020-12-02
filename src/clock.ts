@@ -15,4 +15,4 @@ class Clock {
     }
 }
 
-export { Clock };
+export default Clock;

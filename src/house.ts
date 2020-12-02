@@ -1,10 +1,10 @@
-import { Tax } from "./tax";
+import Tax from "./tax";
 
 
 class House {
 
     tax: Tax;
-    downPayment: number;
+    houseValue: number;
     loan: number;
     interestRate: number;
     appreciation: number;
@@ -14,9 +14,9 @@ class House {
     purchaseTime: number;
 
     constructor(
-        { tax, downPayment, loan, interestRate, appreciation, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciationRate, purchaseTime }: { tax: Tax; downPayment: number; loan: number; interestRate: number; appreciation: number; monthlyRentalIncome: number; yearlyRentalIncomeIncrease: number; buildingDepreciationRate: number; purchaseTime: number; }) {
+        { tax, houseValue, loan, interestRate, appreciation, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciationRate, purchaseTime }: { tax: Tax; houseValue: number; loan: number; interestRate: number; appreciation: number; monthlyRentalIncome: number; yearlyRentalIncomeIncrease: number; buildingDepreciationRate: number; purchaseTime: number; }) {
         this.tax = tax;
-        this.downPayment = downPayment;
+        this.houseValue = houseValue;
         this.loan = loan;
         this.interestRate = interestRate;
         this.appreciation = appreciation;
@@ -39,7 +39,7 @@ class House {
     }
 
     getHouseValue(time: number) {
-        return (this.downPayment + this.loan) * Math.pow(1 + this.getMonthlyInterestRate(), time - this.purchaseTime);
+        return this.houseValue * Math.pow(1 + this.getMonthlyInterestRate(), time - this.purchaseTime);
     }
 
     getMonthlyDepreciationRate() {
@@ -55,12 +55,7 @@ class House {
     }
 
     getCapitalGain(time: number) {
-        return this.getEquity(time) - this.getDownPayment();
-    }
-
-    getDownPayment() {
-        /* istanbul ignore next */
-        return this.downPayment;
+        return this.getEquity(time) - this.getEquity(0);
     }
 
     getLoan() {
@@ -70,4 +65,5 @@ class House {
 
 }
 
-export { House };
+
+export default House;

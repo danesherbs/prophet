@@ -105,3 +105,5 @@ dist
 
 # Ignore JS build
 build/
+
+src/scenarios/dad.ts

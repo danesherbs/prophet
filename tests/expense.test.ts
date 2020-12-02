@@ -1,4 +1,4 @@
-import { Expense } from "../src/expense";
+import Expense from "../src/expense";
 
 
 const expense = new Expense({

@@ -1,5 +1,5 @@
-import { House } from "../src/house";
-import { Tax } from "../src/tax";
+import House from "../src/house";
+import Tax from "../src/tax";
 
 
 const tax = new Tax({
@@ -11,8 +11,8 @@ const tax = new Tax({
 
 const house = new House({
     tax: tax,
-    downPayment: 50_000,
     loan: 550_000,
+    houseValue: 600_000,
     interestRate: 0.03,
     appreciation: 0.03,
     monthlyRentalIncome: 2_500,

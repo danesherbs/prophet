@@ -1,4 +1,4 @@
-import { Tax, TaxType } from "../src/tax";
+import Tax, { TaxType } from "../src/tax";
 
 
 test('correct yearly income tax with single bracket', () => {

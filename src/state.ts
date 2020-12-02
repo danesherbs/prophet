@@ -1,12 +1,23 @@
-import { Tax, TaxType } from "./tax";
-import { Clock } from "./clock";
-import { Salary } from "./salary";
-import { Bank } from "./bank";
-import { Stock } from "./stock";
-import { House } from "./house";
-import { Super } from "./super";
-import { Expense } from "./expense";
+import Tax, { TaxType } from "./tax";
+import Clock from "./clock";
+import Salary from "./salary";
+import Bank from "./bank";
+import Stock from "./stock";
+import House from "./house";
+import Super from "./super";
+import Expense from "./expense";
 
+
+interface Props {
+    clock: Clock,
+    tax: Tax,
+    bank: Bank,
+    superan: Super,
+    salary: Salary,
+    houses: Array<House>,
+    stocks: Array<Stock>,
+    expenses: Array<Expense>,
+}
 
 class State {
 
@@ -19,26 +30,7 @@ class State {
     stocks: Array<Stock>;
     expenses: Array<Expense>;
 
-    constructor(
-        {
-            clock,
-            tax,
-            bank,
-            superan,
-            salary,
-            houses,
-            stocks,
-            expenses
-        }: {
-            clock: Clock;
-            tax: Tax;
-            bank: Bank;
-            superan: Super;
-            salary: Salary;
-            houses: Array<House>;
-            stocks: Array<Stock>;
-            expenses: Array<Expense>;
-        }) {
+    constructor({ clock, tax, bank, superan, salary, houses, stocks, expenses }: Props) {
         this.clock = clock;
         this.tax = tax;
         this.bank = bank;
@@ -265,7 +257,7 @@ class State {
             bank: this.bank
                 .withdraw(
                     this.clock.getTime(),
-                    house.getDownPayment(),
+                    house.getHouseValue(0) - house.getLoan(),
                     "Downpayment for house"
                 ),
             superan: this.superan,
@@ -283,7 +275,7 @@ class State {
             tax: this.tax
                 .declareIncome(
                     this.clock.getTime(),
-                    house.getEquity(this.clock.getTime()) - house.getDownPayment()
+                    house.getCapitalGain(this.clock.getTime())
                 ),
             bank: this.bank
                 .deposit(
@@ -391,4 +383,6 @@ class State {
 
 }
 
-export { State };
+
+export default State;
+export type { Props };

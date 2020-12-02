@@ -80,4 +80,5 @@ class Stock {
     }
 }
 
-export { Stock };
+
+export default Stock;

@@ -68,4 +68,5 @@ class Bank {
 
 }
 
-export { Bank };
+
+export default Bank;
