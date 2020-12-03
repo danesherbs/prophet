@@ -1,25 +1,30 @@
-import Tax from "./tax";
-
+interface Props {
+    houseValue: number,
+    loan: number,
+    interestRate: number,
+    yearlyAppreciationRate: number,
+    monthlyRentalIncome: number,
+    yearlyRentalIncomeIncrease: number,
+    buildingDepreciationRate: number,
+    purchaseTime: number,
+}
 
 class House {
 
-    tax: Tax;
     houseValue: number;
     loan: number;
     interestRate: number;
-    appreciation: number;
+    yearlyAppreciationRate: number;
     monthlyRentalIncome: number;
     yearlyRentalIncomeIncrease: number;
     buildingDepreciationRate: number;
     purchaseTime: number;
 
-    constructor(
-        { tax, houseValue, loan, interestRate, appreciation, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciationRate, purchaseTime }: { tax: Tax; houseValue: number; loan: number; interestRate: number; appreciation: number; monthlyRentalIncome: number; yearlyRentalIncomeIncrease: number; buildingDepreciationRate: number; purchaseTime: number; }) {
-        this.tax = tax;
+    constructor({ houseValue, loan, interestRate, yearlyAppreciationRate, monthlyRentalIncome, yearlyRentalIncomeIncrease, buildingDepreciationRate, purchaseTime }: Props) {
         this.houseValue = houseValue;
         this.loan = loan;
         this.interestRate = interestRate;
-        this.appreciation = appreciation;
+        this.yearlyAppreciationRate = yearlyAppreciationRate;
         this.monthlyRentalIncome = monthlyRentalIncome;
         this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
         this.buildingDepreciationRate = buildingDepreciationRate;
@@ -39,7 +44,7 @@ class House {
     }
 
     getHouseValue(time: number) {
-        return this.houseValue * Math.pow(1 + this.getMonthlyInterestRate(), time - this.purchaseTime);
+        return this.houseValue * Math.pow(1 + this.getMonthlyAppreciationRate(), time - this.purchaseTime);
     }
 
     getMonthlyDepreciationRate() {
@@ -63,7 +68,17 @@ class House {
         return this.loan;
     }
 
+    getYearlyAppreciationRate() {
+        /* istanbul ignore next */
+        return this.yearlyAppreciationRate;
+    }
+
+    getMonthlyAppreciationRate() {
+        return Math.pow(1 + this.yearlyAppreciationRate, 1 / 12) - 1;
+    }
+
 }
 
 
 export default House;
+export { Props };

@@ -7,7 +7,6 @@ import Stock from "../src/stock";
 import Super from "../src/super";
 import State from "../src/state";
 import Expense from "../src/expense";
-import * as _ from 'lodash';
 
 
 const clock = new Clock(0);
@@ -49,11 +48,10 @@ const expense = new Expense({
 })
 
 const house = new House({
-    tax: tax,
     loan: 550_000,
     houseValue: 600_000,
     interestRate: 0.03,
-    appreciation: 0.03,
+    yearlyAppreciationRate: 0.03,
     monthlyRentalIncome: 2_500,
     yearlyRentalIncomeIncrease: 0.03,
     buildingDepreciationRate: 0.025,
@@ -518,11 +516,10 @@ test('correct state change after one month when owning single house', () => {
 
 test('unpaid tax is paid at beginning of financial year', () => {
     const house = new House({
-        tax: tax,
         loan: 550_000,
         houseValue: 600_000,
         interestRate: 0.03,
-        appreciation: 0.03,
+        yearlyAppreciationRate: 0.03,
         monthlyRentalIncome: 5_000,
         yearlyRentalIncomeIncrease: 0.03,
         buildingDepreciationRate: 0.025,
@@ -563,11 +560,10 @@ test('unpaid tax is paid at beginning of financial year', () => {
 
 test('can borrow a small multiple of your salary', () => {
     const house = new House({
-        tax: tax,
         loan: 800_000,
         houseValue: 600_000,
         interestRate: 0.03,
-        appreciation: 0.03,
+        yearlyAppreciationRate: 0.03,
         monthlyRentalIncome: 5_000,
         yearlyRentalIncomeIncrease: 0.03,
         buildingDepreciationRate: 0.025,
@@ -594,11 +590,10 @@ test('can borrow a small multiple of your salary', () => {
 
 test('cant borrow much more than your salary', () => {
     const house = new House({
-        tax: tax,
         loan: 1_400_000,
         houseValue: 1_450_000,
         interestRate: 0.03,
-        appreciation: 0.03,
+        yearlyAppreciationRate: 0.03,
         monthlyRentalIncome: 5_000,
         yearlyRentalIncomeIncrease: 0.03,
         buildingDepreciationRate: 0.025,

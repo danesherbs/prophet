@@ -1,6 +1,6 @@
-import { State } from "../state";
-import { Stock } from "../stock";
-import { House } from "../house";
+import State from "../state";
+import Stock from "../stock";
+import House from "../house";
 
 
 enum Action {
@@ -69,11 +69,10 @@ class Environment {
             case Action.BuyHouse:
                 newState = this.state.buyHouse(
                     new House({
-                        tax: this.state.getTax(),
                         loan: 550_000,
                         houseValue: 600_000,
                         interestRate: 0.03,
-                        appreciation: 0.03,
+                        yearlyAppreciationRate: 0.03,
                         monthlyRentalIncome: 2500,
                         yearlyRentalIncomeIncrease: 0.03,
                         buildingDepreciationRate: 0.02,

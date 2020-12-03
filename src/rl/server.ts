@@ -1,10 +1,10 @@
 import { Environment, Action } from "./environment";
-import { State } from "../state";
-import { Clock } from "../clock";
-import { Tax } from "../tax";
-import { Bank } from "../bank";
-import { Super } from "../super";
-import { Salary } from "../salary";
+import State from "../state";
+import Clock from "../clock";
+import Tax from "../tax";
+import Bank from "../bank";
+import Super from "../super";
+import Salary from "../salary";
 import * as zmq from 'zeromq';
 
 
