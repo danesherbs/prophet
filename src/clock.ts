@@ -1,18 +1,17 @@
 class Clock {
+  time: number;
 
-    time: number;
+  constructor(time: number) {
+    this.time = time;
+  }
 
-    constructor(time: number) {
-        this.time = time;
-    }
+  tick() {
+    return new Clock(this.time + 1);
+  }
 
-    tick() {
-        return new Clock(this.time + 1);
-    }
-
-    getTime() {
-        return this.time;
-    }
+  getTime() {
+    return this.time;
+  }
 }
 
 export default Clock;
