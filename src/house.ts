@@ -1,9 +1,9 @@
 interface Props {
   houseValue: number;
   loan: number;
-  interestRate: number;
+  yearlyInterestRate: number;
   yearlyAppreciationRate: number;
-  monthlyRentalIncome: number;
+  monthlyGrossRentalIncome: number;
   yearlyRentalIncomeIncrease: number;
   buildingDepreciationRate: number;
   purchaseTime: number;
@@ -12,9 +12,9 @@ interface Props {
 class House {
   houseValue: number;
   loan: number;
-  interestRate: number;
+  yearlyInterestRate: number;
   yearlyAppreciationRate: number;
-  monthlyRentalIncome: number;
+  monthlyGrossRentalIncome: number;
   yearlyRentalIncomeIncrease: number;
   buildingDepreciationRate: number;
   purchaseTime: number;
@@ -22,34 +22,64 @@ class House {
   constructor({
     houseValue,
     loan,
-    interestRate,
+    yearlyInterestRate,
     yearlyAppreciationRate,
-    monthlyRentalIncome,
+    monthlyGrossRentalIncome,
     yearlyRentalIncomeIncrease,
     buildingDepreciationRate,
     purchaseTime,
   }: Props) {
     this.houseValue = houseValue;
     this.loan = loan;
-    this.interestRate = interestRate;
+    this.yearlyInterestRate = yearlyInterestRate;
     this.yearlyAppreciationRate = yearlyAppreciationRate;
-    this.monthlyRentalIncome = monthlyRentalIncome;
+    this.monthlyGrossRentalIncome = monthlyGrossRentalIncome;
     this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
     this.buildingDepreciationRate = buildingDepreciationRate;
     this.purchaseTime = purchaseTime;
   }
 
+  getYearlyInterestRate() {
+    /* istanbul ignore next */
+    return this.yearlyInterestRate;
+  }
+
+  getYearlyRentalIncomeIncrease() {
+    /* istanbul ignore next */
+    return this.yearlyRentalIncomeIncrease;
+  }
+
+  getLoan() {
+    /* istanbul ignore next */
+    return this.loan;
+  }
+
+  getYearlyAppreciationRate() {
+    /* istanbul ignore next */
+    return this.yearlyAppreciationRate;
+  }
+
+  getBuildingDepreciationRate() {
+    /* istanbul ignore next */
+    return this.buildingDepreciationRate;
+  }
+
+  getPurchaseTime() {
+    /* istanbul ignore next */
+    return this.purchaseTime;
+  }
+
   getMonthlyInterestRate() {
-    return Math.pow(1 + this.interestRate, 1 / 12) - 1;
+    return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
   }
 
   getMonthlyInterestPayment() {
-    return (this.loan * this.interestRate) / 12;
+    return (this.loan * this.yearlyInterestRate) / 12;
   }
 
   getMonthlyGrossRentalIncome(time: number) {
     return (
-      this.monthlyRentalIncome *
+      this.monthlyGrossRentalIncome *
       Math.pow(
         1 + this.yearlyRentalIncomeIncrease,
         Math.floor((time - this.purchaseTime) / 12)
@@ -78,16 +108,6 @@ class House {
 
   getCapitalGain(time: number) {
     return this.getEquity(time) - this.getEquity(0);
-  }
-
-  getLoan() {
-    /* istanbul ignore next */
-    return this.loan;
-  }
-
-  getYearlyAppreciationRate() {
-    /* istanbul ignore next */
-    return this.yearlyAppreciationRate;
   }
 
   getMonthlyAppreciationRate() {

@@ -79,9 +79,9 @@ class Environment {
           new House({
             loan: 550_000,
             houseValue: 600_000,
-            interestRate: 0.03,
+            yearlyInterestRate: 0.03,
             yearlyAppreciationRate: 0.03,
-            monthlyRentalIncome: 2500,
+            monthlyGrossRentalIncome: 2500,
             yearlyRentalIncomeIncrease: 0.03,
             buildingDepreciationRate: 0.02,
             purchaseTime: 0,

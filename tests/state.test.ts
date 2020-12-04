@@ -46,9 +46,9 @@ const expense = new Expense({
 const house = new House({
   loan: 550_000,
   houseValue: 600_000,
-  interestRate: 0.03,
+  yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.03,
-  monthlyRentalIncome: 2_500,
+  monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
   buildingDepreciationRate: 0.025,
   purchaseTime: 0,
@@ -432,19 +432,14 @@ test("correct state change when paying an expense", () => {
 
   // Unchanged
   expect(state.payMonthlyExpense(expense).getClock()).toEqual(state.getClock());
-
   expect(state.payMonthlyExpense(expense).getStocks()).toEqual(
     state.getStocks()
   );
-
   expect(state.payMonthlyExpense(expense).getSuper()).toEqual(state.getSuper());
-
   expect(state.payMonthlyExpense(expense).getTax()).toEqual(state.getTax());
-
   expect(state.payMonthlyExpense(expense).getSalary()).toEqual(
     state.getSalary()
   );
-
   expect(state.payMonthlyExpense(expense).getHouses()).toEqual(
     state.getHouses()
   );
@@ -476,23 +471,18 @@ test("correct state change after one month when owning single house", () => {
 
   // Unchanged
   expect(state.waitOneMonth().getStocks()).toEqual(state.getStocks());
-
   expect(state.waitOneMonth().getSuper()).toEqual(state.getSuper());
-
   expect(state.waitOneMonth().getSalary()).toEqual(state.getSalary());
-
   expect(state.waitOneMonth().getHouses()).toEqual(state.getHouses());
 
   // Changed
   expect(state.waitOneMonth().getClock().getTime()).toEqual(1);
-
   expect(state.waitOneMonth().getTax()).toEqual(
     state
       .getTax()
       .declareIncome(0, 2_500)
       .declareLoss(0, house.getMonthlyDepreciationAmount(0))
   );
-
   expect(state.waitOneMonth().getBank().getBalance(1)).toEqual(
     state
       .getBank()
@@ -507,9 +497,9 @@ test("unpaid tax is paid at beginning of financial year", () => {
   const house = new House({
     loan: 550_000,
     houseValue: 600_000,
-    interestRate: 0.03,
+    yearlyInterestRate: 0.03,
     yearlyAppreciationRate: 0.03,
-    monthlyRentalIncome: 5_000,
+    monthlyGrossRentalIncome: 5_000,
     yearlyRentalIncomeIncrease: 0.03,
     buildingDepreciationRate: 0.025,
     purchaseTime: 0,
@@ -564,9 +554,9 @@ test("can borrow a small multiple of your salary", () => {
   const house = new House({
     loan: 800_000,
     houseValue: 600_000,
-    interestRate: 0.03,
+    yearlyInterestRate: 0.03,
     yearlyAppreciationRate: 0.03,
-    monthlyRentalIncome: 5_000,
+    monthlyGrossRentalIncome: 5_000,
     yearlyRentalIncomeIncrease: 0.03,
     buildingDepreciationRate: 0.025,
     purchaseTime: 0,
@@ -584,7 +574,6 @@ test("can borrow a small multiple of your salary", () => {
   });
 
   expect(state.isValidLoans()).toBeTruthy();
-
   expect(state.isValid()).toBeTruthy();
 });
 
@@ -592,9 +581,9 @@ test("cant borrow much more than your salary", () => {
   const house = new House({
     loan: 1_400_000,
     houseValue: 1_450_000,
-    interestRate: 0.03,
+    yearlyInterestRate: 0.03,
     yearlyAppreciationRate: 0.03,
-    monthlyRentalIncome: 5_000,
+    monthlyGrossRentalIncome: 5_000,
     yearlyRentalIncomeIncrease: 0.03,
     buildingDepreciationRate: 0.025,
     purchaseTime: 0,
@@ -612,7 +601,6 @@ test("cant borrow much more than your salary", () => {
   });
 
   expect(state.isValidLoans()).toBeFalsy();
-
   expect(state.isValid()).toBeFalsy();
 });
 
@@ -629,6 +617,5 @@ test("cant have negative bank balance", () => {
   });
 
   expect(state.buyHouse("a", house).getBank().getBalance(0) < 0).toBeTruthy();
-
   expect(state.buyHouse("a", house).isValid()).toBeFalsy();
 });

@@ -3,9 +3,9 @@ import House from "../src/house";
 const house = new House({
   loan: 550_000,
   houseValue: 600_000,
-  interestRate: 0.03,
+  yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.05,
-  monthlyRentalIncome: 2_500,
+  monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
   buildingDepreciationRate: 0.025,
   purchaseTime: 0,
