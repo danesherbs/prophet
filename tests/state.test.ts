@@ -68,24 +68,18 @@ test("getters are working correctly", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house, house],
-    stocks: [stock, stock],
-    expenses: [expense],
+    houses: { a: house, b: house },
+    stocks: { a: stock, b: stock },
+    expenses: { a: expense },
   });
 
   expect(state.getClock()).toEqual(clock);
-
   expect(state.getTax()).toEqual(tax);
-
   expect(state.getBank()).toEqual(bank);
-
   expect(state.getSuper()).toEqual(superan);
-
-  expect(state.getHouses()).toEqual([house, house]);
-
-  expect(state.getStocks()).toEqual([stock, stock]);
-
-  expect(state.getExpenses()).toEqual([expense]);
+  expect(state.getHouses()).toEqual({ a: house, b: house });
+  expect(state.getStocks()).toEqual({ a: stock, b: stock });
+  expect(state.getExpenses()).toEqual({ a: expense });
 });
 
 test("correct salary transition", () => {
@@ -95,9 +89,9 @@ test("correct salary transition", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: {},
+    stocks: {},
+    expenses: {},
   });
 
   expect(
@@ -138,9 +132,9 @@ test("correct net wealth after a month with salary only", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: {},
+    stocks: {},
+    expenses: {},
   });
 
   expect(state.getNetWealth()).toEqual(0);
@@ -171,9 +165,9 @@ test("correct net wealth after a month with salary and expense", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: new Array(),
-    expenses: [expense],
+    houses: {},
+    stocks: {},
+    expenses: { a: expense },
   });
 
   expect(state.getNetWealth()).toEqual(0);
@@ -206,9 +200,9 @@ test("correct net wealth after a month with salary, house, stock and expense", (
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: [stock],
-    expenses: [expense],
+    houses: { a: house },
+    stocks: { a: stock },
+    expenses: { a: expense },
   });
 
   expect(state.getNetWealth()).toEqual(
@@ -243,26 +237,24 @@ test("correct state change when buying stock", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: [stock],
-    expenses: new Array(),
+    houses: {},
+    stocks: { a: stock },
+    expenses: {},
   });
 
   // Unchanged
-  expect(state.buyStock(stock).getClock()).toEqual(state.getClock());
-
-  expect(state.buyStock(stock).getHouses()).toEqual(state.getHouses());
-
-  expect(state.buyStock(stock).getSuper()).toEqual(state.getSuper());
-
-  expect(state.buyStock(stock).getTax()).toEqual(state.getTax());
-
-  expect(state.buyStock(stock).getSalary()).toEqual(state.getSalary());
+  expect(state.buyStock("b", stock).getClock()).toEqual(state.getClock());
+  expect(state.buyStock("b", stock).getHouses()).toEqual(state.getHouses());
+  expect(state.buyStock("b", stock).getSuper()).toEqual(state.getSuper());
+  expect(state.buyStock("b", stock).getTax()).toEqual(state.getTax());
+  expect(state.buyStock("b", stock).getSalary()).toEqual(state.getSalary());
 
   // Changed
-  expect(state.buyStock(stock).getStocks()).toEqual([stock, stock]);
-
-  expect(state.buyStock(stock).getBank().getBalance(0)).toEqual(
+  expect(state.buyStock("b", stock).getStocks()).toEqual({
+    a: stock,
+    b: stock,
+  });
+  expect(state.buyStock("b", stock).getBank().getBalance(0)).toEqual(
     state.getBank().getBalance(0) - 5_000
   );
 });
@@ -274,45 +266,37 @@ test("correct state change when selling stock", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: [stock, stock],
-    expenses: new Array(),
+    houses: {},
+    stocks: { a: stock, b: stock },
+    expenses: {},
   });
 
   // Unchanged
-  expect(state.sellStock(stock).getClock()).toEqual(state.getClock());
-
-  expect(state.sellStock(stock).getHouses()).toEqual(state.getHouses());
-
-  expect(state.sellStock(stock).getSuper()).toEqual(state.getSuper());
-
-  expect(state.sellStock(stock).getSalary()).toEqual(state.getSalary());
+  expect(state.sellStock("a").getClock()).toEqual(state.getClock());
+  expect(state.sellStock("a").getHouses()).toEqual(state.getHouses());
+  expect(state.sellStock("a").getSuper()).toEqual(state.getSuper());
+  expect(state.sellStock("a").getSalary()).toEqual(state.getSalary());
 
   // Changed
-  expect(state.getStocks()).toEqual([stock, stock]);
-
-  expect(state.sellStock(stock).getStocks()).toEqual([stock]);
-
-  expect(state.sellStock(stock).getBank().getBalance(0)).toEqual(5_000);
-
-  expect(state.sellStock(stock).getTax()).toEqual(
+  expect(state.getStocks()).toEqual({ a: stock, b: stock });
+  expect(state.sellStock("a").getStocks()).toEqual({ b: stock });
+  expect(state.sellStock("a").getBank().getBalance(0)).toEqual(5_000);
+  expect(state.sellStock("a").getTax()).toEqual(
     state.getTax().declareIncome(0, 0)
   );
 
   // Changed after one month
-  expect(state.waitOneMonth().getStocks()).toEqual([stock, stock]);
-
-  expect(state.waitOneMonth().sellStock(stock).getStocks()).toEqual([stock]);
-
+  expect(state.waitOneMonth().getStocks()).toEqual({ a: stock, b: stock });
+  expect(state.waitOneMonth().sellStock("a").getStocks()).toEqual({ b: stock });
   expect(
-    state.waitOneMonth().sellStock(stock).getBank().getBalance(1)
+    state.waitOneMonth().sellStock("a").getBank().getBalance(1)
   ).toBeCloseTo(
     salary.getMonthlyNetSalary(0) * (1 + bank.getMonthlyInterestRate()) +
       stock.getPrice(1) * stock.getNumberOfUnits(),
     10
   );
 
-  expect(state.waitOneMonth().sellStock(stock).getTax()).toEqual(
+  expect(state.waitOneMonth().sellStock("a").getTax()).toEqual(
     state
       .getTax()
       .declareIncome(0, salary.getMonthlyGrossSalary(0))
@@ -343,26 +327,24 @@ test("correct state change when buying a house", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house },
+    stocks: {},
+    expenses: {},
   });
 
   // Unchanged
-  expect(state.buyHouse(house).getClock()).toEqual(state.getClock());
-
-  expect(state.buyHouse(house).getStocks()).toEqual(state.getStocks());
-
-  expect(state.buyHouse(house).getSuper()).toEqual(state.getSuper());
-
-  expect(state.buyHouse(house).getTax()).toEqual(state.getTax());
-
-  expect(state.buyHouse(house).getSalary()).toEqual(state.getSalary());
+  expect(state.buyHouse("b", house).getClock()).toEqual(state.getClock());
+  expect(state.buyHouse("b", house).getStocks()).toEqual(state.getStocks());
+  expect(state.buyHouse("b", house).getSuper()).toEqual(state.getSuper());
+  expect(state.buyHouse("b", house).getTax()).toEqual(state.getTax());
+  expect(state.buyHouse("b", house).getSalary()).toEqual(state.getSalary());
 
   // Changed
-  expect(state.buyHouse(house).getHouses()).toEqual([house, house]);
-
-  expect(state.buyHouse(house).getBank().getBalance(0)).toEqual(
+  expect(state.buyHouse("b", house).getHouses()).toEqual({
+    a: house,
+    b: house,
+  });
+  expect(state.buyHouse("b", house).getBank().getBalance(0)).toEqual(
     state.getBank().getBalance(0) - 50_000
   );
 });
@@ -374,46 +356,37 @@ test("correct state change when selling a house", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house, house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house, b: house },
+    stocks: {},
+    expenses: {},
   });
 
   // Unchanged
-  expect(state.sellHouse(house).getClock()).toEqual(state.getClock());
-
-  expect(state.sellHouse(house).getStocks()).toEqual(state.getStocks());
-
-  expect(state.sellHouse(house).getSuper()).toEqual(state.getSuper());
-
-  expect(state.sellHouse(house).getSalary()).toEqual(state.getSalary());
+  expect(state.sellHouse("a").getClock()).toEqual(state.getClock());
+  expect(state.sellHouse("a").getStocks()).toEqual(state.getStocks());
+  expect(state.sellHouse("a").getSuper()).toEqual(state.getSuper());
+  expect(state.sellHouse("a").getSalary()).toEqual(state.getSalary());
 
   // Changed
-  expect(state.getHouses()).toEqual([house, house]);
-
-  expect(state.sellHouse(house).getHouses()).toEqual([house]);
-
-  expect(state.sellHouse(house).getBank().getBalance(0)).toEqual(
+  expect(state.getHouses()).toEqual({ a: house, b: house });
+  expect(state.sellHouse("a").getHouses()).toEqual({ b: house });
+  expect(state.sellHouse("a").getBank().getBalance(0)).toEqual(
     state.getBank().getBalance(0) + 50_000
   );
-
-  expect(state.sellHouse(house).getTax()).toEqual(
+  expect(state.sellHouse("a").getTax()).toEqual(
     state.getTax().declareIncome(0, 0)
   );
 
   // Changed after one month
-  expect(state.waitOneMonth().getHouses()).toEqual([house, house]);
-
-  expect(state.waitOneMonth().sellHouse(house).getHouses()).toEqual([house]);
-
+  expect(state.waitOneMonth().getHouses()).toEqual({ a: house, b: house });
+  expect(state.waitOneMonth().sellHouse("a").getHouses()).toEqual({ b: house });
   expect(
-    state.waitOneMonth().sellHouse(house).getBank().getBalance(1)
+    state.waitOneMonth().sellHouse("a").getBank().getBalance(1)
   ).toBeCloseTo(
     state.waitOneMonth().getBank().getBalance(1) + house.getEquity(1),
     10
   );
-
-  expect(state.waitOneMonth().sellHouse(house).getTax()).toEqual(
+  expect(state.waitOneMonth().sellHouse("a").getTax()).toEqual(
     state.waitOneMonth().getTax().declareIncome(1, house.getCapitalGain(1))
   );
 });
@@ -425,15 +398,15 @@ test("correct bank change after one month with salary and a house", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house },
+    stocks: {},
+    expenses: {},
   });
 
   expect(state.getBank().getBalance(0)).toEqual(0);
 
   expect(
-    state.waitOneMonth().sellHouse(house).getBank().getBalance(1)
+    state.waitOneMonth().sellHouse("a").getBank().getBalance(1)
   ).toBeCloseTo(
     (state.getBank().getBalance(0) +
       salary.getMonthlyNetSalary(0) +
@@ -452,9 +425,9 @@ test("correct state change when paying an expense", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: {},
+    stocks: {},
+    expenses: {},
   });
 
   // Unchanged
@@ -496,9 +469,9 @@ test("correct state change after one month when owning single house", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house },
+    stocks: {},
+    expenses: {},
   });
 
   // Unchanged
@@ -548,9 +521,9 @@ test("unpaid tax is paid at beginning of financial year", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house },
+    stocks: {},
+    expenses: {},
   });
 
   expect(state.waitOneYear().waitOneMonth().getClock().getTime()).toEqual(13);
@@ -605,9 +578,9 @@ test("can borrow a small multiple of your salary", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house },
+    stocks: {},
+    expenses: {},
   });
 
   expect(state.isValidLoans()).toBeTruthy();
@@ -633,9 +606,9 @@ test("cant borrow much more than your salary", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: [house],
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: { a: house },
+    stocks: {},
+    expenses: {},
   });
 
   expect(state.isValidLoans()).toBeFalsy();
@@ -650,12 +623,12 @@ test("cant have negative bank balance", () => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: {},
+    stocks: {},
+    expenses: {},
   });
 
-  expect(state.buyHouse(house).getBank().getBalance(0) < 0).toBeTruthy();
+  expect(state.buyHouse("a", house).getBank().getBalance(0) < 0).toBeTruthy();
 
-  expect(state.buyHouse(house).isValid()).toBeFalsy();
+  expect(state.buyHouse("a", house).isValid()).toBeFalsy();
 });

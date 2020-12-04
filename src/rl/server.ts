@@ -48,9 +48,9 @@ const reset = (): Environment => {
     bank: bank,
     superan: superan,
     salary: salary,
-    houses: new Array(),
-    stocks: new Array(),
-    expenses: new Array(),
+    houses: {},
+    stocks: {},
+    expenses: {},
   });
 
   return new Environment(state);

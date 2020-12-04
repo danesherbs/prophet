@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import Tax, { TaxType } from "./tax";
 import Clock from "./clock";
 import Salary from "./salary";
@@ -7,15 +8,19 @@ import House from "./house";
 import Super from "./super";
 import Expense from "./expense";
 
+interface Collection<T> {
+  [id: string]: T;
+}
+
 interface Props {
   clock: Clock;
   tax: Tax;
   bank: Bank;
   superan: Super;
   salary: Salary;
-  houses: Array<House>;
-  stocks: Array<Stock>;
-  expenses: Array<Expense>;
+  houses: Collection<House>;
+  stocks: Collection<Stock>;
+  expenses: Collection<Expense>;
 }
 
 class State {
@@ -24,9 +29,9 @@ class State {
   bank: Bank;
   superan: Super;
   salary: Salary;
-  houses: Array<House>;
-  stocks: Array<Stock>;
-  expenses: Array<Expense>;
+  houses: Collection<House>;
+  stocks: Collection<Stock>;
+  expenses: Collection<Expense>;
 
   constructor({
     clock,
@@ -52,12 +57,12 @@ class State {
     return (
       this.bank.getBalance(this.clock.getTime()) +
       this.superan.getBalance(this.clock.getTime()) +
-      this.stocks.reduce(
+      Object.values(this.stocks).reduce(
         (acc, stock) =>
           acc + stock.getNumberOfUnits() * stock.getPrice(this.clock.getTime()),
         0
       ) +
-      this.houses.reduce(
+      Object.values(this.houses).reduce(
         (acc, house) => acc + house.getEquity(this.clock.getTime()),
         0
       )
@@ -262,7 +267,7 @@ class State {
     });
   }
 
-  buyHouse(house: House) {
+  buyHouse(id: string, house: House) {
     return new State({
       clock: this.clock,
       tax: this.tax,
@@ -273,39 +278,35 @@ class State {
       ),
       superan: this.superan,
       salary: this.salary,
-      houses: [...this.houses, house],
+      houses: { ...this.houses, [id]: house },
       stocks: this.stocks,
       expenses: this.expenses,
     });
   }
 
-  sellHouse(house: House) {
+  sellHouse(id: keyof Props["houses"]) {
     // TODO: declare capital loss if lost money
     return new State({
       clock: this.clock,
       tax: this.tax.declareIncome(
         this.clock.getTime(),
-        house.getCapitalGain(this.clock.getTime())
+        this.houses[id].getCapitalGain(this.clock.getTime())
       ),
       bank: this.bank.deposit(
         this.clock.getTime(),
-        house.getEquity(this.clock.getTime()),
+        this.houses[id].getEquity(this.clock.getTime()),
         "Sold house"
       ),
       superan: this.superan,
       salary: this.salary,
-      houses: this.houses.slice(
-        this.houses.findIndex(
-          (h) => JSON.stringify(h) === JSON.stringify(house)
-        ),
-        1
-      ),
+      houses: _.omit(this.houses, id),
       stocks: this.stocks,
       expenses: this.expenses,
     });
   }
 
-  buyStock(stock: Stock) {
+  buyStock(id: keyof Props["stocks"], stock: Stock) {
+    // if stock already exists, update transaction
     return new State({
       clock: this.clock,
       tax: this.tax,
@@ -317,41 +318,41 @@ class State {
       superan: this.superan,
       salary: this.salary,
       houses: this.houses,
-      stocks: [...this.stocks, stock],
+      stocks: { ...this.stocks, [id]: stock },
       expenses: this.expenses,
     });
   }
 
-  sellStock(stock: Stock) {
+  sellStock(id: keyof Props["stocks"]) {
     // TODO: declare capital loss if lost money
     return new State({
       clock: this.clock,
       tax: this.tax.declareIncome(
         this.clock.getTime(),
-        (stock.getPrice(this.clock.getTime()) - stock.getInitialPrice()) *
-          stock.getNumberOfUnits()
+        (this.stocks[id].getPrice(this.clock.getTime()) -
+          this.stocks[id].getInitialPrice()) *
+          this.stocks[id].getNumberOfUnits()
       ),
       bank: this.bank.deposit(
         this.clock.getTime(),
-        stock.getPrice(this.clock.getTime()) * stock.getNumberOfUnits(),
+        this.stocks[id].getPrice(this.clock.getTime()) *
+          this.stocks[id].getNumberOfUnits(),
         "Sold stock"
       ),
       superan: this.superan,
       salary: this.salary,
       houses: this.houses,
-      stocks: this.stocks.slice(
-        this.stocks.findIndex(
-          (s) => JSON.stringify(s) === JSON.stringify(stock)
-        ),
-        1
-      ),
+      stocks: _.omit(this.stocks, id),
       expenses: this.expenses,
     });
   }
 
   isValidLoans() {
     return (
-      this.getHouses().reduce((acc, house) => acc + house.getLoan(), 0) <=
+      Object.values(this.getHouses()).reduce(
+        (acc, house) => acc + house.getLoan(),
+        0
+      ) <=
       8 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime())
     );
   }
@@ -367,12 +368,12 @@ class State {
     state = state.receiveMonthlySalaryPayment(this.salary);
 
     // Expenses
-    this.expenses.forEach((expense) => {
+    Object.values(this.expenses).forEach((expense) => {
       state = state.payMonthlyExpense(expense);
     });
 
     // Properties
-    this.houses.forEach((house) => {
+    Object.values(this.houses).forEach((house) => {
       state = state.receiveMonthlyRentalIncome(house);
       state = state.payMonthlyInterestPayment(house);
       state = state.declareMonthlyDepreciationLoss(house);

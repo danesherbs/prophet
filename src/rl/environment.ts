@@ -58,15 +58,13 @@ class Environment {
       "Super balance:": this.state
         .getSuper()
         .getBalance(this.state.getClock().getTime()),
-      "Stock balance:": this.state
-        .getStocks()
-        .reduce(
-          (acc, stock) =>
-            acc +
-            stock.getNumberOfUnits() *
-              stock.getPrice(this.state.getClock().getTime()),
-          0
-        ),
+      "Stock balance:": Object.values(this.state.getStocks()).reduce(
+        (acc, stock) =>
+          acc +
+          stock.getNumberOfUnits() *
+            stock.getPrice(this.state.getClock().getTime()),
+        0
+      ),
       "Total net worth": this.state.getNetWealth(),
     };
   }
@@ -77,6 +75,7 @@ class Environment {
     switch (action) {
       case Action.BuyHouse:
         newState = this.state.buyHouse(
+          "a",
           new House({
             loan: 550_000,
             houseValue: 600_000,
@@ -91,6 +90,7 @@ class Environment {
         break;
       case Action.BuyStock:
         newState = this.state.buyStock(
+          "a",
           new Stock({
             rateOfReturn: 0.1,
             initialTime: 0,
