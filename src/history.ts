@@ -22,18 +22,31 @@ class History {
     }
   }
 
-  getHistory() {
-    return this.history.map((state, t, arr) =>
-      this.events[t].reduce(
-        (prev, event) => event(prev),
-        t === 0 ? state : arr[t - 1]
-      )
-    );
-  }
+  getHistory = () => {
+    const transformed = Array.from(this.history);
 
-  getEvents() {
+    // TODO: condense into a reduce
+    for (let i = 0; i < this.events.length; i++) {
+      if (i === 0) {
+        transformed[0] = this.applyEvents(this.history[0], this.events[i]);
+      } else {
+        transformed[i] = this.applyEvents(
+          transformed[i - 1].waitOneMonth(),
+          this.events[i]
+        );
+      }
+    }
+
+    return transformed;
+  };
+
+  applyEvents = (state: State, events: Event[]) => {
+    return events.reduce((acc, event) => event(acc), state);
+  };
+
+  getEvents = () => {
     return this.events;
-  }
+  };
 
   getState = (time: number) => {
     return this.getHistory()[time];

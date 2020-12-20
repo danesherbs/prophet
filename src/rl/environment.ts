@@ -74,9 +74,9 @@ class Environment {
 
     switch (action) {
       case Action.BuyHouse:
-        newState = this.state.buyHouse(
-          "a",
-          new House({
+        newState = this.state.buyHouse({
+          id: "a",
+          house: new House({
             loan: 550_000,
             houseValue: 600_000,
             yearlyInterestRate: 0.03,
@@ -85,8 +85,8 @@ class Environment {
             yearlyRentalIncomeIncrease: 0.03,
             buildingDepreciationRate: 0.02,
             purchaseTime: 0,
-          })
-        );
+          }),
+        });
         break;
       case Action.BuyStock:
         newState = this.state.buyStock(

@@ -333,18 +333,26 @@ test("correct state change when buying a house", () => {
   });
 
   // Unchanged
-  expect(state.buyHouse("b", house).getClock()).toEqual(state.getClock());
-  expect(state.buyHouse("b", house).getStocks()).toEqual(state.getStocks());
-  expect(state.buyHouse("b", house).getSuper()).toEqual(state.getSuper());
-  expect(state.buyHouse("b", house).getTax()).toEqual(state.getTax());
-  expect(state.buyHouse("b", house).getSalary()).toEqual(state.getSalary());
+  expect(state.buyHouse({ id: "b", house }).getClock()).toEqual(
+    state.getClock()
+  );
+  expect(state.buyHouse({ id: "b", house }).getStocks()).toEqual(
+    state.getStocks()
+  );
+  expect(state.buyHouse({ id: "b", house }).getSuper()).toEqual(
+    state.getSuper()
+  );
+  expect(state.buyHouse({ id: "b", house }).getTax()).toEqual(state.getTax());
+  expect(state.buyHouse({ id: "b", house }).getSalary()).toEqual(
+    state.getSalary()
+  );
 
   // Changed
-  expect(state.buyHouse("b", house).getHouses()).toEqual({
+  expect(state.buyHouse({ id: "b", house }).getHouses()).toEqual({
     a: house,
     b: house,
   });
-  expect(state.buyHouse("b", house).getBank().getBalance(0)).toEqual(
+  expect(state.buyHouse({ id: "b", house }).getBank().getBalance(0)).toEqual(
     state.getBank().getBalance(0) - 50_000
   );
 });
@@ -616,6 +624,8 @@ test("cant have negative bank balance", () => {
     expenses: {},
   });
 
-  expect(state.buyHouse("a", house).getBank().getBalance(0) < 0).toBeTruthy();
-  expect(state.buyHouse("a", house).isValid()).toBeFalsy();
+  expect(
+    state.buyHouse({ id: "a", house }).getBank().getBalance(0) < 0
+  ).toBeTruthy();
+  expect(state.buyHouse({ id: "a", house }).isValid()).toBeFalsy();
 });

@@ -7,6 +7,7 @@ interface Props {
   yearlyRentalIncomeIncrease: number;
   buildingDepreciationRate: number;
   purchaseTime: number;
+  description?: string;
 }
 
 class House {
@@ -18,6 +19,7 @@ class House {
   yearlyRentalIncomeIncrease: number;
   buildingDepreciationRate: number;
   purchaseTime: number;
+  description?: string;
 
   constructor({
     houseValue,
@@ -28,6 +30,7 @@ class House {
     yearlyRentalIncomeIncrease,
     buildingDepreciationRate,
     purchaseTime,
+    description,
   }: Props) {
     this.houseValue = houseValue;
     this.loan = loan;
@@ -37,6 +40,7 @@ class House {
     this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
     this.buildingDepreciationRate = buildingDepreciationRate;
     this.purchaseTime = purchaseTime;
+    this.description = description;
   }
 
   getYearlyInterestRate() {
@@ -67,6 +71,11 @@ class House {
   getPurchaseTime() {
     /* istanbul ignore next */
     return this.purchaseTime;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
   }
 
   getMonthlyInterestRate() {

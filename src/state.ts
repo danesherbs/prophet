@@ -238,6 +238,19 @@ class State {
     });
   }
 
+  removeExpense({ id }: { id: string }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: _.omit(this.expenses, id),
+    });
+  }
+
   updateExpense({ id, data }: { id: string; data: ExpenseProps }) {
     return new State({
       clock: this.clock,
@@ -247,7 +260,10 @@ class State {
       salary: this.salary,
       houses: this.houses,
       stocks: this.stocks,
-      expenses: { ...this.expenses, [id]: new Expense(data) },
+      expenses: {
+        ...this.expenses,
+        [id]: new Expense(data),
+      },
     });
   }
 
@@ -293,7 +309,7 @@ class State {
     });
   }
 
-  buyHouse(id: string, house: House) {
+  buyHouse({ id, house }: { id: string; house: House }) {
     return new State({
       clock: this.clock,
       tax: this.tax,
@@ -310,7 +326,7 @@ class State {
     });
   }
 
-  updateHouse(id: string, data: HouseProps) {
+  updateHouse({ id, data }: { id: string; data: HouseProps }) {
     return new State({
       clock: this.clock,
       tax: this.tax,
