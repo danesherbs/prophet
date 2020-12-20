@@ -4,9 +4,9 @@ import Clock from "./clock";
 import Salary from "./salary";
 import Bank from "./bank";
 import Stock from "./stock";
-import House from "./house";
+import House, { Props as HouseProps } from "./house";
 import Super from "./super";
-import Expense from "./expense";
+import Expense, { Props as ExpenseProps } from "./expense";
 
 interface Collection<T> {
   [id: string]: T;
@@ -225,6 +225,32 @@ class State {
     });
   }
 
+  addExpense({ id, expense }: { id: string; expense: Expense }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: { ...this.expenses, [id]: expense },
+    });
+  }
+
+  updateExpense({ id, data }: { id: string; data: ExpenseProps }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: { ...this.expenses, [id]: new Expense(data) },
+    });
+  }
+
   isStartOfFinancialYear() {
     return this.clock.getTime() % 12 === 0;
   }
@@ -279,6 +305,19 @@ class State {
       superan: this.superan,
       salary: this.salary,
       houses: { ...this.houses, [id]: house },
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  updateHouse(id: string, data: HouseProps) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: { ...this.houses, [id]: new House(data) },
       stocks: this.stocks,
       expenses: this.expenses,
     });
