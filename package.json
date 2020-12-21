@@ -14,7 +14,7 @@
   },
   "scripts": {
     "test": "jest --coverage",
-    "prepare": "npm run build"
+    "prepare": "tsc -p tsconfig.json"
   },
   "repository": {
     "type": "git",
