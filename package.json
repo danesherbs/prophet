@@ -1,6 +1,6 @@
 {
   "name": "prophet",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Financial planning made easy",
   "main": "build/main.js",
   "dependencies": {
