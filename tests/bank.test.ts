@@ -2,7 +2,7 @@ import Bank from "../src/bank";
 
 const bank = new Bank({
   transactions: new Array(),
-  interestRate: 0.03,
+  yearlyInterestRate: 0.03,
 });
 
 test("componding monthly correctly", () => {
@@ -53,7 +53,7 @@ test("getter for transactions returns correct list of transactions", () => {
       [1, 200, "B"],
       [3, -30, "C"],
     ],
-    interestRate: 0.03,
+    yearlyInterestRate: 0.03,
   });
 
   expect(bank.getTransactions()).toEqual([
@@ -70,7 +70,7 @@ test("negative balance is invalid", () => {
       [0, -200, "B"],
       [0, 300, "C"],
     ],
-    interestRate: 0.03,
+    yearlyInterestRate: 0.03,
   });
 
   expect(bank.isValidTransactions()).toBeFalsy();
@@ -81,7 +81,7 @@ test("negative balance is invalid", () => {
 test("unrealistic interest rate is invalid", () => {
   const bank = new Bank({
     transactions: new Array(),
-    interestRate: 0.2,
+    yearlyInterestRate: 0.2,
   });
 
   expect(bank.isValidInterestRate()).toBeFalsy();

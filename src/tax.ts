@@ -12,27 +12,58 @@ type IncomeBracket = [number, number];
 type TaxRate = number;
 type TaxBracket = [IncomeBracket, TaxRate];
 
+interface Props {
+  incomeTaxBrackets: Array<TaxBracket>;
+  superTaxRate: number;
+  declared: Array<[number, number, DeclarationType]>;
+  paid: Array<[number, number, TaxType]>;
+  description?: string;
+}
+
 class Tax {
   incomeTaxBrackets: Array<TaxBracket>;
   superTaxRate: number;
   declared: Array<[number, number, DeclarationType]>;
   paid: Array<[number, number, TaxType]>;
+  description?: string;
 
   constructor({
     incomeTaxBrackets,
     superTaxRate,
     declared,
     paid,
-  }: {
-    incomeTaxBrackets: Array<TaxBracket>;
-    superTaxRate: number;
-    declared: Array<[number, number, DeclarationType]>;
-    paid: Array<[number, number, TaxType]>;
-  }) {
+    description,
+  }: Props) {
     this.incomeTaxBrackets = incomeTaxBrackets;
     this.superTaxRate = superTaxRate;
     this.declared = declared;
     this.paid = paid;
+    this.description = description;
+  }
+
+  getIncomeTaxBrackets() {
+    /* istanbul ignore next */
+    return this.incomeTaxBrackets;
+  }
+
+  getSuperTaxRate() {
+    /* istanbul ignore next */
+    return this.superTaxRate;
+  }
+
+  getDeclared() {
+    /* istanbul ignore next */
+    return this.declared;
+  }
+
+  getPaid() {
+    /* istanbul ignore next */
+    return this.paid;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
   }
 
   getYearlyIncomeTax(yearlyGrossSalary: number) {
@@ -145,4 +176,4 @@ class Tax {
 }
 
 export default Tax;
-export { TaxType };
+export { TaxType, Props };

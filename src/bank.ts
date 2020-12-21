@@ -1,18 +1,20 @@
 type Transaction = [number, number, string];
 
+interface Props {
+  transactions: Array<Transaction>;
+  yearlyInterestRate: number;
+  description?: string;
+}
+
 class Bank {
   transactions: Array<Transaction>;
-  interestRate: number;
+  yearlyInterestRate: number;
+  description?: string;
 
-  constructor({
-    transactions,
-    interestRate,
-  }: {
-    transactions: Array<Transaction>;
-    interestRate: number;
-  }) {
+  constructor({ transactions, yearlyInterestRate, description }: Props) {
     this.transactions = transactions;
-    this.interestRate = interestRate;
+    this.yearlyInterestRate = yearlyInterestRate;
+    this.description = description;
   }
 
   deposit(time: number, amount: number, description: string) {
@@ -22,7 +24,7 @@ class Bank {
         amount,
         description,
       ]),
-      interestRate: this.interestRate,
+      yearlyInterestRate: this.yearlyInterestRate,
     });
   }
 
@@ -33,12 +35,20 @@ class Bank {
         -amount,
         description,
       ]),
-      interestRate: this.interestRate,
+      yearlyInterestRate: this.yearlyInterestRate,
     });
   }
 
+  getYearlyInterestRate() {
+    return this.yearlyInterestRate;
+  }
+
+  getDescription() {
+    return this.description;
+  }
+
   getMonthlyInterestRate() {
-    return Math.pow(1 + this.interestRate, 1 / 12) - 1;
+    return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
   }
 
   getTransactions() {
@@ -69,7 +79,7 @@ class Bank {
   }
 
   isValidInterestRate() {
-    return 0 <= this.interestRate && this.interestRate <= 0.07;
+    return 0 <= this.yearlyInterestRate && this.yearlyInterestRate <= 0.07;
   }
 
   isValid() {
@@ -78,3 +88,4 @@ class Bank {
 }
 
 export default Bank;
+export { Props };

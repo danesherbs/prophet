@@ -89,15 +89,15 @@ class Environment {
         });
         break;
       case Action.BuyStock:
-        newState = this.state.buyStock(
-          "a",
-          new Stock({
+        newState = this.state.buyStock({
+          id: "a",
+          stock: new Stock({
             rateOfReturn: 0.1,
             initialTime: 0,
             initialPrice: 500,
             transactions: [[0, 100]],
-          })
-        );
+          }),
+        });
         break;
       case Action.NoOp:
         break;

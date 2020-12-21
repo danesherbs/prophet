@@ -19,13 +19,13 @@ const tax = new Tax({
 
 const bank = new Bank({
   transactions: new Array(),
-  interestRate: 0.03,
+  yearlyInterestRate: 0.03,
 });
 
 const superan = new Super({
   tax: tax,
   transactions: new Array(),
-  interestRate: 0.1,
+  yearlyInterestRate: 0.1,
   contributionRate: 0.125,
 });
 
@@ -243,18 +243,26 @@ test("correct state change when buying stock", () => {
   });
 
   // Unchanged
-  expect(state.buyStock("b", stock).getClock()).toEqual(state.getClock());
-  expect(state.buyStock("b", stock).getHouses()).toEqual(state.getHouses());
-  expect(state.buyStock("b", stock).getSuper()).toEqual(state.getSuper());
-  expect(state.buyStock("b", stock).getTax()).toEqual(state.getTax());
-  expect(state.buyStock("b", stock).getSalary()).toEqual(state.getSalary());
+  expect(state.buyStock({ id: "b", stock }).getClock()).toEqual(
+    state.getClock()
+  );
+  expect(state.buyStock({ id: "b", stock }).getHouses()).toEqual(
+    state.getHouses()
+  );
+  expect(state.buyStock({ id: "b", stock }).getSuper()).toEqual(
+    state.getSuper()
+  );
+  expect(state.buyStock({ id: "b", stock }).getTax()).toEqual(state.getTax());
+  expect(state.buyStock({ id: "b", stock }).getSalary()).toEqual(
+    state.getSalary()
+  );
 
   // Changed
-  expect(state.buyStock("b", stock).getStocks()).toEqual({
+  expect(state.buyStock({ id: "b", stock }).getStocks()).toEqual({
     a: stock,
     b: stock,
   });
-  expect(state.buyStock("b", stock).getBank().getBalance(0)).toEqual(
+  expect(state.buyStock({ id: "b", stock }).getBank().getBalance(0)).toEqual(
     state.getBank().getBalance(0) - 5_000
   );
 });
@@ -370,31 +378,33 @@ test("correct state change when selling a house", () => {
   });
 
   // Unchanged
-  expect(state.sellHouse("a").getClock()).toEqual(state.getClock());
-  expect(state.sellHouse("a").getStocks()).toEqual(state.getStocks());
-  expect(state.sellHouse("a").getSuper()).toEqual(state.getSuper());
-  expect(state.sellHouse("a").getSalary()).toEqual(state.getSalary());
+  expect(state.sellHouse({ id: "a" }).getClock()).toEqual(state.getClock());
+  expect(state.sellHouse({ id: "a" }).getStocks()).toEqual(state.getStocks());
+  expect(state.sellHouse({ id: "a" }).getSuper()).toEqual(state.getSuper());
+  expect(state.sellHouse({ id: "a" }).getSalary()).toEqual(state.getSalary());
 
   // Changed
   expect(state.getHouses()).toEqual({ a: house, b: house });
-  expect(state.sellHouse("a").getHouses()).toEqual({ b: house });
-  expect(state.sellHouse("a").getBank().getBalance(0)).toEqual(
+  expect(state.sellHouse({ id: "a" }).getHouses()).toEqual({ b: house });
+  expect(state.sellHouse({ id: "a" }).getBank().getBalance(0)).toEqual(
     state.getBank().getBalance(0) + 50_000
   );
-  expect(state.sellHouse("a").getTax()).toEqual(
+  expect(state.sellHouse({ id: "a" }).getTax()).toEqual(
     state.getTax().declareIncome(0, 0)
   );
 
   // Changed after one month
   expect(state.waitOneMonth().getHouses()).toEqual({ a: house, b: house });
-  expect(state.waitOneMonth().sellHouse("a").getHouses()).toEqual({ b: house });
+  expect(state.waitOneMonth().sellHouse({ id: "a" }).getHouses()).toEqual({
+    b: house,
+  });
   expect(
-    state.waitOneMonth().sellHouse("a").getBank().getBalance(1)
+    state.waitOneMonth().sellHouse({ id: "a" }).getBank().getBalance(1)
   ).toBeCloseTo(
     state.waitOneMonth().getBank().getBalance(1) + house.getEquity(1),
     10
   );
-  expect(state.waitOneMonth().sellHouse("a").getTax()).toEqual(
+  expect(state.waitOneMonth().sellHouse({ id: "a" }).getTax()).toEqual(
     state.waitOneMonth().getTax().declareIncome(1, house.getCapitalGain(1))
   );
 });
@@ -414,7 +424,7 @@ test("correct bank change after one month with salary and a house", () => {
   expect(state.getBank().getBalance(0)).toEqual(0);
 
   expect(
-    state.waitOneMonth().sellHouse("a").getBank().getBalance(1)
+    state.waitOneMonth().sellHouse({ id: "a" }).getBank().getBalance(1)
   ).toBeCloseTo(
     (state.getBank().getBalance(0) +
       salary.getMonthlyNetSalary(0) +

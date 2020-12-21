@@ -5,6 +5,7 @@ interface Props {
   yearlySalaryIncrease: number;
   tax: Tax;
   creationTime: number;
+  description?: string;
 }
 
 class Salary {
@@ -12,17 +13,40 @@ class Salary {
   yearlySalaryIncrease: number;
   tax: Tax;
   creationTime: number;
+  description?: string;
 
   constructor({
     yearlyGrossSalary,
     yearlySalaryIncrease,
     tax,
     creationTime,
+    description,
   }: Props) {
     this.yearlyGrossSalary = yearlyGrossSalary;
     this.yearlySalaryIncrease = yearlySalaryIncrease;
     this.tax = tax;
     this.creationTime = creationTime;
+    this.description = description;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
+  }
+
+  getTax() {
+    /* istanbul ignore next */
+    return this.tax;
+  }
+
+  getCreationTime() {
+    /* istanbul ignore next */
+    return this.creationTime;
+  }
+
+  getYearlySalaryIncrease() {
+    /* istanbul ignore next */
+    return this.yearlySalaryIncrease;
   }
 
   getYearlyGrossSalary(time: number) {

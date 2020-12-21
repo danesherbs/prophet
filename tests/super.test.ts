@@ -11,7 +11,7 @@ const tax = new Tax({
 const superan = new Super({
   tax: tax,
   transactions: new Array(),
-  interestRate: 0.1,
+  yearlyInterestRate: 0.1,
   contributionRate: 0.125,
 });
 
@@ -35,7 +35,7 @@ test("get transactions retrieves correct transactions", () => {
       [4, 2_000],
       [8, 4_000],
     ],
-    interestRate: 0.1,
+    yearlyInterestRate: 0.1,
     contributionRate: 0.125,
   });
 

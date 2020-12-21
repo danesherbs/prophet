@@ -25,13 +25,13 @@ const reset = (): Environment => {
 
   const bank = new Bank({
     transactions: new Array(),
-    interestRate: 0.03,
+    yearlyInterestRate: 0.03,
   });
 
   const superan = new Super({
     tax: tax,
     transactions: new Array(),
-    interestRate: 0.1,
+    yearlyInterestRate: 0.1,
     contributionRate: 0.125,
   });
 

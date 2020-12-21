@@ -26,13 +26,13 @@ const tax = new Tax({
 
 const bank = new Bank({
   transactions: [],
-  interestRate: 0.03,
+  yearlyInterestRate: 0.03,
 });
 
 const superan = new Super({
   tax: tax,
   transactions: [],
-  interestRate: 0.1,
+  yearlyInterestRate: 0.1,
   contributionRate: 0.125,
 });
 

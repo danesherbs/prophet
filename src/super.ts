@@ -5,21 +5,55 @@ type Transaction = [number, number];
 interface Props {
   tax: Tax;
   transactions: Array<Transaction>;
-  interestRate: number;
+  yearlyInterestRate: number;
   contributionRate: number;
+  description?: string;
 }
 
 class Super {
   tax: Tax;
   transactions: Array<Transaction>;
-  interestRate: number;
+  yearlyInterestRate: number;
   contributionRate: number;
+  description?: string;
 
-  constructor({ tax, transactions, interestRate, contributionRate }: Props) {
+  constructor({
+    tax,
+    transactions,
+    yearlyInterestRate,
+    contributionRate,
+    description,
+  }: Props) {
     this.tax = tax;
     this.transactions = transactions;
-    this.interestRate = interestRate;
+    this.yearlyInterestRate = yearlyInterestRate;
     this.contributionRate = contributionRate;
+    this.description = description;
+  }
+
+  getTax() {
+    /* istanbul ignore next */
+    return this.tax;
+  }
+
+  getTransactions() {
+    /* istanbul ignore next */
+    return this.transactions;
+  }
+
+  getYearlyInterestRate() {
+    /* istanbul ignore next */
+    return this.yearlyInterestRate;
+  }
+
+  getContributionRate() {
+    /* istanbul ignore next */
+    return this.contributionRate;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
   }
 
   deposit(time: number, amount: number) {
@@ -29,7 +63,7 @@ class Super {
         time,
         amount,
       ]),
-      interestRate: this.interestRate,
+      yearlyInterestRate: this.yearlyInterestRate,
       contributionRate: this.contributionRate,
     });
   }
@@ -48,11 +82,7 @@ class Super {
   }
 
   getMonthlyInterestRate() {
-    return Math.pow(1 + this.interestRate, 1 / 12) - 1;
-  }
-
-  getTransactions() {
-    return this.transactions;
+    return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
   }
 
   getBalance(time: number) {
@@ -66,3 +96,4 @@ class Super {
 }
 
 export default Super;
+export { Props };

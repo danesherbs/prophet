@@ -2,35 +2,58 @@ type Time = number;
 type Units = number;
 type Transaction = [Time, Units];
 
+interface Props {
+  rateOfReturn: number;
+  initialTime: number;
+  initialPrice: number;
+  transactions: Array<Transaction>;
+  description?: string;
+}
+
 class Stock {
   rateOfReturn: number;
   initialPrice: number;
   initialTime: number;
   transactions: Array<Transaction>;
+  description?: string;
 
   constructor({
     rateOfReturn,
     initialTime,
     initialPrice,
     transactions,
-  }: {
-    rateOfReturn: number;
-    initialTime: number;
-    initialPrice: number;
-    transactions: Array<Transaction>;
-  }) {
+    description,
+  }: Props) {
     this.rateOfReturn = rateOfReturn;
     this.initialPrice = initialPrice;
     this.initialTime = initialTime;
     this.transactions = transactions;
+    this.description = description;
+  }
+
+  getRateOfReturn() {
+    /* istanbul ignore next */
+    return this.rateOfReturn;
   }
 
   getInitialPrice() {
+    /* istanbul ignore next */
     return this.initialPrice;
   }
 
   getInitialTime() {
+    /* istanbul ignore next */
     return this.initialTime;
+  }
+
+  getTransactions() {
+    /* istanbul ignore next */
+    return this.transactions;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
   }
 
   getMonthlyRateOfReturn() {
@@ -109,3 +132,4 @@ class Stock {
 }
 
 export default Stock;
+export { Props };

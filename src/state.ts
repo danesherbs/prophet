@@ -1,11 +1,11 @@
 import * as _ from "lodash";
-import Tax, { TaxType } from "./tax";
+import Tax, { TaxType, Props as TaxProps } from "./tax";
 import Clock from "./clock";
-import Salary from "./salary";
-import Bank from "./bank";
-import Stock from "./stock";
+import Salary, { Props as SalaryProps } from "./salary";
+import Bank, { Props as BankProps } from "./bank";
+import Stock, { Props as StockProps } from "./stock";
 import House, { Props as HouseProps } from "./house";
-import Super from "./super";
+import Super, { Props as SuperProps } from "./super";
 import Expense, { Props as ExpenseProps } from "./expense";
 
 interface Collection<T> {
@@ -267,6 +267,71 @@ class State {
     });
   }
 
+  updateStock({ id, data }: { id: string; data: StockProps }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: { ...this.stocks, [id]: new Stock(data) },
+      expenses: this.expenses,
+    });
+  }
+
+  updateBank({ data }: { data: BankProps }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: new Bank(data),
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  updateSuper({ data }: { data: SuperProps }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: new Super(data),
+      salary: this.salary,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  updateSalary({ data }: { data: SalaryProps }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: new Salary(data),
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  updateTax({ data }: { data: TaxProps }) {
+    return new State({
+      clock: this.clock,
+      tax: new Tax(data),
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
   isStartOfFinancialYear() {
     return this.clock.getTime() % 12 === 0;
   }
@@ -339,7 +404,7 @@ class State {
     });
   }
 
-  sellHouse(id: keyof Props["houses"]) {
+  sellHouse({ id }: { id: keyof Props["houses"] }) {
     // TODO: declare capital loss if lost money
     return new State({
       clock: this.clock,
@@ -360,7 +425,7 @@ class State {
     });
   }
 
-  buyStock(id: keyof Props["stocks"], stock: Stock) {
+  buyStock({ id, stock }: { id: keyof Props["stocks"]; stock: Stock }) {
     // if stock already exists, update transaction
     return new State({
       clock: this.clock,
