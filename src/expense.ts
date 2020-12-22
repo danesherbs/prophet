@@ -57,4 +57,4 @@ class Expense {
 }
 
 export default Expense;
-export { Props };
+export type { Props };

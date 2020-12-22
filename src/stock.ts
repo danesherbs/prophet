@@ -132,4 +132,4 @@ class Stock {
 }
 
 export default Stock;
-export { Props };
+export type { Props };

@@ -125,4 +125,4 @@ class House {
 }
 
 export default House;
-export { Props };
+export type { Props };

@@ -88,4 +88,4 @@ class Bank {
 }
 
 export default Bank;
-export { Props };
+export type { Props };

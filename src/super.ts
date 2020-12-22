@@ -96,4 +96,4 @@ class Super {
 }
 
 export default Super;
-export { Props };
+export type { Props };
