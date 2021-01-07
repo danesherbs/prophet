@@ -120,11 +120,16 @@ test("adding expense applies to first and last states in history", () => {
     history
       .addEvent({
         time: 0,
-        event: (state) =>
-          state.addExpense({
-            id: "new expense",
-            expense: newExpense,
-          }),
+        event: {
+          transformation: (state) =>
+            state.addExpense({
+              id: "new expense",
+              expense: newExpense,
+            }),
+          name: "addExpense",
+          id: "new expense",
+          type: typeof Expense,
+        },
       })
       .getState(0)
       .getExpenses()
@@ -135,11 +140,16 @@ test("adding expense applies to first and last states in history", () => {
     history
       .addEvent({
         time: 120,
-        event: (state) =>
-          state.addExpense({
-            id: "new expense",
-            expense: newExpense,
-          }),
+        event: {
+          transformation: (state) =>
+            state.addExpense({
+              id: "new expense",
+              expense: newExpense,
+            }),
+          name: "addExpense",
+          id: "new expense",
+          type: typeof Expense,
+        },
       })
       .getState(120)
       .getExpenses()
