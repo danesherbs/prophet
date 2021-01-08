@@ -7,11 +7,17 @@ import Expense from "./expense";
 
 // type Event = (state: State) => State;
 
+enum Action {
+  Start,
+  Stop,
+}
+
 interface Event {
-  transformation: (state: State) => State;
-  name: string;
-  id: string;
-  type: string;
+  action: Action;
+  item: {
+    id: string;
+    object: House | Expense | Salary;
+  };
 }
 
 interface Props {
@@ -55,8 +61,61 @@ class History {
 
   getStart = ({ item }: { item: House | Salary }) => {};
 
-  applyEvents = (state: State, events: Event[]) => {
-    return events.reduce((acc, event) => event.transformation(acc), state);
+  private applyEvent = ({
+    state,
+    event,
+  }: {
+    state: State;
+    event: Event;
+  }): State => {
+    if (event.item.object instanceof Expense) {
+      return this.applyExpenseEvent({ state, event });
+    } else if (event.item.object instanceof House) {
+      return this.applyHouseEvent({ state, event });
+    } else {
+      throw new RangeError("You passed what?!");
+    }
+  };
+
+  private applyExpenseEvent = ({
+    state,
+    event,
+  }: {
+    state: State;
+    event: Event;
+  }) => {
+    if (event.action === Action.Start) {
+      return state.addExpense({
+        id: event.item.id,
+        expense: event.item.object as Expense,
+      });
+    }
+
+    return state.removeExpense({ id: event.item.id });
+  };
+
+  private applyHouseEvent = ({
+    state,
+    event,
+  }: {
+    state: State;
+    event: Event;
+  }) => {
+    if (event.action === Action.Start) {
+      return state.buyHouse({
+        id: event.item.id,
+        house: event.item.object as House,
+      });
+    }
+
+    return state.sellHouse({ id: event.item.id });
+  };
+
+  private applyEvents = (state: State, events: Event[]) => {
+    return events.reduce(
+      (acc, event) => this.applyEvent({ state: acc, event }),
+      state
+    );
   };
 
   getEvents = () => {
@@ -76,31 +135,22 @@ class History {
     });
   };
 
-  removeEvent = ({ time, event }: { time: number; event: Event }) => {
+  removeEvent = ({
+    time,
+    id,
+  }: {
+    time: number;
+    id: Extract<Event, Event["item"]["id"]>;
+  }) => {
     return new History({
       history: this.history,
       events: this.events.map((evts, t) =>
-        t !== time
-          ? evts
-          : evts.filter(
-              (evt) =>
-                evt.name != event.name &&
-                evt.id != event.id &&
-                evt.type != event.type
-            )
-      ),
-    });
-  };
-
-  dropEventsAfter = ({ time, id }: { time: number; id: string }) => {
-    return new History({
-      history: this.history,
-      events: this.events.map((evts, t) =>
-        t > time ? evts : evts.filter((evt) => evt.id != id)
+        t !== time ? evts : evts.filter((evt) => evt.item.id != id)
       ),
     });
   };
 }
 
 export default History;
+export { Action };
 export type { Props };

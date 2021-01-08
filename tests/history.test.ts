@@ -7,7 +7,7 @@ import Stock from "../src/stock";
 import Super from "../src/super";
 import State from "../src/state";
 import Expense from "../src/expense";
-import History from "../src/history";
+import History, { Action } from "../src/history";
 
 const clock = new Clock(0);
 
@@ -121,14 +121,11 @@ test("adding expense applies to first and last states in history", () => {
       .addEvent({
         time: 0,
         event: {
-          transformation: (state) =>
-            state.addExpense({
-              id: "new expense",
-              expense: newExpense,
-            }),
-          name: "addExpense",
-          id: "new expense",
-          type: typeof Expense,
+          action: Action.Start,
+          item: {
+            id: "new expense",
+            object: newExpense,
+          },
         },
       })
       .getState(0)
@@ -141,14 +138,11 @@ test("adding expense applies to first and last states in history", () => {
       .addEvent({
         time: 120,
         event: {
-          transformation: (state) =>
-            state.addExpense({
-              id: "new expense",
-              expense: newExpense,
-            }),
-          name: "addExpense",
-          id: "new expense",
-          type: typeof Expense,
+          action: Action.Start,
+          item: {
+            id: "new expense",
+            object: newExpense,
+          },
         },
       })
       .getState(120)
