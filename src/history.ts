@@ -103,7 +103,7 @@ class History {
       }
     }
 
-    return undefined;
+    return null;
   };
 
   private applyEvent = ({
