@@ -78,11 +78,8 @@ class History {
     const start = this.getStart({ id });
 
     for (let [time, state] of this.getHistory().entries()) {
-      if (time < start) {
-        continue;
-      }
-
       if (
+        time > start &&
         !(
           id in state.getHouses() ||
           id in state.getExpenses() ||
@@ -112,6 +109,14 @@ class History {
     }
 
     return null;
+  };
+
+  getItem = ({ time, id }: { time: number; id: string }) => {
+    const state = this.getState(time);
+
+    if (id in state.getHouses()) {
+      return state.getHouses()[id];
+    }
   };
 
   private applyEvent = ({
