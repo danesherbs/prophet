@@ -103,7 +103,7 @@ class History {
       }
     }
 
-    return null;
+    return "Miscellaneous";
   };
 
   private applyEvent = ({
