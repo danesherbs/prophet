@@ -59,7 +59,33 @@ class History {
     return transformed;
   };
 
-  getStart = ({ item }: { item: House | Salary }) => {};
+  getStart = ({ id }: { id: string }) => {
+    this.history.forEach((state: State, time: number) => {
+      if (
+        id in state.getHouses() ||
+        id in state.getExpenses() ||
+        id in state.getStocks()
+      ) {
+        return time;
+      }
+    });
+
+    return 0;
+  };
+
+  getEnd = ({ id }: { id: string }) => {
+    this.history.forEach((state: State, time: number) => {
+      if (
+        id in state.getHouses() ||
+        id in state.getExpenses() ||
+        id in state.getStocks()
+      ) {
+        return time;
+      }
+    });
+
+    return this.history.length - 1;
+  };
 
   private applyEvent = ({
     state,
@@ -135,13 +161,7 @@ class History {
     });
   };
 
-  removeEvent = ({
-    time,
-    id,
-  }: {
-    time: number;
-    id: Extract<Event, Event["item"]["id"]>;
-  }) => {
+  removeEvent = ({ time, id }: { time: number; id: Event["item"]["id"] }) => {
     return new History({
       history: this.history,
       events: this.events.map((evts, t) =>
