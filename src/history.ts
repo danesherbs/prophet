@@ -89,19 +89,21 @@ class History {
   };
 
   getType = ({ id }: { id: string }) => {
-    this.getHistory().forEach((state: State, time: number) => {
+    for (let state of this.getHistory()) {
       if (id in state.getHouses()) {
-        return typeof House;
-      } else if (id in state.getExpenses()) {
-        return typeof Expense;
-      } else if (id in state.getStocks()) {
-        return typeof Stock;
-      } else {
-        return undefined;
+        return House;
       }
-    });
 
-    return this.history.length - 1;
+      if (id in state.getExpenses()) {
+        return Expense;
+      }
+
+      if (id in state.getStocks()) {
+        return Stock;
+      }
+    }
+
+    return undefined;
   };
 
   private applyEvent = ({
