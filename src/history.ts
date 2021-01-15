@@ -61,7 +61,7 @@ class History {
   };
 
   getStart = ({ id }: { id: string }) => {
-    this.getHistory().forEach((state: State, time: number) => {
+    for (let [time, state] of this.getHistory().entries()) {
       if (
         id in state.getHouses() ||
         id in state.getExpenses() ||
@@ -69,9 +69,9 @@ class History {
       ) {
         return time;
       }
-    });
+    }
 
-    return 0;
+    throw new RangeError("No start found for id " + id);
   };
 
   getEnd = ({ id }: { id: string }) => {
@@ -103,7 +103,7 @@ class History {
       }
     }
 
-    return "Miscellaneous";
+    return null;
   };
 
   private applyEvent = ({
