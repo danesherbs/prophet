@@ -75,17 +75,25 @@ class History {
   };
 
   getEnd = ({ id }: { id: string }) => {
-    this.getHistory().forEach((state: State, time: number) => {
+    const start = this.getStart({ id });
+
+    for (let [time, state] of this.getHistory().entries()) {
+      if (time < start) {
+        continue;
+      }
+
       if (
-        id in state.getHouses() ||
-        id in state.getExpenses() ||
-        id in state.getStocks()
+        !(
+          id in state.getHouses() ||
+          id in state.getExpenses() ||
+          id in state.getStocks()
+        )
       ) {
         return time;
       }
-    });
+    }
 
-    return this.history.length - 1;
+    throw new RangeError("No end found for id " + id);
   };
 
   getType = ({ id }: { id: string }) => {
