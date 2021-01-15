@@ -117,6 +117,8 @@ class History {
     if (id in state.getHouses()) {
       return state.getHouses()[id];
     }
+
+    return null;
   };
 
   private applyEvent = ({
@@ -189,11 +191,21 @@ class History {
     });
   };
 
-  removeEvent = ({ time, id }: { time: number; id: Event["item"]["id"] }) => {
+  removeEvent = ({
+    time,
+    id,
+    action,
+  }: {
+    time: number;
+    id: Event["item"]["id"];
+    action: Event["action"];
+  }) => {
     return new History({
       history: this.history,
       events: this.events.map((evts, t) =>
-        t !== time ? evts : evts.filter((evt) => evt.item.id != id)
+        t !== time
+          ? evts
+          : evts.filter((evt) => evt.item.id != id && evt.action === action)
       ),
     });
   };
