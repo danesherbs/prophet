@@ -4,6 +4,7 @@ import State from "./state";
 import House from "./house";
 import Salary from "./salary";
 import Expense from "./expense";
+import Stock from "./stock";
 
 // type Event = (state: State) => State;
 
@@ -60,7 +61,7 @@ class History {
   };
 
   getStart = ({ id }: { id: string }) => {
-    this.history.forEach((state: State, time: number) => {
+    this.getHistory().forEach((state: State, time: number) => {
       if (
         id in state.getHouses() ||
         id in state.getExpenses() ||
@@ -74,13 +75,29 @@ class History {
   };
 
   getEnd = ({ id }: { id: string }) => {
-    this.history.forEach((state: State, time: number) => {
+    this.getHistory().forEach((state: State, time: number) => {
       if (
         id in state.getHouses() ||
         id in state.getExpenses() ||
         id in state.getStocks()
       ) {
         return time;
+      }
+    });
+
+    return this.history.length - 1;
+  };
+
+  getType = ({ id }: { id: string }) => {
+    this.getHistory().forEach((state: State, time: number) => {
+      if (id in state.getHouses()) {
+        return typeof House;
+      } else if (id in state.getExpenses()) {
+        return typeof Expense;
+      } else if (id in state.getStocks()) {
+        return typeof Stock;
+      } else {
+        return undefined;
       }
     });
 
@@ -142,10 +159,6 @@ class History {
       (acc, event) => this.applyEvent({ state: acc, event }),
       state
     );
-  };
-
-  getEvents = () => {
-    return this.events;
   };
 
   getState = (time: number) => {
