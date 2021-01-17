@@ -116,6 +116,10 @@ class History {
 
     if (id in state.getHouses()) {
       return state.getHouses()[id];
+    } else if (id in state.getExpenses()) {
+      return state.getExpenses()[id];
+    } else if (id in state.getStocks()) {
+      return state.getStocks()[id];
     }
 
     return null;
@@ -133,7 +137,7 @@ class History {
     } else if (event.item.object instanceof House) {
       return this.applyHouseEvent({ state, event });
     } else {
-      throw new RangeError("You passed what?!");
+      throw new RangeError("You passed an unrecognised object in an event");
     }
   };
 
