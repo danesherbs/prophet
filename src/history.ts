@@ -5,6 +5,9 @@ import House from "./house";
 import Salary from "./salary";
 import Expense from "./expense";
 import Stock from "./stock";
+import Bank from "./bank";
+import Super from "./super";
+import Tax from "./tax";
 
 // type Event = (state: State) => State;
 
@@ -13,11 +16,13 @@ enum Action {
   Stop,
 }
 
+type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
+
 interface Event {
   action: Action;
   item: {
     id: string;
-    object: House | Expense | Salary;
+    object: Item;
   };
 }
 
