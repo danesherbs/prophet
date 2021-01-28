@@ -78,6 +78,21 @@ class House {
     return this.description;
   }
 
+  getProps(): Props {
+    /* istanbul ignore next */
+    return {
+      houseValue: this.houseValue,
+      loan: this.loan,
+      yearlyInterestRate: this.yearlyInterestRate,
+      yearlyAppreciationRate: this.yearlyAppreciationRate,
+      monthlyGrossRentalIncome: this.monthlyGrossRentalIncome,
+      yearlyRentalIncomeIncrease: this.yearlyRentalIncomeIncrease,
+      buildingDepreciationRate: this.buildingDepreciationRate,
+      purchaseTime: this.purchaseTime,
+      description: this.description,
+    };
+  }
+
   getMonthlyInterestRate() {
     return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
   }
