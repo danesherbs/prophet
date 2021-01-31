@@ -153,6 +153,8 @@ class History {
 
   getSuper = (): Super => this.history[0].getSuper();
 
+  getBank = (): Bank => this.history[0].getBank();
+
   getStock = (): Map<string, Stock> =>
     this.getHistory().reduce(
       (acc, state) => new Map([...acc, ...Object.entries(state.getStocks())]),
