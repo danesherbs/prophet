@@ -24,6 +24,7 @@ class Expense {
   }
 
   getYearlyIncrease() {
+    /* istanbul ignore next */
     return this.yearlyIncrease;
   }
 
@@ -38,11 +39,23 @@ class Expense {
   }
 
   getDescription() {
+    /* istanbul ignore next */
     return this.description;
   }
 
   getInitialTime() {
+    /* istanbul ignore next */
     return this.initialTime;
+  }
+
+  getProps(): Props {
+    /* istanbul ignore next */
+    return {
+      yearlyIncrease: this.yearlyIncrease,
+      weeklyAmount: this.weeklyAmount,
+      description: this.description,
+      initialTime: this.initialTime,
+    };
   }
 
   getMonthlyAmount(time: number) {
