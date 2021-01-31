@@ -137,6 +137,12 @@ class History {
       new Map<string, House>()
     );
 
+  getStocks = (): Map<string, Stock> =>
+    this.getHistory().reduce(
+      (acc, state) => new Map([...acc, ...Object.entries(state.getStocks())]),
+      new Map<string, Stock>()
+    );
+
   getExpenses = (): Map<string, Expense> =>
     this.getHistory().reduce(
       (acc, state) => new Map([...acc, ...Object.entries(state.getExpenses())]),
