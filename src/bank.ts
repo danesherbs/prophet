@@ -3,17 +3,25 @@ type Transaction = [number, number, string];
 interface Props {
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
+  initialBalance?: number;
   description?: string;
 }
 
 class Bank {
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
+  initialBalance?: number;
   description?: string;
 
-  constructor({ transactions, yearlyInterestRate, description }: Props) {
+  constructor({
+    transactions,
+    yearlyInterestRate,
+    initialBalance,
+    description,
+  }: Props) {
     this.transactions = transactions;
     this.yearlyInterestRate = yearlyInterestRate;
+    this.initialBalance = initialBalance;
     this.description = description;
   }
   getYearlyInterestRate() {
@@ -21,14 +29,18 @@ class Bank {
     return this.yearlyInterestRate;
   }
 
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
-  }
-
   getTransactions() {
     /* istanbul ignore next */
     return this.transactions;
+  }
+
+  getInitialBalance() {
+    return this.initialBalance ? this.initialBalance : 0;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
   }
 
   getProps(): Props {
@@ -67,12 +79,14 @@ class Bank {
   }
 
   getBalance(now: number) {
-    return this.transactions
-      .map(
-        ([then, amount]) =>
-          amount * Math.pow(1 + this.getMonthlyInterestRate(), now - then)
-      )
-      .reduce((acc, amount) => acc + amount, 0);
+    return (
+      this.transactions
+        .map(
+          ([then, amount]) =>
+            amount * Math.pow(1 + this.getMonthlyInterestRate(), now - then)
+        )
+        .reduce((acc, amount) => acc + amount, 0) + this.getInitialBalance()
+    );
   }
 
   isValidTransactions() {
