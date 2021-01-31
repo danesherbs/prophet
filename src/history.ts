@@ -306,6 +306,7 @@ class History {
       events: this.events,
     });
   };
+
   setBank = (bank: Bank) => {
     if (this.history.length === 0) {
       return this;
