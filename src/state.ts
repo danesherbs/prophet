@@ -443,7 +443,7 @@ class State {
     });
   }
 
-  sellStock(id: keyof Props["stocks"]) {
+  sellStock({ id }: { id: keyof Props["stocks"] }) {
     // TODO: declare capital loss if lost money
     return new State({
       clock: this.clock,

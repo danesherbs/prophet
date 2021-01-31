@@ -170,6 +170,8 @@ class History {
       return this.applyExpenseEvent({ state, event });
     } else if (event.item.object instanceof House) {
       return this.applyHouseEvent({ state, event });
+    } else if (event.item.object instanceof Stock) {
+      return this.applyStockEvent({ state, event });
     } else {
       throw new RangeError("You passed an unrecognised object in an event");
     }
@@ -207,6 +209,23 @@ class History {
     }
 
     return state.sellHouse({ id: event.item.id });
+  };
+
+  private applyStockEvent = ({
+    state,
+    event,
+  }: {
+    state: State;
+    event: Event;
+  }) => {
+    if (event.action === Action.Start) {
+      return state.buyStock({
+        id: event.item.id,
+        stock: event.item.object as Stock,
+      });
+    }
+
+    return state.sellStock({ id: event.item.id });
   };
 
   private applyEvents = (state: State, events: Event[]) => {
