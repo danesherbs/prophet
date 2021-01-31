@@ -16,6 +16,29 @@ class Bank {
     this.yearlyInterestRate = yearlyInterestRate;
     this.description = description;
   }
+  getYearlyInterestRate() {
+    /* istanbul ignore next */
+    return this.yearlyInterestRate;
+  }
+
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
+  }
+
+  getTransactions() {
+    /* istanbul ignore next */
+    return this.transactions;
+  }
+
+  getProps(): Props {
+    /* istanbul ignore next */
+    return {
+      transactions: this.transactions,
+      yearlyInterestRate: this.yearlyInterestRate,
+      description: this.description,
+    };
+  }
 
   deposit(time: number, amount: number, description: string) {
     return new Bank({
@@ -39,20 +62,8 @@ class Bank {
     });
   }
 
-  getYearlyInterestRate() {
-    return this.yearlyInterestRate;
-  }
-
-  getDescription() {
-    return this.description;
-  }
-
   getMonthlyInterestRate() {
     return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
-  }
-
-  getTransactions() {
-    return this.transactions;
   }
 
   getBalance(now: number) {

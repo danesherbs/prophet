@@ -56,7 +56,7 @@ class Stock {
     return this.description;
   }
 
-  getProps() {
+  getProps(): Props {
     /* istanbul ignore next */
     return {
       rateOfReturn: this.rateOfReturn,
