@@ -85,7 +85,9 @@ class Bank {
           ([then, amount]) =>
             amount * Math.pow(1 + this.getMonthlyInterestRate(), now - then)
         )
-        .reduce((acc, amount) => acc + amount, 0) + this.getInitialBalance()
+        .reduce((acc, amount) => acc + amount, 0) +
+      this.getInitialBalance() *
+        Math.pow(1 + this.getMonthlyInterestRate(), now)
     );
   }
 
