@@ -280,31 +280,33 @@ test("correct state change when selling stock", () => {
   });
 
   // Unchanged
-  expect(state.sellStock("a").getClock()).toEqual(state.getClock());
-  expect(state.sellStock("a").getHouses()).toEqual(state.getHouses());
-  expect(state.sellStock("a").getSuper()).toEqual(state.getSuper());
-  expect(state.sellStock("a").getSalary()).toEqual(state.getSalary());
+  expect(state.sellStock({ id: "a" }).getClock()).toEqual(state.getClock());
+  expect(state.sellStock({ id: "a" }).getHouses()).toEqual(state.getHouses());
+  expect(state.sellStock({ id: "a" }).getSuper()).toEqual(state.getSuper());
+  expect(state.sellStock({ id: "a" }).getSalary()).toEqual(state.getSalary());
 
   // Changed
   expect(state.getStocks()).toEqual({ a: stock, b: stock });
-  expect(state.sellStock("a").getStocks()).toEqual({ b: stock });
-  expect(state.sellStock("a").getBank().getBalance(0)).toEqual(5_000);
-  expect(state.sellStock("a").getTax()).toEqual(
+  expect(state.sellStock({ id: "a" }).getStocks()).toEqual({ b: stock });
+  expect(state.sellStock({ id: "a" }).getBank().getBalance(0)).toEqual(5_000);
+  expect(state.sellStock({ id: "a" }).getTax()).toEqual(
     state.getTax().declareIncome(0, 0)
   );
 
   // Changed after one month
   expect(state.waitOneMonth().getStocks()).toEqual({ a: stock, b: stock });
-  expect(state.waitOneMonth().sellStock("a").getStocks()).toEqual({ b: stock });
+  expect(state.waitOneMonth().sellStock({ id: "a" }).getStocks()).toEqual({
+    b: stock,
+  });
   expect(
-    state.waitOneMonth().sellStock("a").getBank().getBalance(1)
+    state.waitOneMonth().sellStock({ id: "a" }).getBank().getBalance(1)
   ).toBeCloseTo(
     salary.getMonthlyNetSalary(0) * (1 + bank.getMonthlyInterestRate()) +
       stock.getPrice(1) * stock.getNumberOfUnits(),
     10
   );
 
-  expect(state.waitOneMonth().sellStock("a").getTax()).toEqual(
+  expect(state.waitOneMonth().sellStock({ id: "a" }).getTax()).toEqual(
     state
       .getTax()
       .declareIncome(0, salary.getMonthlyGrossSalary(0))
