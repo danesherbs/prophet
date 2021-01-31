@@ -259,6 +259,26 @@ class History {
       events: this.events,
     });
   };
+
+  setSuper = (superan: Super) => {
+    if (this.history.length === 0) {
+      return this;
+    }
+
+    if (this.history.length === 1) {
+      return new History({
+        history: [this.history[0].updateSuper({ data: superan.getProps() })],
+        events: this.events,
+      });
+    }
+
+    const [head, ...tail] = this.history;
+
+    return new History({
+      history: [head.updateSuper({ data: superan.getProps() }), ...tail],
+      events: this.events,
+    });
+  };
 }
 
 export default History;
