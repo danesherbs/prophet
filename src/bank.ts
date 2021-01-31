@@ -48,6 +48,7 @@ class Bank {
     return {
       transactions: this.transactions,
       yearlyInterestRate: this.yearlyInterestRate,
+      initialBalance: this.initialBalance,
       description: this.description,
     };
   }
@@ -60,6 +61,8 @@ class Bank {
         description,
       ]),
       yearlyInterestRate: this.yearlyInterestRate,
+      initialBalance: this.initialBalance,
+      description: this.description,
     });
   }
 
@@ -71,6 +74,8 @@ class Bank {
         description,
       ]),
       yearlyInterestRate: this.yearlyInterestRate,
+      initialBalance: this.initialBalance,
+      description: this.description,
     });
   }
 
