@@ -49,6 +49,17 @@ class Salary {
     return this.yearlySalaryIncrease;
   }
 
+  getProps(): Props {
+    /* istanbul ignore next */
+    return {
+      yearlyGrossSalary: this.yearlyGrossSalary,
+      yearlySalaryIncrease: this.yearlySalaryIncrease,
+      tax: this.tax,
+      creationTime: this.creationTime,
+      description: this.description,
+    };
+  }
+
   getYearlyGrossSalary(time: number) {
     return (
       this.yearlyGrossSalary *
