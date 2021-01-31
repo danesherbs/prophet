@@ -242,7 +242,7 @@ class History {
 
   setSalary = (salary: Salary) => {
     if (this.history.length === 0) {
-      return this.history;
+      return this;
     }
 
     if (this.history.length === 1) {
