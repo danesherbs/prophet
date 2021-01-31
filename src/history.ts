@@ -8,6 +8,7 @@ import Stock from "./stock";
 import Bank from "./bank";
 import Super from "./super";
 import Tax from "./tax";
+import { uniqueId } from "lodash";
 
 // type Event = (state: State) => State;
 
@@ -142,11 +143,7 @@ class History {
       new Map<string, Expense>()
     );
 
-  getSalaries = (): Map<string, Salary> =>
-    this.getHistory().reduce(
-      (acc, state) => new Map([...acc, ...Object.entries(state.getSalary())]),
-      new Map<string, Salary>()
-    );
+  getSalary = (): Salary => this.history[0].getSalary();
 
   getStock = (): Map<string, Stock> =>
     this.getHistory().reduce(
