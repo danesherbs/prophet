@@ -136,6 +136,18 @@ class History {
       new Map<string, House>()
     );
 
+  getExpenses = (): Map<string, Expense> =>
+    this.getHistory().reduce(
+      (acc, state) => new Map([...acc, ...Object.entries(state.getExpenses())]),
+      new Map<string, Expense>()
+    );
+
+  getStock = (): Map<string, Stock> =>
+    this.getHistory().reduce(
+      (acc, state) => new Map([...acc, ...Object.entries(state.getStocks())]),
+      new Map<string, Stock>()
+    );
+
   private applyEvent = ({
     state,
     event,
