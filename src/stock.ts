@@ -56,6 +56,17 @@ class Stock {
     return this.description;
   }
 
+  getProps() {
+    /* istanbul ignore next */
+    return {
+      rateOfReturn: this.rateOfReturn,
+      initialTime: this.initialTime,
+      initialPrice: this.initialPrice,
+      transactions: this.transactions,
+      description: this.description,
+    };
+  }
+
   getMonthlyRateOfReturn() {
     return Math.pow(1 + this.rateOfReturn, 1 / 12) - 1;
   }
