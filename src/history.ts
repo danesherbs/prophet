@@ -130,6 +130,13 @@ class History {
     return null;
   };
 
+  getHouses = () => {
+    this.getHistory().reduce(
+      (acc, state) => new Set([...acc, ...Object.values(state.getHouses())]),
+      new Set<House>()
+    );
+  };
+
   private applyEvent = ({
     state,
     event,
