@@ -132,8 +132,8 @@ class History {
 
   getHouses = () =>
     this.getHistory().reduce(
-      (acc, state) => new Set([...acc, ...Object.values(state.getHouses())]),
-      new Set<House>()
+      (acc, state) => new Map([...acc, ...Object.entries(state.getHouses())]),
+      new Map<string, House>()
     );
 
   private applyEvent = ({
