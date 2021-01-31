@@ -56,6 +56,17 @@ class Super {
     return this.description;
   }
 
+  getProps() {
+    /* istanbul ignore next */
+    return {
+      tax: this.tax,
+      transactions: this.transactions,
+      yearlyInterestRate: this.yearlyInterestRate,
+      contributionRate: this.contributionRate,
+      description: this.description,
+    };
+  }
+
   deposit(time: number, amount: number) {
     return new Super({
       tax: this.tax,
