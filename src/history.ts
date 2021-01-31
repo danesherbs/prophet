@@ -239,6 +239,26 @@ class History {
       ),
     });
   };
+
+  setSalary = (salary: Salary) => {
+    if (this.history.length === 0) {
+      return this.history;
+    }
+
+    if (this.history.length === 1) {
+      return new History({
+        history: [this.history[0].updateSalary({ data: salary.getProps() })],
+        events: this.events,
+      });
+    }
+
+    const [head, ...tail] = this.history;
+
+    return new History({
+      history: [head.updateSalary({ data: salary.getProps() }), ...tail],
+      events: this.events,
+    });
+  };
 }
 
 export default History;
