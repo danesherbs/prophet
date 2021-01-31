@@ -35,7 +35,7 @@ class Bank {
   }
 
   getInitialBalance() {
-    return this.initialBalance ? this.initialBalance : 0;
+    return this.initialBalance === undefined ? 0 : this.initialBalance;
   }
 
   getDescription() {
