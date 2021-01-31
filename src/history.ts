@@ -306,6 +306,25 @@ class History {
       events: this.events,
     });
   };
+  setBank = (bank: Bank) => {
+    if (this.history.length === 0) {
+      return this;
+    }
+
+    if (this.history.length === 1) {
+      return new History({
+        history: [this.history[0].updateBank({ data: bank.getProps() })],
+        events: this.events,
+      });
+    }
+
+    const [head, ...tail] = this.history;
+
+    return new History({
+      history: [head.updateBank({ data: bank.getProps() }), ...tail],
+      events: this.events,
+    });
+  };
 }
 
 export default History;
