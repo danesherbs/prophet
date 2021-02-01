@@ -55,10 +55,10 @@ const house = new House({
 });
 
 const stock = new Stock({
+  numberOfUnits: 10,
+  pricePerUnit: 500,
   rateOfReturn: 0.1,
   initialTime: 0,
-  initialPrice: 500,
-  transactions: [[0, 10]],
 });
 
 test("getters are working correctly", () => {
@@ -206,7 +206,7 @@ test("correct net wealth after a month with salary, house, stock and expense", (
   });
 
   expect(state.getNetWealth()).toEqual(
-    house.getEquity(0) + stock.getInitialPrice() * stock.getNumberOfUnits()
+    house.getEquity(0) + stock.getTotalValue(0)
   );
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
@@ -218,17 +218,17 @@ test("correct net wealth after a month with salary, house, stock and expense", (
       superan.getMonthlyNetSuperContribution(120_000) *
         (1 + superan.getMonthlyInterestRate()) +
       house.getEquity(1) +
-      stock.getPrice(1) * stock.getNumberOfUnits(),
+      stock.getTotalValue(1),
     10
   );
 });
 
 test("correct state change when buying stock", () => {
   const stock = new Stock({
+    numberOfUnits: 10,
+    pricePerUnit: 500,
     rateOfReturn: 0.1,
     initialTime: 0,
-    initialPrice: 500,
-    transactions: [[0, 10]],
   });
 
   const state = new State({
@@ -302,7 +302,7 @@ test("correct state change when selling stock", () => {
     state.waitOneMonth().sellStock({ id: "a" }).getBank().getBalance(1)
   ).toBeCloseTo(
     salary.getMonthlyNetSalary(0) * (1 + bank.getMonthlyInterestRate()) +
-      stock.getPrice(1) * stock.getNumberOfUnits(),
+      stock.getTotalValue(1),
     10
   );
 
@@ -323,10 +323,7 @@ test("correct state change when selling stock", () => {
           12,
         TaxType.Super
       )
-      .declareIncome(
-        1,
-        (stock.getPrice(1) - stock.getInitialPrice()) * stock.getNumberOfUnits()
-      )
+      .declareIncome(1, stock.getTotalValue(1) - stock.getTotalValue(0))
   );
 });
 

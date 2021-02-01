@@ -58,8 +58,7 @@ class State {
       this.bank.getBalance(this.clock.getTime()) +
       this.superan.getBalance(this.clock.getTime()) +
       Object.values(this.stocks).reduce(
-        (acc, stock) =>
-          acc + stock.getNumberOfUnits() * stock.getPrice(this.clock.getTime()),
+        (acc, stock) => acc + stock.getTotalValue(this.clock.getTime()),
         0
       ) +
       Object.values(this.houses).reduce(
@@ -432,7 +431,7 @@ class State {
       tax: this.tax,
       bank: this.bank.withdraw(
         this.clock.getTime(),
-        stock.getPrice(this.clock.getTime()) * stock.getNumberOfUnits(),
+        stock.getTotalValue(this.clock.getTime()),
         "Buy stock"
       ),
       superan: this.superan,
@@ -449,14 +448,12 @@ class State {
       clock: this.clock,
       tax: this.tax.declareIncome(
         this.clock.getTime(),
-        (this.stocks[id].getPrice(this.clock.getTime()) -
-          this.stocks[id].getInitialPrice()) *
-          this.stocks[id].getNumberOfUnits()
+        this.stocks[id].getTotalValue(this.clock.getTime()) -
+          this.stocks[id].getTotalValue(this.stocks[id].getInitialTime())
       ),
       bank: this.bank.deposit(
         this.clock.getTime(),
-        this.stocks[id].getPrice(this.clock.getTime()) *
-          this.stocks[id].getNumberOfUnits(),
+        this.stocks[id].getTotalValue(this.clock.getTime()),
         "Sold stock"
       ),
       superan: this.superan,
