@@ -92,10 +92,10 @@ class Environment {
         newState = this.state.buyStock({
           id: "a",
           stock: new Stock({
+            numberOfUnits: 10,
+            pricePerUnit: 500,
             rateOfReturn: 0.1,
             initialTime: 0,
-            initialPrice: 500,
-            transactions: [[0, 100]],
           }),
         });
         break;
