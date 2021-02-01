@@ -72,6 +72,7 @@ class Super {
       transactions: this.transactions,
       yearlyInterestRate: this.yearlyInterestRate,
       contributionRate: this.contributionRate,
+      initialBalance: this.initialBalance,
       description: this.description,
     };
   }
@@ -85,6 +86,8 @@ class Super {
       ]),
       yearlyInterestRate: this.yearlyInterestRate,
       contributionRate: this.contributionRate,
+      initialBalance: this.initialBalance,
+      description: this.description,
     });
   }
 
