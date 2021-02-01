@@ -60,9 +60,7 @@ class Environment {
         .getBalance(this.state.getClock().getTime()),
       "Stock balance:": Object.values(this.state.getStocks()).reduce(
         (acc, stock) =>
-          acc +
-          stock.getNumberOfUnits() *
-            stock.getPrice(this.state.getClock().getTime()),
+          acc + stock.getTotalValue(this.state.getClock().getTime()),
         0
       ),
       "Total net worth": this.state.getNetWealth(),
