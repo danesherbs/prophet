@@ -7,6 +7,7 @@ interface Props {
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   contributionRate: number;
+  initialBalance?: number;
   description?: string;
 }
 
@@ -15,6 +16,7 @@ class Super {
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   contributionRate: number;
+  initialBalance?: number;
   description?: string;
 
   constructor({
@@ -22,12 +24,14 @@ class Super {
     transactions,
     yearlyInterestRate,
     contributionRate,
+    initialBalance,
     description,
   }: Props) {
     this.tax = tax;
     this.transactions = transactions;
     this.yearlyInterestRate = yearlyInterestRate;
     this.contributionRate = contributionRate;
+    this.initialBalance = initialBalance;
     this.description = description;
   }
 
@@ -49,6 +53,11 @@ class Super {
   getContributionRate() {
     /* istanbul ignore next */
     return this.contributionRate;
+  }
+
+  getInitialBalance() {
+    /* istanbul ignore next */
+    return this.initialBalance === undefined ? 0 : this.initialBalance;
   }
 
   getDescription() {
@@ -97,12 +106,16 @@ class Super {
   }
 
   getBalance(time: number) {
-    return this.transactions
-      .map(
-        ([then, amount]) =>
-          amount * Math.pow(1 + this.getMonthlyInterestRate(), time - then)
-      )
-      .reduce((acc, amount) => acc + amount, 0);
+    return (
+      this.transactions
+        .map(
+          ([then, amount]) =>
+            amount * Math.pow(1 + this.getMonthlyInterestRate(), time - then)
+        )
+        .reduce((acc, amount) => acc + amount, 0) +
+      this.getInitialBalance() *
+        Math.pow(1 + this.getMonthlyInterestRate(), time)
+    );
   }
 }
 
