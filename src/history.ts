@@ -48,6 +48,13 @@ class History {
     }
   }
 
+  getProps = (): Props => {
+    return {
+      history: this.history,
+      events: this.events,
+    };
+  };
+
   getHistory = () => {
     const transformed = Array.from(this.history);
 
