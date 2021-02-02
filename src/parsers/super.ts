@@ -1,12 +1,12 @@
-import { toArray, toNumber } from "lodash";
 import Super, { Props } from "../super";
 import taxParser from "./tax";
+import { toNumber } from "lodash";
 
 const parser = (obj: Props): Super => {
   try {
     return new Super({
       tax: taxParser(obj.tax) as Props["tax"],
-      transactions: toArray(obj.transactions) as Props["transactions"],
+      transactions: obj.transactions as Props["transactions"],
       yearlyInterestRate: toNumber(
         obj.yearlyInterestRate
       ) as Props["yearlyInterestRate"],

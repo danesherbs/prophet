@@ -1,10 +1,10 @@
-import { toArray, toNumber } from "lodash";
+import { toNumber } from "lodash";
 import Bank, { Props } from "../bank";
 
 const parser = (obj: Props): Bank => {
   try {
     return new Bank({
-      transactions: toArray(obj.transactions) as Props["transactions"],
+      transactions: obj.transactions as Props["transactions"],
       yearlyInterestRate: toNumber(
         obj.yearlyInterestRate
       ) as Props["yearlyInterestRate"],

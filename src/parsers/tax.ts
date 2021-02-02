@@ -1,15 +1,13 @@
-import { toArray, toNumber } from "lodash";
 import Tax, { Props } from "../tax";
+import { toNumber } from "lodash";
 
 const parser = (obj: Props): Tax => {
   try {
     return new Tax({
-      incomeTaxBrackets: toArray(
-        obj.incomeTaxBrackets
-      ) as Props["incomeTaxBrackets"],
+      incomeTaxBrackets: obj.incomeTaxBrackets as Props["incomeTaxBrackets"],
       superTaxRate: toNumber(obj.superTaxRate) as Props["superTaxRate"],
-      declared: toArray(obj.declared) as Props["declared"],
-      paid: toArray(obj.paid) as Props["paid"],
+      declared: obj.declared as Props["declared"],
+      paid: obj.paid as Props["paid"],
       description: obj.description as Props["description"],
     });
   } finally {
