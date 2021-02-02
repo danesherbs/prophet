@@ -1,16 +1,27 @@
 import House, { Props } from "../house";
+import { toInteger, toNumber } from "lodash";
 
 const parser = (obj: Props): House => {
   try {
     return new House({
-      houseValue: obj.houseValue as Props["houseValue"],
-      loan: obj.loan as Props["loan"],
-      yearlyInterestRate: obj.yearlyInterestRate as Props["yearlyInterestRate"],
-      yearlyAppreciationRate: obj.yearlyAppreciationRate as Props["yearlyAppreciationRate"],
-      monthlyGrossRentalIncome: obj.monthlyGrossRentalIncome as Props["monthlyGrossRentalIncome"],
-      yearlyRentalIncomeIncrease: obj.yearlyRentalIncomeIncrease as Props["yearlyRentalIncomeIncrease"],
-      buildingDepreciationRate: obj.buildingDepreciationRate as Props["buildingDepreciationRate"],
-      purchaseTime: obj.purchaseTime as Props["purchaseTime"],
+      houseValue: toInteger(obj.houseValue) as Props["houseValue"],
+      loan: toInteger(obj.loan) as Props["loan"],
+      yearlyInterestRate: toNumber(
+        obj.yearlyInterestRate
+      ) as Props["yearlyInterestRate"],
+      yearlyAppreciationRate: toNumber(
+        obj.yearlyAppreciationRate
+      ) as Props["yearlyAppreciationRate"],
+      monthlyGrossRentalIncome: toInteger(
+        obj.monthlyGrossRentalIncome
+      ) as Props["monthlyGrossRentalIncome"],
+      yearlyRentalIncomeIncrease: toNumber(
+        obj.yearlyRentalIncomeIncrease
+      ) as Props["yearlyRentalIncomeIncrease"],
+      buildingDepreciationRate: toNumber(
+        obj.buildingDepreciationRate
+      ) as Props["buildingDepreciationRate"],
+      purchaseTime: toInteger(obj.purchaseTime) as Props["purchaseTime"],
       description: obj.description as Props["description"],
     });
   } finally {

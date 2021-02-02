@@ -1,5 +1,6 @@
 import History, { Props } from "../history";
 import stateParser from "./state";
+import { toArray } from "lodash";
 
 const parser = (obj: Props): History => {
   try {
@@ -7,7 +8,7 @@ const parser = (obj: Props): History => {
       history: (obj.history as Props["history"]).map((state) =>
         stateParser(state)
       ),
-      events: obj.events as Props["events"],
+      events: toArray(obj.events) as Props["events"],
     });
   } finally {
     console.log("Couldn't parse", obj);
