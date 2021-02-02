@@ -513,4 +513,4 @@ class State {
 }
 
 export default State;
-export type { Props };
+export type { Props, Collection };

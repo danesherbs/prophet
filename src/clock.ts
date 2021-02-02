@@ -1,3 +1,7 @@
+interface Props {
+  time: number;
+}
+
 class Clock {
   time: number;
 
@@ -15,3 +19,4 @@ class Clock {
 }
 
 export default Clock;
+export { Props };

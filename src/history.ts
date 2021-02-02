@@ -8,7 +8,6 @@ import Stock from "./stock";
 import Bank from "./bank";
 import Super from "./super";
 import Tax from "./tax";
-import { uniqueId } from "lodash";
 
 // type Event = (state: State) => State;
 
@@ -338,5 +337,5 @@ class History {
 }
 
 export default History;
-export { Action };
 export type { Props };
+export { Action };
