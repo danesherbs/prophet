@@ -181,7 +181,9 @@ class History {
     } else if (event.item.object instanceof Stock) {
       return this.applyStockEvent({ state, event });
     } else {
-      throw new RangeError("You passed an unrecognised object in an event");
+      throw new RangeError(
+        "You passed an unrecognised object in an event " + event
+      );
     }
   };
 
