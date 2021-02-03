@@ -1,4 +1,3 @@
-import { setConstantValue } from "typescript";
 import Stock from "../src/stock";
 
 const stock = new Stock({
