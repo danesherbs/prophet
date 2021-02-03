@@ -1,18 +1,20 @@
 import Tax, { Props } from "../tax";
-import { toNumber } from "lodash";
 
-const parser = (obj: Props): Tax => {
+const parser = (obj: Object): Tax | null => {
   try {
     return new Tax({
-      incomeTaxBrackets: obj.incomeTaxBrackets as Props["incomeTaxBrackets"],
-      superTaxRate: toNumber(obj.superTaxRate) as Props["superTaxRate"],
-      declared: obj.declared as Props["declared"],
-      paid: obj.paid as Props["paid"],
-      description: obj.description as Props["description"],
+      incomeTaxBrackets: Object(obj)
+        .incomeTaxBrackets as Props["incomeTaxBrackets"],
+      superTaxRate: Object(obj).superTaxRate as Props["superTaxRate"],
+      declared: Object(obj).declared as Props["declared"],
+      paid: Object(obj).paid as Props["paid"],
+      description: Object(obj).description as Props["description"],
     });
-  } finally {
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;

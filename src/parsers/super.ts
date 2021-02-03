@@ -1,24 +1,23 @@
 import Super, { Props } from "../super";
 import taxParser from "./tax";
-import { toNumber } from "lodash";
 
-const parser = (obj: Props): Super => {
+const parser = (obj: Object): Super | null => {
   try {
     return new Super({
-      tax: taxParser(obj.tax) as Props["tax"],
-      transactions: obj.transactions as Props["transactions"],
-      yearlyInterestRate: toNumber(
-        obj.yearlyInterestRate
-      ) as Props["yearlyInterestRate"],
-      contributionRate: toNumber(
-        obj.contributionRate
-      ) as Props["contributionRate"],
-      initialBalance: toNumber(obj.initialBalance) as Props["initialBalance"],
-      description: obj.description as Props["description"],
+      tax: taxParser(Object(obj).tax) as Props["tax"],
+      transactions: Object(obj).transactions as Props["transactions"],
+      yearlyInterestRate: Object(obj)
+        .yearlyInterestRate as Props["yearlyInterestRate"],
+      contributionRate: Object(obj)
+        .contributionRate as Props["contributionRate"],
+      initialBalance: Object(obj).initialBalance as Props["initialBalance"],
+      description: Object(obj).description as Props["description"],
     });
-  } finally {
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;

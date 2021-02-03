@@ -1,17 +1,18 @@
 import Stock, { Props } from "../stock";
-import { toInteger, toNumber } from "lodash";
 
-const parser = (obj: Props): Stock => {
+const parser = (obj: Object): Stock | null => {
   try {
     return new Stock({
-      numberOfUnits: toInteger(obj.numberOfUnits) as Props["numberOfUnits"],
-      pricePerUnit: toNumber(obj.pricePerUnit) as Props["pricePerUnit"],
-      rateOfReturn: toNumber(obj.rateOfReturn) as Props["rateOfReturn"],
-      initialTime: toInteger(obj.initialTime) as Props["initialTime"],
+      numberOfUnits: Object(obj).numberOfUnits as Props["numberOfUnits"],
+      pricePerUnit: Object(obj).pricePerUnit as Props["pricePerUnit"],
+      rateOfReturn: Object(obj).rateOfReturn as Props["rateOfReturn"],
+      initialTime: Object(obj).initialTime as Props["initialTime"],
     });
-  } finally {
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;

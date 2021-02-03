@@ -1,17 +1,18 @@
 import Expense, { Props } from "../expense";
-import { toNumber } from "lodash";
 
-const parser = (obj: Props): Expense => {
+const parser = (obj: Object): Expense | null => {
   try {
     return new Expense({
-      yearlyIncrease: toNumber(obj.yearlyIncrease) as Props["yearlyIncrease"],
-      weeklyAmount: toNumber(obj.weeklyAmount) as Props["weeklyAmount"],
-      description: obj.description as Props["description"],
-      initialTime: toNumber(obj.initialTime) as Props["initialTime"],
+      yearlyIncrease: Object(obj).yearlyIncrease as Props["yearlyIncrease"],
+      weeklyAmount: Object(obj).weeklyAmount as Props["weeklyAmount"],
+      description: Object(obj).description as Props["description"],
+      initialTime: Object(obj).initialTime as Props["initialTime"],
     });
-  } finally {
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;

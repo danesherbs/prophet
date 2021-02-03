@@ -12,36 +12,38 @@ import houseParser from "./house";
 import stockParser from "./stock";
 import expenseParser from "./expense";
 
-const parser = (obj: Props): State => {
+const parser = (obj: Object): State | null => {
   try {
     return new State({
-      clock: clockParser(obj.clock) as Props["clock"],
-      tax: taxParser(obj.tax) as Props["tax"],
-      bank: bankParser(obj.bank) as Props["bank"],
-      superan: superParser(obj.superan) as Props["superan"],
-      salary: salaryParser(obj.salary) as Props["salary"],
+      clock: clockParser(Object(obj).clock) as Props["clock"],
+      tax: taxParser(Object(obj).tax) as Props["tax"],
+      bank: bankParser(Object(obj).bank) as Props["bank"],
+      superan: superParser(Object(obj).superan) as Props["superan"],
+      salary: salaryParser(Object(obj).salary) as Props["salary"],
       houses: Object.fromEntries(
-        Object.entries(obj.houses).map(([key, value]) => [
+        Object.entries(Object(obj).houses).map(([key, value]) => [
           key,
-          houseParser(value) as House,
+          houseParser(value as Object) as House,
         ])
       ) as Collection<House>,
       stocks: Object.fromEntries(
-        Object.entries(obj.stocks).map(([key, value]) => [
+        Object.entries(Object(obj).stocks).map(([key, value]) => [
           key,
-          stockParser(value) as Stock,
+          stockParser(value as Object) as Stock,
         ])
       ) as Collection<Stock>,
       expenses: Object.fromEntries(
-        Object.entries(obj.expenses).map(([key, value]) => [
+        Object.entries(Object(obj).expenses).map(([key, value]) => [
           key,
-          expenseParser(value) as Expense,
+          expenseParser(value as Object) as Expense,
         ])
       ) as Collection<Expense>,
     });
-  } finally {
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;

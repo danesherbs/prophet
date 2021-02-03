@@ -1,12 +1,13 @@
 import Clock, { Props } from "../clock";
-import { toInteger } from "lodash";
 
-const parser = (obj: Props): Clock => {
+const parser = (obj: Object): Clock | null => {
   try {
-    return new Clock(toInteger(obj.time) as Props["time"]);
-  } finally {
+    return new Clock(Object(obj).time as Props["time"]);
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;

@@ -1,17 +1,19 @@
 import History, { Props } from "../history";
 import stateParser from "./state";
 
-const parser = (obj: Props): History => {
+const parser = (obj: Object): History | null => {
   try {
     return new History({
-      history: (obj.history as Props["history"]).map((state) =>
+      history: (Object(obj).history as Array<any>).map((state) =>
         stateParser(state)
-      ),
-      events: obj.events as Props["events"],
+      ) as Props["history"],
+      events: Object(obj).events as Props["events"], // TODO: parse events
     });
-  } finally {
+  } catch (error) {
     console.log("Couldn't parse", obj);
   }
+
+  return null;
 };
 
 export default parser;
