@@ -83,11 +83,11 @@ class History {
       }
     }
 
-    throw new RangeError("No start found for id " + id);
+    return null;
   };
 
   getEnd = ({ id }: { id: string }) => {
-    const start = this.getStart({ id });
+    const start = this.getStart({ id }) || -1;
 
     for (let [time, state] of this.getHistory().entries()) {
       if (
@@ -102,7 +102,7 @@ class History {
       }
     }
 
-    throw new RangeError("No end found for id " + id);
+    return null;
   };
 
   getType = ({ id }: { id: string }) => {
