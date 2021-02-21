@@ -148,7 +148,7 @@ class History {
     item,
     remove,
   }: {
-    time: number;
+    time: number | null;
     id: string;
     item: Item;
     remove: boolean;
