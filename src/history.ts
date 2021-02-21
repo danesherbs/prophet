@@ -155,7 +155,7 @@ class History {
   }) => {
     const currentEndDate = this.getEnd({ id });
 
-    if (currentEndDate === null) {
+    if (currentEndDate === null && time !== null) {
       return this.addEvent({
         time: time,
         event: {
@@ -166,28 +166,38 @@ class History {
           },
         },
       });
-    }
-
-    return this.removeEvent({
-      time: currentEndDate,
-      action: Action.Sell,
-      id,
-    })
-      .removeEvent({
+    } else if (currentEndDate !== null && time === null) {
+      return this.removeEvent({
+        time: currentEndDate,
+        action: Action.Sell,
+        id,
+      }).removeEvent({
         time: currentEndDate,
         action: Action.Remove,
         id,
-      })
-      .addEvent({
-        time: time,
-        event: {
-          action: remove ? Action.Remove : Action.Sell,
-          item: {
-            id,
-            object: item,
-          },
-        },
       });
+    } else if (currentEndDate !== null && time !== null) {
+      return this.removeEvent({
+        time: currentEndDate,
+        action: Action.Sell,
+        id,
+      })
+        .removeEvent({
+          time: currentEndDate,
+          action: Action.Remove,
+          id,
+        })
+        .addEvent({
+          time: time,
+          event: {
+            action: remove ? Action.Remove : Action.Sell,
+            item: {
+              id,
+              object: item,
+            },
+          },
+        });
+    }
   };
 
   getType = ({ id }: { id: string }) => {
