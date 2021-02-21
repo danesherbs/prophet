@@ -303,6 +303,13 @@ class History {
     state: State;
     event: Event;
   }) => {
+    if (event.action === Action.UpdateInitialState) {
+      return state.addExpense({
+        id: event.item.id,
+        expense: event.item.object as Expense,
+      });
+    }
+
     if (event.action === Action.Start) {
       return state.addExpense({
         id: event.item.id,
@@ -320,6 +327,13 @@ class History {
     state: State;
     event: Event;
   }) => {
+    if (event.action === Action.UpdateInitialState) {
+      return state.addHouse({
+        id: event.item.id,
+        house: event.item.object as House,
+      });
+    }
+
     if (event.action === Action.Start) {
       return state.buyHouse({
         id: event.item.id,
@@ -337,6 +351,13 @@ class History {
     state: State;
     event: Event;
   }) => {
+    if (event.action === Action.UpdateInitialState) {
+      return state.addStock({
+        id: event.item.id,
+        stock: event.item.object as Stock,
+      });
+    }
+
     if (event.action === Action.Start) {
       return state.buyStock({
         id: event.item.id,

@@ -279,6 +279,19 @@ class State {
     });
   }
 
+  addStock({ id, stock }: { id: string; stock: Stock }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: this.houses,
+      stocks: { ...this.stocks, [id]: stock },
+      expenses: this.expenses,
+    });
+  }
+
   updateBank({ data }: { data: BankProps }) {
     return new State({
       clock: this.clock,
@@ -398,6 +411,19 @@ class State {
       superan: this.superan,
       salary: this.salary,
       houses: { ...this.houses, [id]: new House(data) },
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  addHouse({ id, house }: { id: string; house: House }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      bank: this.bank,
+      superan: this.superan,
+      salary: this.salary,
+      houses: { ...this.houses, [id]: house },
       stocks: this.stocks,
       expenses: this.expenses,
     });
