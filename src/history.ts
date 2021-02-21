@@ -90,7 +90,22 @@ class History {
   setStart = ({ time, id, item }: { time: number; id: string; item: Item }) => {
     const currentStartDate = this.getStart({ id });
 
-    if (currentStartDate === null && !isNaN(time)) {
+    if (currentStartDate === null && isNaN(time)) {
+      return this.removeEvent({
+        time: 0,
+        action: Action.UpdateInitialState,
+        id,
+      }).addEvent({
+        time: 0,
+        event: {
+          action: Action.UpdateInitialState,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
+    } else if (currentStartDate === null && !isNaN(time)) {
       return this.removeEvent({
         time: 0,
         action: Action.UpdateInitialState,
