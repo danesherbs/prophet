@@ -136,6 +136,8 @@ class History {
         },
       });
     }
+
+    return this;
   };
 
   getEnd = ({ id }: { id: string }) => {
@@ -193,6 +195,8 @@ class History {
         },
       });
     }
+
+    return this;
   };
 
   getType = ({ id }: { id: string }) => {
