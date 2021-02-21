@@ -124,7 +124,7 @@ class History {
   };
 
   getEnd = ({ id }: { id: string }) => {
-    const start = this.getStart({ id }) || -1;
+    const start = this.getStart({ id });
 
     for (let [time, state] of this.getHistory().entries()) {
       if (
@@ -166,7 +166,9 @@ class History {
           },
         },
       });
-    } else if (currentEndDate !== null && time === null) {
+    }
+
+    if (currentEndDate !== null && time === null) {
       return this.removeEvent({
         time: currentEndDate,
         action: Action.Sell,
@@ -176,7 +178,9 @@ class History {
         action: Action.Remove,
         id,
       });
-    } else if (currentEndDate !== null && time !== null) {
+    }
+
+    if (currentEndDate !== null && time !== null) {
       return this.removeEvent({
         time: currentEndDate,
         action: Action.Sell,
@@ -198,6 +202,8 @@ class History {
           },
         });
     }
+
+    return this;
   };
 
   getType = ({ id }: { id: string }) => {
