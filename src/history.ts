@@ -14,6 +14,7 @@ import Tax from "./tax";
 enum Action {
   Start,
   Stop,
+  UpdateInitialState,
 }
 
 type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
@@ -86,6 +87,57 @@ class History {
     return null;
   };
 
+  setStart = ({ time, id, item }: { time: number; id: string; item: Item }) => {
+    const currentStartDate = this.getStart({ id });
+
+    if (currentStartDate === null && !isNaN(time)) {
+      return this.removeEvent({
+        time: 0,
+        action: Action.UpdateInitialState,
+        id,
+      }).addEvent({
+        time: time,
+        event: {
+          action: Action.Start,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
+    } else if (currentStartDate !== null && isNaN(time)) {
+      return this.removeEvent({
+        time: currentStartDate,
+        action: Action.Start,
+        id,
+      }).addEvent({
+        time: 0,
+        event: {
+          action: Action.UpdateInitialState,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
+    } else if (currentStartDate !== null && !isNaN(time)) {
+      return this.removeEvent({
+        time: currentStartDate,
+        action: Action.Start,
+        id,
+      }).addEvent({
+        time: time,
+        event: {
+          action: Action.Start,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
+    }
+  };
+
   getEnd = ({ id }: { id: string }) => {
     const start = this.getStart({ id }) || -1;
 
@@ -103,6 +155,44 @@ class History {
     }
 
     return null;
+  };
+
+  setEnd = ({ time, id, item }: { time: number; id: string; item: Item }) => {
+    const currentStartDate = this.getStart({ id });
+
+    if (currentStartDate === null && !isNaN(time)) {
+      return this.addEvent({
+        time: time,
+        event: {
+          action: Action.Stop,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
+    } else if (currentStartDate !== null && isNaN(time)) {
+      return this.removeEvent({
+        time: currentStartDate,
+        action: Action.Stop,
+        id,
+      });
+    } else if (currentStartDate !== null && !isNaN(time)) {
+      return this.removeEvent({
+        time: currentStartDate,
+        action: Action.Stop,
+        id,
+      }).addEvent({
+        time: time,
+        event: {
+          action: Action.Stop,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
+    }
   };
 
   getType = ({ id }: { id: string }) => {
