@@ -151,7 +151,7 @@ class History {
     time: number | null;
     id: string;
     item: Item;
-    remove: boolean;
+    remove?: boolean;
   }) => {
     const currentEndDate = this.getEnd({ id });
 
