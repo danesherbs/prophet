@@ -9,8 +9,6 @@ import Bank from "./bank";
 import Super from "./super";
 import Tax from "./tax";
 
-// type Event = (state: State) => State;
-
 enum Action {
   Buy,
   Sell,
@@ -85,75 +83,44 @@ class History {
       }
     }
 
-    return null;
+    throw new RangeError(
+      "Tried to retrieve start for ID " + id + " which doesn't exist."
+    );
   };
 
-  setStart = ({ time, id, item }: { time: number; id: string; item: Item }) => {
+  setStart = ({
+    time,
+    id,
+    item,
+    add,
+  }: {
+    time: number;
+    id: string;
+    item: Item;
+    add?: boolean;
+  }) => {
     const currentStartDate = this.getStart({ id });
 
-    if (currentStartDate === null && isNaN(time)) {
-      return this.removeEvent({
-        time: 0,
+    return this.removeEvent({
+      time: currentStartDate,
+      action: Action.Buy,
+      id,
+    })
+      .removeEvent({
+        time: currentStartDate,
         action: Action.Add,
         id,
-      }).addEvent({
-        time: 0,
-        event: {
-          action: Action.Add,
-          item: {
-            id,
-            object: item,
-          },
-        },
-      });
-    } else if (currentStartDate === null && !isNaN(time)) {
-      return this.removeEvent({
-        time: 0,
-        action: Action.Add,
-        id,
-      }).addEvent({
+      })
+      .addEvent({
         time: time,
         event: {
-          action: Action.Buy,
+          action: add ? Action.Add : Action.Buy,
           item: {
             id,
             object: item,
           },
         },
       });
-    } else if (currentStartDate !== null && isNaN(time)) {
-      return this.removeEvent({
-        time: currentStartDate,
-        action: Action.Buy,
-        id,
-      }).addEvent({
-        time: 0,
-        event: {
-          action: Action.Add,
-          item: {
-            id,
-            object: item,
-          },
-        },
-      });
-    } else if (currentStartDate !== null && !isNaN(time)) {
-      return this.removeEvent({
-        time: currentStartDate,
-        action: Action.Buy,
-        id,
-      }).addEvent({
-        time: time,
-        event: {
-          action: Action.Buy,
-          item: {
-            id,
-            object: item,
-          },
-        },
-      });
-    }
-
-    return this;
   };
 
   getEnd = ({ id }: { id: string }) => {
@@ -175,35 +142,24 @@ class History {
     return null;
   };
 
-  setEnd = ({ time, id, item }: { time: number; id: string; item: Item }) => {
-    const currentStartDate = this.getStart({ id });
+  setEnd = ({
+    time,
+    id,
+    item,
+    remove,
+  }: {
+    time: number;
+    id: string;
+    item: Item;
+    remove: boolean;
+  }) => {
+    const currentEndDate = this.getEnd({ id });
 
-    if (currentStartDate === null && !isNaN(time)) {
+    if (currentEndDate === null) {
       return this.addEvent({
         time: time,
         event: {
-          action: Action.Sell,
-          item: {
-            id,
-            object: item,
-          },
-        },
-      });
-    } else if (currentStartDate !== null && isNaN(time)) {
-      return this.removeEvent({
-        time: currentStartDate,
-        action: Action.Sell,
-        id,
-      });
-    } else if (currentStartDate !== null && !isNaN(time)) {
-      return this.removeEvent({
-        time: currentStartDate,
-        action: Action.Sell,
-        id,
-      }).addEvent({
-        time: time,
-        event: {
-          action: Action.Sell,
+          action: remove ? Action.Remove : Action.Sell,
           item: {
             id,
             object: item,
@@ -212,7 +168,26 @@ class History {
       });
     }
 
-    return this;
+    return this.removeEvent({
+      time: currentEndDate,
+      action: Action.Sell,
+      id,
+    })
+      .removeEvent({
+        time: currentEndDate,
+        action: Action.Remove,
+        id,
+      })
+      .addEvent({
+        time: time,
+        event: {
+          action: remove ? Action.Remove : Action.Sell,
+          item: {
+            id,
+            object: item,
+          },
+        },
+      });
   };
 
   getType = ({ id }: { id: string }) => {
