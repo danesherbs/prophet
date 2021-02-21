@@ -121,7 +121,7 @@ test("adding expense applies to first and last states in history", () => {
       .addEvent({
         time: 0,
         event: {
-          action: Action.Start,
+          action: Action.Add,
           item: {
             id: "new expense",
             object: newExpense,
@@ -138,7 +138,7 @@ test("adding expense applies to first and last states in history", () => {
       .addEvent({
         time: 120,
         event: {
-          action: Action.Start,
+          action: Action.Add,
           item: {
             id: "new expense",
             object: newExpense,
