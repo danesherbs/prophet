@@ -12,9 +12,10 @@ import Tax from "./tax";
 // type Event = (state: State) => State;
 
 enum Action {
-  Start,
-  Stop,
-  UpdateInitialState,
+  Buy,
+  Sell,
+  Add,
+  Remove,
 }
 
 type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
@@ -93,12 +94,12 @@ class History {
     if (currentStartDate === null && isNaN(time)) {
       return this.removeEvent({
         time: 0,
-        action: Action.UpdateInitialState,
+        action: Action.Add,
         id,
       }).addEvent({
         time: 0,
         event: {
-          action: Action.UpdateInitialState,
+          action: Action.Add,
           item: {
             id,
             object: item,
@@ -108,12 +109,12 @@ class History {
     } else if (currentStartDate === null && !isNaN(time)) {
       return this.removeEvent({
         time: 0,
-        action: Action.UpdateInitialState,
+        action: Action.Add,
         id,
       }).addEvent({
         time: time,
         event: {
-          action: Action.Start,
+          action: Action.Buy,
           item: {
             id,
             object: item,
@@ -123,12 +124,12 @@ class History {
     } else if (currentStartDate !== null && isNaN(time)) {
       return this.removeEvent({
         time: currentStartDate,
-        action: Action.Start,
+        action: Action.Buy,
         id,
       }).addEvent({
         time: 0,
         event: {
-          action: Action.UpdateInitialState,
+          action: Action.Add,
           item: {
             id,
             object: item,
@@ -138,12 +139,12 @@ class History {
     } else if (currentStartDate !== null && !isNaN(time)) {
       return this.removeEvent({
         time: currentStartDate,
-        action: Action.Start,
+        action: Action.Buy,
         id,
       }).addEvent({
         time: time,
         event: {
-          action: Action.Start,
+          action: Action.Buy,
           item: {
             id,
             object: item,
@@ -181,7 +182,7 @@ class History {
       return this.addEvent({
         time: time,
         event: {
-          action: Action.Stop,
+          action: Action.Sell,
           item: {
             id,
             object: item,
@@ -191,18 +192,18 @@ class History {
     } else if (currentStartDate !== null && isNaN(time)) {
       return this.removeEvent({
         time: currentStartDate,
-        action: Action.Stop,
+        action: Action.Sell,
         id,
       });
     } else if (currentStartDate !== null && !isNaN(time)) {
       return this.removeEvent({
         time: currentStartDate,
-        action: Action.Stop,
+        action: Action.Sell,
         id,
       }).addEvent({
         time: time,
         event: {
-          action: Action.Stop,
+          action: Action.Sell,
           item: {
             id,
             object: item,
@@ -303,21 +304,20 @@ class History {
     state: State;
     event: Event;
   }) => {
-    if (event.action === Action.UpdateInitialState) {
+    if (event.action === Action.Add) {
       return state.addExpense({
         id: event.item.id,
         expense: event.item.object as Expense,
       });
     }
 
-    if (event.action === Action.Start) {
-      return state.addExpense({
-        id: event.item.id,
-        expense: event.item.object as Expense,
-      });
+    if (event.action === Action.Remove) {
+      return state.removeExpense({ id: event.item.id });
     }
 
-    return state.removeExpense({ id: event.item.id });
+    throw new RangeError(
+      "Didn't understand action " + event.action + " for expense class."
+    );
   };
 
   private applyHouseEvent = ({
@@ -327,21 +327,27 @@ class History {
     state: State;
     event: Event;
   }) => {
-    if (event.action === Action.UpdateInitialState) {
+    if (event.action === Action.Add) {
       return state.addHouse({
         id: event.item.id,
         house: event.item.object as House,
       });
     }
 
-    if (event.action === Action.Start) {
+    if (event.action === Action.Buy) {
       return state.buyHouse({
         id: event.item.id,
         house: event.item.object as House,
       });
     }
 
-    return state.sellHouse({ id: event.item.id });
+    if (event.action === Action.Sell) {
+      return state.sellHouse({ id: event.item.id });
+    }
+
+    throw new RangeError(
+      "Didn't understand action " + event.action + " for house class."
+    );
   };
 
   private applyStockEvent = ({
@@ -351,21 +357,27 @@ class History {
     state: State;
     event: Event;
   }) => {
-    if (event.action === Action.UpdateInitialState) {
+    if (event.action === Action.Add) {
       return state.addStock({
         id: event.item.id,
         stock: event.item.object as Stock,
       });
     }
 
-    if (event.action === Action.Start) {
+    if (event.action === Action.Buy) {
       return state.buyStock({
         id: event.item.id,
         stock: event.item.object as Stock,
       });
     }
 
-    return state.sellStock({ id: event.item.id });
+    if (event.action === Action.Sell) {
+      return state.sellStock({ id: event.item.id });
+    }
+
+    throw new RangeError(
+      "Didn't understand action " + event.action + " for stock class."
+    );
   };
 
   private applyEvents = (state: State, events: Event[]) => {
