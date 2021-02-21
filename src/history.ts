@@ -405,7 +405,7 @@ class History {
       events: this.events.map((evts, t) =>
         t !== time
           ? evts
-          : evts.filter((evt) => evt.item.id != id && evt.action === action)
+          : evts.filter((evt) => evt.item.id !== id && evt.action === action)
       ),
     });
   };
