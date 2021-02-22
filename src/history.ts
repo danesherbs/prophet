@@ -72,6 +72,10 @@ class History {
     return transformed;
   };
 
+  getEvents = () => {
+    return this.events;
+  };
+
   getStart = ({ id }: { id: string }) => {
     for (let [time, state] of this.getHistory().entries()) {
       if (
@@ -84,7 +88,7 @@ class History {
     }
 
     throw new RangeError(
-      "Tried to retrieve start for ID " + id + " which doesn't exist."
+      "Tried to retrieve start for id " + id + " which doesn't exist."
     );
   };
 
@@ -405,7 +409,7 @@ class History {
       events: this.events.map((evts, t) =>
         t !== time
           ? evts
-          : evts.filter((evt) => evt.item.id !== id && evt.action === action)
+          : evts.filter((evt) => !(evt.item.id === id && evt.action === action))
       ),
     });
   };
