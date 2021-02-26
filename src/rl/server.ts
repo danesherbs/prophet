@@ -44,13 +44,13 @@ const reset = (): Environment => {
 
   const state = new State({
     clock: clock,
-    tax: tax,
-    bank: bank,
-    superan: superan,
-    salary: salary,
-    houses: {},
-    stocks: {},
-    expenses: {},
+    tax: new Map([["tax", tax]]),
+    banks: new Map([["bank", bank]]),
+    superans: new Map([["super", superan]]),
+    salaries: new Map([["salary", salary]]),
+    houses: new Map(),
+    stocks: new Map(),
+    expenses: new Map(),
   });
 
   return new Environment(state);
