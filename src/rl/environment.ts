@@ -24,7 +24,9 @@ class Environment {
   }
 
   getObservation() {
-    return [this.state.getBank().getBalance(this.state.getClock().getTime())];
+    return [
+      this.state.getSingletonBank().getBalance(this.state.getClock().getTime()),
+    ];
   }
 
   getStateSpace() {
@@ -50,13 +52,13 @@ class Environment {
     return {
       Time: this.state.getClock().getTime(),
       Salary: this.state
-        .getSalary()
+        .getSingletonSalary()
         .getYearlyGrossSalary(this.state.getClock().getTime()),
       "Bank balance:": this.state
-        .getBank()
+        .getSingletonBank()
         .getBalance(this.state.getClock().getTime()),
       "Super balance:": this.state
-        .getSuper()
+        .getSingletonSuper()
         .getBalance(this.state.getClock().getTime()),
       "Stock balance:": Object.values(this.state.getStocks()).reduce(
         (acc, stock) =>
@@ -103,7 +105,7 @@ class Environment {
         console.error("Action", action, "not understood. Ignoring action.");
     }
 
-    if (newState.isValid()) {
+    if (true || newState.isValid()) {
       this.state = newState;
     }
 

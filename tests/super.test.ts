@@ -10,7 +10,7 @@ const tax = new Tax({
 
 const superan = new Super({
   tax: tax,
-  transactions: new Array(),
+  transactions: [],
   yearlyInterestRate: 0.1,
   contributionRate: 0.125,
 });

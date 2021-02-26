@@ -5,9 +5,9 @@ import Salary from "../src/salary";
 import House from "../src/house";
 import Stock from "../src/stock";
 import Super from "../src/super";
-import State from "../src/state";
 import Expense from "../src/expense";
-import History, { Action } from "../src/history";
+import History, { Action, Event } from "../src/history";
+import State from "../src/state";
 
 const clock = new Clock(0);
 
@@ -43,14 +43,12 @@ const salary = new Salary({
   creationTime: clock.getTime(),
 });
 
-const expenses = {
-  living: new Expense({
-    yearlyIncrease: 0.03,
-    weeklyAmount: 550,
-    description: "Living expenses",
-    initialTime: 0,
-  }),
-};
+const expense = new Expense({
+  yearlyIncrease: 0.03,
+  weeklyAmount: 550,
+  description: "Living expenses",
+  initialTime: 0,
+});
 
 const house = new House({
   loan: 550_000,
@@ -70,36 +68,168 @@ const stock = new Stock({
   initialTime: 0,
 });
 
-const initialState = new State({
-  clock: clock,
-  tax: tax,
-  bank: bank,
-  superan: superan,
-  salary: salary,
-  houses: {},
-  stocks: {},
-  expenses: expenses,
+const start = new Date(2020, 0);
+
+const history = new History({})
+  .addEvent({
+    date: start,
+    event: { action: Action.AddTax, item: { id: "tax", object: tax } },
+  })
+  .addEvent({
+    date: start,
+    event: {
+      action: Action.AddSuper,
+      item: { id: "superan", object: superan },
+    },
+  })
+  .addEvent({
+    date: start,
+    event: { action: Action.AddBank, item: { id: "bank", object: bank } },
+  })
+  .addEvent({
+    date: start,
+    event: { action: Action.AddSalary, item: { id: "salary", object: salary } },
+  });
+
+test("adding event adds correct event", () => {
+  const date = new Date(2020, 0, 5);
+
+  const event = {
+    action: Action.AddSalary,
+    item: { id: "salary", object: salary },
+  };
+
+  expect(new History({}).addEvent({ date, event }).getEvents()).toEqual(
+    new Map([[new Date(2020, 0).getTime(), new Set([event])]])
+  );
 });
 
-const history = new History({
-  history: Array.from(Array(121).keys())
-    .map(() => initialState)
-    .map((state, idx, arr) => (idx > 0 ? arr[idx - 1].waitOneMonth() : state)),
-  events: Array.from(Array(121).keys()).map(() => []),
+test("singleton event is applied correctly", () => {
+  const state = new State({
+    clock: clock,
+    tax: new Map(),
+    banks: new Map(),
+    superans: new Map(),
+    salaries: new Map(),
+    houses: new Map(),
+    stocks: new Map(),
+    expenses: new Map(),
+  });
+
+  const event = {
+    action: Action.AddSalary,
+    item: { id: "salary", object: salary },
+  };
+
+  expect(history.applyEvent({ state, event })).toEqual(
+    state.addSalary({ id: "salary", salary: event.item.object })
+  );
+});
+
+test("multiple events are applied correctly", () => {
+  const state = new State({
+    clock: clock,
+    tax: new Map(),
+    banks: new Map(),
+    superans: new Map(),
+    salaries: new Map(),
+    houses: new Map(),
+    stocks: new Map(),
+    expenses: new Map(),
+  });
+
+  const addTaxEvent = {
+    action: Action.AddTax,
+    item: { id: "tax", object: tax },
+  };
+
+  const addSalaryEvent = {
+    action: Action.AddSalary,
+    item: { id: "salary", object: salary },
+  };
+
+  const buyHouseEvent = {
+    action: Action.BuyHouse,
+    item: { id: "house", object: house },
+  };
+
+  const addExpenseEvent = {
+    action: Action.AddExpense,
+    item: { id: "expense", object: expense },
+  };
+
+  expect(
+    history.applyEvents({
+      state,
+      events: new Set([
+        addTaxEvent,
+        addSalaryEvent,
+        buyHouseEvent,
+        addExpenseEvent,
+      ]),
+    })
+  ).toEqual(
+    state
+      .addTax({
+        id: addTaxEvent.item.id,
+        tax: addTaxEvent.item.object,
+      })
+      .addSalary({
+        id: addSalaryEvent.item.id,
+        salary: addSalaryEvent.item.object,
+      })
+      .buyHouse({
+        id: buyHouseEvent.item.id,
+        house: buyHouseEvent.item.object,
+      })
+      .addExpense({
+        id: addExpenseEvent.item.id,
+        expense: addExpenseEvent.item.object,
+      })
+  );
+});
+
+test("history with singleton event has non-empty events mapping", () => {
+  const date = new Date(2020, 0, 10);
+
+  const event = {
+    action: Action.AddSalary,
+    item: { id: "salary", object: salary },
+  };
+
+  expect(
+    new History({ events: new Map() }).addEvent({ date, event }).getEvents()
+  ).toEqual(new Map([[new Date(2020, 0).getTime(), new Set([event])]]));
+});
+
+test("event can be retrieved from map", () => {
+  const date = new Date(2020, 0);
+
+  const event = {
+    action: Action.AddSalary,
+    item: { id: "salary", object: salary },
+  };
+
+  expect(
+    new History({})
+      .addEvent({ date, event })
+      .getEvents()
+      .get(new Date(2020, 0).getTime())
+  ).toEqual(new Set([event]));
+});
+
+test("history with required events has non-empty states array", () => {
+  expect(history.getStates().length).toBeGreaterThan(0);
+});
+
+test("creating history without minimum events throws error", () => {
+  expect(() => new History({}).getStates()).toThrowError(Error);
 });
 
 test("bank balance is growing over time", () => {
-  const newExpense = new Expense({
-    yearlyIncrease: 0.1,
-    weeklyAmount: 1_000,
-    description: "Dog expenses",
-    initialTime: 0,
-  });
-
-  expect(history.getState(0).getBank().getBalance(0)).toEqual(0);
-
-  expect(history.getState(0).getBank().getBalance(0)).toBeLessThan(
-    history.getState(12).getBank().getBalance(12)
+  expect(history.getState(0).getSingletonBank().getBalance(0)).toEqual(0);
+  expect(history.getState(0).getSingletonBank().getBalance(0)).toBeLessThan(
+    history.getState(12).getSingletonBank().getBalance(12)
   );
 });
 
@@ -107,9 +237,9 @@ test("retrieval of house with start time returns correct time", () => {
   expect(
     history
       .addEvent({
-        time: 25,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.AddHouse,
           item: {
             id: "A",
             object: house,
@@ -117,7 +247,7 @@ test("retrieval of house with start time returns correct time", () => {
         },
       })
       .getStart({ id: "A" })
-  ).toEqual(25);
+  ).toEqual(new Date(2020, 0));
 });
 
 test("retrieval of house with no start time throws an error", () => {
@@ -128,9 +258,9 @@ test("retrieval house with end time returns correct time", () => {
   expect(
     history
       .addEvent({
-        time: 25,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -138,9 +268,9 @@ test("retrieval house with end time returns correct time", () => {
         },
       })
       .addEvent({
-        time: 50,
+        date: new Date(2021, 0, 1),
         event: {
-          action: Action.Sell,
+          action: Action.SellHouse,
           item: {
             id: "A",
             object: house,
@@ -148,16 +278,16 @@ test("retrieval house with end time returns correct time", () => {
         },
       })
       .getEnd({ id: "A" })
-  ).toEqual(50);
+  ).toEqual(new Date(2021, 0));
 });
 
 test("retrieval of house with no end time returns null", () => {
   expect(
     history
       .addEvent({
-        time: 25,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -180,9 +310,9 @@ test("adding expense applies to first and last states in history", () => {
   expect(
     history
       .addEvent({
-        time: 0,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.AddExpense,
           item: {
             id: "new expense",
             object: newExpense,
@@ -191,51 +321,51 @@ test("adding expense applies to first and last states in history", () => {
       })
       .getState(0)
       .getExpenses()
-  ).toEqual({ ...expenses, "new expense": newExpense });
+  ).toEqual(new Map([["new expense", newExpense]]));
 
   // And end
   expect(
     history
       .addEvent({
-        time: 120,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.AddExpense,
           item: {
             id: "new expense",
             object: newExpense,
           },
         },
       })
-      .getState(120)
+      .getState(24)
       .getExpenses()
-  ).toEqual({ ...expenses, "new expense": newExpense });
+  ).toEqual(new Map([["new expense", newExpense]]));
 });
 
 test("adding event at time adds correct asset", () => {
   expect(
     history
       .addEvent({
-        time: 0,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.AddHouse,
           item: {
-            id: "A",
+            id: "house a",
             object: house,
           },
         },
       })
-      .getState(30)
+      .getState(12)
       .getHouses()
-  ).toEqual({ A: house });
+  ).toEqual(new Map([["house a", house]]));
 });
 
 test("adding and removing event doesn't alter original state", () => {
   expect(
     history
       .addEvent({
-        time: 25,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -243,9 +373,8 @@ test("adding and removing event doesn't alter original state", () => {
         },
       })
       .removeEvent({
-        time: 25,
+        date: new Date(2020, 0),
         id: "A",
-        action: Action.Add,
       })
       .getState(25)
   ).toEqual(history.getState(25));
@@ -255,9 +384,9 @@ test("adding and removing multiple events doesn't alter original state", () => {
   expect(
     history
       .addEvent({
-        time: 5,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Add,
+          action: Action.AddStock,
           item: {
             id: "stock",
             object: stock,
@@ -265,9 +394,9 @@ test("adding and removing multiple events doesn't alter original state", () => {
         },
       })
       .addEvent({
-        time: 10,
+        date: new Date(2021, 0, 1),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "house",
             object: house,
@@ -275,14 +404,12 @@ test("adding and removing multiple events doesn't alter original state", () => {
         },
       })
       .removeEvent({
-        time: 5,
+        date: new Date(2020, 0),
         id: "stock",
-        action: Action.Add,
       })
       .removeEvent({
-        time: 10,
+        date: new Date(2021, 0, 1),
         id: "house",
-        action: Action.Buy,
       })
       .getState(15)
   ).toEqual(history.getState(15));
@@ -292,9 +419,9 @@ test("removing events are idempotent", () => {
   expect(
     history
       .addEvent({
-        time: 5,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -302,14 +429,12 @@ test("removing events are idempotent", () => {
         },
       })
       .removeEvent({
-        time: 5,
+        date: new Date(2020, 0),
         id: "A",
-        action: Action.Add,
       })
       .removeEvent({
-        time: 5,
+        date: new Date(2020, 0),
         id: "A",
-        action: Action.Buy,
       })
       .getState(10)
   ).toEqual(history.getState(10));
@@ -319,9 +444,9 @@ test("removing non-existent event has no effect", () => {
   expect(
     history
       .addEvent({
-        time: 10,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -329,22 +454,16 @@ test("removing non-existent event has no effect", () => {
         },
       })
       .removeEvent({
-        time: 10,
+        date: new Date(2021, 0, 1),
         id: "A",
-        action: Action.Sell,
-      })
-      .removeEvent({
-        time: 5,
-        id: "A",
-        action: Action.Buy,
       })
       .getState(15)
   ).toEqual(
     history
       .addEvent({
-        time: 10,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -359,26 +478,26 @@ test("setting start of existing house sets to correct value", () => {
   expect(
     history
       .addEvent({
-        time: 5,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
           },
         },
       })
-      .setStart({ time: 10, id: "A", item: house })
+      .setStart({ date: new Date(2021, 0, 1), id: "A" })
       .getStart({ id: "A" })
-  ).toEqual(10);
+  ).toEqual(new Date(2021, 0, 1));
 });
 
 test("setting start of multiple houses sets correct times", () => {
   const newHistory = history
     .addEvent({
-      time: 5,
+      date: new Date(2020, 0),
       event: {
-        action: Action.Add,
+        action: Action.AddHouse,
         item: {
           id: "A",
           object: house,
@@ -386,28 +505,28 @@ test("setting start of multiple houses sets correct times", () => {
       },
     })
     .addEvent({
-      time: 5,
+      date: new Date(2020, 0),
       event: {
-        action: Action.Buy,
+        action: Action.BuyHouse,
         item: {
           id: "B",
           object: house,
         },
       },
     })
-    .setStart({ time: 5, id: "A", item: house })
-    .setStart({ time: 10, id: "B", item: house });
+    .setStart({ date: new Date(2020, 0), id: "A" })
+    .setStart({ date: new Date(2021, 0, 1), id: "B" });
 
-  expect(newHistory.getStart({ id: "A" })).toEqual(5);
-  expect(newHistory.getStart({ id: "B" })).toEqual(10);
+  expect(newHistory.getStart({ id: "A" })).toEqual(new Date(2020, 0));
+  expect(newHistory.getStart({ id: "B" })).toEqual(new Date(2021, 0, 1));
 });
 
 test("adding and removing event results in original event list", () => {
   const newHistory = history
     .addEvent({
-      time: 50,
+      date: new Date(2020, 0),
       event: {
-        action: Action.Add,
+        action: Action.AddHouse,
         item: {
           id: "A",
           object: house,
@@ -415,48 +534,51 @@ test("adding and removing event results in original event list", () => {
       },
     })
     .removeEvent({
-      time: 50,
+      date: new Date(2020, 0),
       id: "A",
-      action: Action.Add,
     });
 
   expect(newHistory.getEvents()).toEqual(newHistory.getEvents());
 });
 
 test("adding two houses and removing one results in singleton event list", () => {
-  const newHistory = history
-    .addEvent({
-      time: 0,
-      event: {
-        action: Action.Add,
-        item: {
-          id: "A",
-          object: house,
+  expect(
+    new History({})
+      .addEvent({
+        date: new Date(2020, 0, 5),
+        event: {
+          action: Action.AddHouse,
+          item: {
+            id: "A",
+            object: house,
+          },
         },
-      },
-    })
-    .addEvent({
-      time: 0,
-      event: {
-        action: Action.Buy,
-        item: {
-          id: "B",
-          object: house,
+      })
+      .addEvent({
+        date: new Date(2020, 0, 10),
+        event: {
+          action: Action.BuyHouse,
+          item: {
+            id: "B",
+            object: house,
+          },
         },
-      },
-    })
-    .removeEvent({
-      time: 0,
-      id: "A",
-      action: Action.Add,
-    });
-
-  const [, ...tail] = newHistory.getEvents();
-
-  expect(newHistory.getEvents()).toEqual([
-    [{ action: Action.Buy, item: { id: "B", object: house } }],
-    ...tail,
-  ]);
+      })
+      .removeEvent({
+        date: new Date(2020, 0, 3),
+        id: "A",
+      })
+      .getEvents()
+  ).toEqual(
+    new Map([
+      [
+        new Date(2020, 0).getTime(),
+        new Set([
+          { action: Action.BuyHouse, item: { id: "B", object: house } },
+        ]),
+      ],
+    ])
+  );
 });
 
 test("setting start of existing house at same time overwrites exiting house", () => {
@@ -474,52 +596,62 @@ test("setting start of existing house at same time overwrites exiting house", ()
   expect(
     history
       .addEvent({
-        time: 50,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
           },
         },
       })
-      .setStart({ time: 50, id: "A", item: house })
-      .getItem({ time: 50, id: "A" })
-  ).toEqual(house);
+      .setStart({ date: new Date(2021, 0, 1), id: "A" })
+      .getEvent({ date: new Date(2021, 0, 1), id: "A" })
+  ).toEqual({ action: Action.BuyHouse, item: { id: "A", object: house } });
 });
 
 test("setting end of existing house sets to correct value", () => {
   expect(
     history
       .addEvent({
-        time: 50,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
           },
         },
       })
-      .setEnd({ time: 55, id: "A", item: house })
+      .addEvent({
+        date: new Date(2021, 0, 1),
+        event: {
+          action: Action.SellHouse,
+          item: {
+            id: "A",
+            object: house,
+          },
+        },
+      })
+      .setEnd({ date: new Date(2022, 0, 1), id: "A" })
       .getEnd({ id: "A" })
-  ).toEqual(55);
+  ).toEqual(new Date(2022, 0, 1));
 });
 
 test("deleting end of existing house sets end to null", () => {
   expect(
     history
       .addEvent({
-        time: 50,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
           },
         },
       })
-      .setEnd({ time: null, id: "A", item: house })
+      .removeEvent({ date: new Date(2020, 0), id: "A" })
       .getEnd({ id: "A" })
   ).toEqual(null);
 });
@@ -528,9 +660,9 @@ test("getter for multiple houses retrieves all houses", () => {
   expect(
     history
       .addEvent({
-        time: 50,
+        date: new Date(2020, 0),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "A",
             object: house,
@@ -538,9 +670,9 @@ test("getter for multiple houses retrieves all houses", () => {
         },
       })
       .addEvent({
-        time: 75,
+        date: new Date(2021, 0, 1),
         event: {
-          action: Action.Buy,
+          action: Action.BuyHouse,
           item: {
             id: "B",
             object: house,

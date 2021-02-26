@@ -8,82 +8,104 @@ import Stock from "./stock";
 import Bank from "./bank";
 import Super from "./super";
 import Tax from "./tax";
+import Clock from "./clock";
+import Event, { Action, ends as endActions } from "./event";
 
-enum Action {
-  Buy,
-  Sell,
-  Add,
-  Remove,
-}
+// enum Action {
+//   // Bank
+//   AddTax,
+//   // Bank
+//   AddBank,
 
-type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
+//   // Super
+//   AddSuper,
 
-interface Event {
-  action: Action;
-  item: {
-    id: string;
-    object: Item;
-  };
-}
+//   // Salaries
+//   AddSalary,
+//   RemoveSalary,
+
+//   // Expenses
+//   AddExpense,
+//   RemoveExpense,
+
+//   // Houses
+//   AddHouse,
+//   BuyHouse,
+//   SellHouse,
+
+//   // Stocks
+//   AddStock,
+//   BuyStock,
+//   SellStock,
+// }
+
+// const endActions = new Set([
+//   Action.RemoveSalary,
+//   Action.RemoveExpense,
+//   Action.SellHouse,
+//   Action.SellStock,
+// ]);
+
+// type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
+
+// interface Event {
+//   action: Action;
+//   item: {
+//     id: string;
+//     object: Item;
+//   };
+// }
 
 interface Props {
-  history: State[];
-  events: Event[][];
+  events?: Map<number, Set<Event>>;
 }
 
 class History {
-  history: State[];
-  events: Event[][];
+  events: Map<number, Set<Event>>;
 
-  constructor({ history, events }: Props) {
-    this.history = history;
-    this.events = events;
-
-    if (events.length != history.length) {
-      throw RangeError(
-        `Events must be specified for every time step in history. 
-        Length of events is ${events.length} and history is ${history.length}.`
-      );
-    }
+  constructor({ events }: Props) {
+    this.events = events !== undefined ? events : new Map<number, Set<Event>>();
   }
-
-  getProps = (): Props => {
-    return {
-      history: this.history,
-      events: this.events,
-    };
-  };
-
-  getHistory = () => {
-    const transformed = Array.from(this.history);
-
-    // TODO: condense into a reduce
-    for (let i = 0; i < this.events.length; i++) {
-      if (i === 0) {
-        transformed[0] = this.applyEvents(this.history[0], this.events[i]);
-      } else {
-        transformed[i] = this.applyEvents(
-          transformed[i - 1].waitOneMonth(),
-          this.events[i]
-        );
-      }
-    }
-
-    return transformed;
-  };
 
   getEvents = () => {
     return this.events;
   };
 
+  toDateTime = ({ date }: { date: Date }) =>
+    new Date(date.getFullYear(), date.getMonth()).getTime();
+
+  fromDateTime = ({ dateTime }: { dateTime: number }) => new Date(dateTime);
+
+  addEvent = ({ date, event }: { date: Date; event: Event }) => {
+    const events = this.events.get(this.toDateTime({ date }))?.values();
+
+    return new History({
+      events: new Map(this.events).set(
+        this.toDateTime({ date }),
+        events !== undefined ? new Set([...events, event]) : new Set([event])
+      ),
+    });
+  };
+
+  removeEvent = ({ date, id }: { date: Date; id: string }) => {
+    const events = this.events.get(this.toDateTime({ date }))?.values();
+
+    return new History({
+      events: new Map(this.events).set(
+        this.toDateTime({ date }),
+        events !== undefined
+          ? new Set([...events].filter((event) => event.item.id !== id))
+          : new Set([])
+      ),
+    });
+  };
+
   getStart = ({ id }: { id: string }) => {
-    for (let [time, state] of this.getHistory().entries()) {
-      if (
-        id in state.getHouses() ||
-        id in state.getExpenses() ||
-        id in state.getStocks()
-      ) {
-        return time;
+    for (let [time, events] of this.events) {
+      for (let event of events) {
+        if (event.item.id === id) {
+          return this.fromDateTime({ dateTime: time });
+        }
       }
     }
 
@@ -92,389 +114,282 @@ class History {
     );
   };
 
-  setStart = ({
-    time,
-    id,
-    item,
-    add,
-  }: {
-    time: number;
-    id: string;
-    item: Item;
-    add?: boolean;
-  }) => {
-    const currentStartDate = this.getStart({ id });
+  setStart = ({ date, id }: { date: Date; id: string }) => {
+    const start = this.getStart({ id });
+    const event = this.getEvent({ date: start, id });
+
+    if (event === null) {
+      throw new Error(`Tried to set start of non-existent event for id ${id}`);
+    }
 
     return this.removeEvent({
-      time: currentStartDate,
-      action: Action.Buy,
+      date: start,
       id,
-    })
-      .removeEvent({
-        time: currentStartDate,
-        action: Action.Add,
-        id,
-      })
-      .addEvent({
-        time: time,
-        event: {
-          action: add ? Action.Add : Action.Buy,
-          item: {
-            id,
-            object: item,
-          },
-        },
-      });
+    }).addEvent({
+      date,
+      event,
+    });
+  };
+
+  getEvent = ({ date, id }: { date: Date; id: string }) => {
+    const events = this.events.get(this.toDateTime({ date }));
+
+    if (events !== undefined) {
+      for (let event of events) {
+        if (event.item.id === id) {
+          return event;
+        }
+      }
+    }
+
+    return null;
   };
 
   getEnd = ({ id }: { id: string }) => {
-    const start = this.getStart({ id });
-
-    for (let [time, state] of this.getHistory().entries()) {
-      if (
-        time > start &&
-        !(
-          id in state.getHouses() ||
-          id in state.getExpenses() ||
-          id in state.getStocks()
-        )
-      ) {
-        return time;
+    for (let [time, events] of this.events) {
+      for (let event of events) {
+        if (endActions.has(event.action)) {
+          return this.fromDateTime({ dateTime: time });
+        }
       }
     }
 
     return null;
   };
 
-  setEnd = ({
-    time,
-    id,
-    item,
-    remove,
-  }: {
-    time: number | null;
-    id: string;
-    item: Item;
-    remove?: boolean;
-  }) => {
-    const currentEndDate = this.getEnd({ id });
+  setEnd = ({ date, id }: { date: Date; id: string }) => {
+    const end = this.getEnd({ id });
 
-    if (currentEndDate === null && time !== null) {
-      return this.addEvent({
-        time: time,
-        event: {
-          action: remove ? Action.Remove : Action.Sell,
-          item: {
-            id,
-            object: item,
-          },
-        },
-      });
+    if (end === null) {
+      throw new Error(
+        `Tried to reset end for id ${id} but end hasn't been set.`
+      );
     }
 
-    if (currentEndDate !== null && time === null) {
-      return this.removeEvent({
-        time: currentEndDate,
-        action: Action.Sell,
-        id,
-      }).removeEvent({
-        time: currentEndDate,
-        action: Action.Remove,
-        id,
-      });
+    const event = this.getEvent({
+      date: end,
+      id,
+    });
+
+    if (event === null) {
+      throw new Error(`Tried to set end of non-existent event for id ${id}`);
     }
 
-    if (currentEndDate !== null && time !== null) {
-      return this.removeEvent({
-        time: currentEndDate,
-        action: Action.Sell,
-        id,
-      })
-        .removeEvent({
-          time: currentEndDate,
-          action: Action.Remove,
-          id,
-        })
-        .addEvent({
-          time: time,
-          event: {
-            action: remove ? Action.Remove : Action.Sell,
-            item: {
-              id,
-              object: item,
-            },
-          },
-        });
-    }
-
-    return this;
+    return this.removeEvent({ date: end, id }).addEvent({ date, event });
   };
 
-  getType = ({ id }: { id: string }) => {
-    for (let state of this.getHistory()) {
-      if (id in state.getHouses()) {
-        return House;
-      }
-
-      if (id in state.getExpenses()) {
-        return Expense;
-      }
-
-      if (id in state.getStocks()) {
-        return Stock;
-      }
-    }
-
-    return null;
-  };
-
-  getItem = ({ time, id }: { time: number; id: string }) => {
-    const state = this.getState(time);
-
-    if (id in state.getHouses()) {
-      return state.getHouses()[id];
-    } else if (id in state.getExpenses()) {
-      return state.getExpenses()[id];
-    } else if (id in state.getStocks()) {
-      return state.getStocks()[id];
-    }
-
-    return null;
-  };
-
-  getHouses = (): Map<string, House> =>
-    this.getHistory().reduce(
-      (acc, state) => new Map([...acc, ...Object.entries(state.getHouses())]),
+  getHouses = (): State["houses"] =>
+    this.getStates().reduce(
+      (acc, state) => new Map([...acc, ...state.getHouses().entries()]),
       new Map<string, House>()
     );
 
-  getStocks = (): Map<string, Stock> =>
-    this.getHistory().reduce(
-      (acc, state) => new Map([...acc, ...Object.entries(state.getStocks())]),
+  getStocks = (): State["stocks"] =>
+    this.getStates().reduce(
+      (acc, state) => new Map([...acc, ...state.getStocks().entries()]),
       new Map<string, Stock>()
     );
 
-  getExpenses = (): Map<string, Expense> =>
-    this.getHistory().reduce(
-      (acc, state) => new Map([...acc, ...Object.entries(state.getExpenses())]),
+  getExpenses = (): State["expenses"] =>
+    this.getStates().reduce(
+      (acc, state) => new Map([...acc, ...state.getExpenses().entries()]),
       new Map<string, Expense>()
     );
 
-  getSalary = (): Salary => this.history[0].getSalary();
-
-  getSuper = (): Super => this.history[0].getSuper();
-
-  getBank = (): Bank => this.history[0].getBank();
-
-  getStock = (): Map<string, Stock> =>
-    this.getHistory().reduce(
-      (acc, state) => new Map([...acc, ...Object.entries(state.getStocks())]),
-      new Map<string, Stock>()
+  getSalaries = (): State["salaries"] =>
+    this.getStates().reduce(
+      (acc, state) => new Map([...acc, ...state.getSalaries().entries()]),
+      new Map<string, Salary>()
     );
 
-  private applyEvent = ({
-    state,
-    event,
-  }: {
-    state: State;
-    event: Event;
-  }): State => {
-    if (event.item.object instanceof Expense) {
-      return this.applyExpenseEvent({ state, event });
-    } else if (event.item.object instanceof House) {
-      return this.applyHouseEvent({ state, event });
-    } else if (event.item.object instanceof Stock) {
-      return this.applyStockEvent({ state, event });
-    } else {
-      throw new RangeError(
-        "You passed an unrecognised object in an event " + JSON.stringify(event)
+  getSupers = (): State["superans"] =>
+    this.getStates().reduce(
+      (acc, state) => new Map([...acc, ...state.getSupers().entries()]),
+      new Map<string, Super>()
+    );
+
+  getBanks = (): State["banks"] =>
+    this.getStates().reduce(
+      (acc, state) => new Map([...acc, ...state.getBanks().entries()]),
+      new Map<string, Bank>()
+    );
+
+  private monthsBetween = ({ start, end }: { start: Date; end: Date }) => {
+    const years = end.getFullYear() - start.getFullYear();
+    const months = end.getMonth() - start.getMonth();
+    return years * 12 + months + 1; // includes both start and end
+  };
+
+  getStates = () => {
+    const actions = [...this.events].reduce(
+      (acc, [, events]) =>
+        new Set([...acc, ...[...events].map((event) => event.action)]),
+      new Set<Action>([])
+    );
+
+    if (
+      !(
+        actions.has(Action.AddBank) &&
+        actions.has(Action.AddSalary) &&
+        actions.has(Action.AddTax) &&
+        actions.has(Action.AddSuper)
+      )
+    ) {
+      throw new Error(
+        `Expected actions to include additions of tax, bank, super and salary but got actions [${[
+          ...actions,
+        ]}]`
       );
     }
+
+    const dates = [...this.events.keys()];
+
+    if (dates.length === 0) {
+      return [];
+    }
+
+    const start = dates.reduce((acc, cur) => (acc < cur ? acc : cur));
+    const end = dates.reduce((acc, cur) => (acc > cur ? acc : cur));
+    const elapsed = this.monthsBetween({
+      start: this.fromDateTime({ dateTime: start }),
+      end: this.fromDateTime({ dateTime: end }),
+    });
+    const horizon = 120;
+
+    const states: Array<State> = [];
+
+    for (let i = 0; i < elapsed + horizon; i++) {
+      const date = this.toDateTime({
+        date: new Date(
+          new Date(start).getFullYear() + Math.floor(i / 12),
+          new Date(start).getMonth() + (i % 12)
+        ),
+      });
+
+      const events = this.events.get(date);
+
+      states.push(
+        this.applyEvents({
+          state:
+            i === 0
+              ? new State({
+                  clock: new Clock(0),
+                  tax: new Map(),
+                  banks: new Map(),
+                  superans: new Map(),
+                  salaries: new Map(),
+                  houses: new Map(),
+                  stocks: new Map(),
+                  expenses: new Map(),
+                })
+              : states[i - 1].waitOneMonth(),
+          events: events !== undefined ? events : new Set(),
+        })
+      );
+    }
+
+    return states;
   };
 
-  private applyExpenseEvent = ({
-    state,
-    event,
-  }: {
-    state: State;
-    event: Event;
-  }) => {
-    if (event.action === Action.Add) {
-      return state.addExpense({
-        id: event.item.id,
-        expense: event.item.object as Expense,
-      });
-    }
-
-    if (event.action === Action.Remove) {
-      return state.removeExpense({ id: event.item.id });
-    }
-
-    throw new RangeError(
-      "Didn't understand action " + event.action + " for expense class."
-    );
+  getState = (time: number) => {
+    return this.getStates()[time];
   };
 
-  private applyHouseEvent = ({
-    state,
-    event,
-  }: {
-    state: State;
-    event: Event;
-  }) => {
-    if (event.action === Action.Add) {
-      return state.addHouse({
-        id: event.item.id,
-        house: event.item.object as House,
-      });
-    }
-
-    if (event.action === Action.Buy) {
-      return state.buyHouse({
-        id: event.item.id,
-        house: event.item.object as House,
-      });
-    }
-
-    if (event.action === Action.Sell) {
-      return state.sellHouse({ id: event.item.id });
-    }
-
-    throw new RangeError(
-      "Didn't understand action " + event.action + " for house class."
-    );
-  };
-
-  private applyStockEvent = ({
-    state,
-    event,
-  }: {
-    state: State;
-    event: Event;
-  }) => {
-    if (event.action === Action.Add) {
-      return state.addStock({
-        id: event.item.id,
-        stock: event.item.object as Stock,
-      });
-    }
-
-    if (event.action === Action.Buy) {
-      return state.buyStock({
-        id: event.item.id,
-        stock: event.item.object as Stock,
-      });
-    }
-
-    if (event.action === Action.Sell) {
-      return state.sellStock({ id: event.item.id });
-    }
-
-    throw new RangeError(
-      "Didn't understand action " + event.action + " for stock class."
-    );
-  };
-
-  private applyEvents = (state: State, events: Event[]) => {
-    return events.reduce(
+  applyEvents = ({ state, events }: { state: State; events: Set<Event> }) => {
+    return Array.from(events).reduce(
       (acc, event) => this.applyEvent({ state: acc, event }),
       state
     );
   };
 
-  getState = (time: number) => {
-    return this.getHistory()[time];
-  };
+  applyEvent = ({ state, event }: { state: State; event: Event }): State => {
+    switch (event.action) {
+      case Action.AddTax: {
+        return state.addTax({
+          id: event.item.id,
+          tax: event.item.object as Tax,
+        });
+      }
 
-  addEvent = ({ time, event }: { time: number; event: Event }) => {
-    return new History({
-      history: this.history,
-      events: this.events.map((evts, t) =>
-        t !== time ? evts : evts.concat(event)
-      ),
-    });
-  };
+      case Action.AddBank: {
+        return state.addBank({
+          id: event.item.id,
+          bank: event.item.object as Bank,
+        });
+      }
 
-  removeEvent = ({
-    time,
-    id,
-    action,
-  }: {
-    time: number;
-    id: Event["item"]["id"];
-    action: Event["action"];
-  }) => {
-    return new History({
-      history: this.history,
-      events: this.events.map((evts, t) =>
-        t !== time
-          ? evts
-          : evts.filter((evt) => !(evt.item.id === id && evt.action === action))
-      ),
-    });
-  };
+      case Action.AddSuper: {
+        return state.addSuper({
+          id: event.item.id,
+          superan: event.item.object as Super,
+        });
+      }
 
-  setSalary = (salary: Salary) => {
-    if (this.history.length === 0) {
-      return this;
+      case Action.AddSalary: {
+        return state.addSalary({
+          id: event.item.id,
+          salary: event.item.object as Salary,
+        });
+      }
+
+      case Action.RemoveSalary: {
+        return state.removeSalary({ id: event.item.id });
+      }
+
+      case Action.AddExpense: {
+        return state.addExpense({
+          id: event.item.id,
+          expense: event.item.object as Expense,
+        });
+      }
+
+      case Action.RemoveExpense: {
+        return state.removeExpense({ id: event.item.id });
+      }
+
+      case Action.AddHouse: {
+        return state.addHouse({
+          id: event.item.id,
+          house: event.item.object as House,
+        });
+      }
+
+      case Action.BuyHouse: {
+        return state.buyHouse({
+          id: event.item.id,
+          house: event.item.object as House,
+        });
+      }
+
+      case Action.SellHouse: {
+        return state.sellHouse({ id: event.item.id });
+      }
+
+      case Action.AddStock: {
+        return state.addStock({
+          id: event.item.id,
+          stock: event.item.object as Stock,
+        });
+      }
+
+      case Action.BuyStock: {
+        return state.buyStock({
+          id: event.item.id,
+          stock: event.item.object as Stock,
+        });
+      }
+
+      case Action.SellStock: {
+        return state.sellStock({ id: event.item.id });
+      }
+
+      default: {
+        throw new Error(`Action ${event.action} is not registered.`);
+      }
     }
-
-    if (this.history.length === 1) {
-      return new History({
-        history: [this.history[0].updateSalary({ data: salary.getProps() })],
-        events: this.events,
-      });
-    }
-
-    const [head, ...tail] = this.history;
-
-    return new History({
-      history: [head.updateSalary({ data: salary.getProps() }), ...tail],
-      events: this.events,
-    });
-  };
-
-  setSuper = (superan: Super) => {
-    if (this.history.length === 0) {
-      return this;
-    }
-
-    if (this.history.length === 1) {
-      return new History({
-        history: [this.history[0].updateSuper({ data: superan.getProps() })],
-        events: this.events,
-      });
-    }
-
-    const [head, ...tail] = this.history;
-
-    return new History({
-      history: [head.updateSuper({ data: superan.getProps() }), ...tail],
-      events: this.events,
-    });
-  };
-
-  setBank = (bank: Bank) => {
-    if (this.history.length === 0) {
-      return this;
-    }
-
-    if (this.history.length === 1) {
-      return new History({
-        history: [this.history[0].updateBank({ data: bank.getProps() })],
-        events: this.events,
-      });
-    }
-
-    const [head, ...tail] = this.history;
-
-    return new History({
-      history: [head.updateBank({ data: bank.getProps() }), ...tail],
-      events: this.events,
-    });
   };
 }
 
 export default History;
 export type { Props };
-export { Action };
+export { Action, Event };

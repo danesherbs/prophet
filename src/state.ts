@@ -1,53 +1,49 @@
 import * as _ from "lodash";
-import Tax, { TaxType, Props as TaxProps } from "./tax";
+import Tax, { TaxType } from "./tax";
 import Clock from "./clock";
-import Salary, { Props as SalaryProps } from "./salary";
-import Bank, { Props as BankProps } from "./bank";
-import Stock, { Props as StockProps } from "./stock";
-import House, { Props as HouseProps } from "./house";
-import Super, { Props as SuperProps } from "./super";
-import Expense, { Props as ExpenseProps } from "./expense";
-
-interface Collection<T> {
-  [id: string]: T;
-}
+import Salary from "./salary";
+import Bank from "./bank";
+import Stock from "./stock";
+import House from "./house";
+import Super from "./super";
+import Expense from "./expense";
 
 interface Props {
   clock: Clock;
-  tax: Tax;
-  bank: Bank;
-  superan: Super;
-  salary: Salary;
-  houses: Collection<House>;
-  stocks: Collection<Stock>;
-  expenses: Collection<Expense>;
+  tax: Map<string, Tax>;
+  banks: Map<string, Bank>;
+  superans: Map<string, Super>;
+  salaries: Map<string, Salary>;
+  houses: Map<string, House>;
+  stocks: Map<string, Stock>;
+  expenses: Map<string, Expense>;
 }
 
 class State {
   clock: Clock;
-  tax: Tax;
-  bank: Bank;
-  superan: Super;
-  salary: Salary;
-  houses: Collection<House>;
-  stocks: Collection<Stock>;
-  expenses: Collection<Expense>;
+  tax: Map<string, Tax>;
+  banks: Map<string, Bank>;
+  superans: Map<string, Super>;
+  salaries: Map<string, Salary>;
+  houses: Map<string, House>;
+  stocks: Map<string, Stock>;
+  expenses: Map<string, Expense>;
 
   constructor({
     clock,
     tax,
-    bank,
-    superan,
-    salary,
+    banks,
+    superans,
+    salaries,
     houses,
     stocks,
     expenses,
   }: Props) {
     this.clock = clock;
     this.tax = tax;
-    this.bank = bank;
-    this.superan = superan;
-    this.salary = salary;
+    this.banks = banks;
+    this.superans = superans;
+    this.salaries = salaries;
     this.houses = houses;
     this.stocks = stocks;
     this.expenses = expenses;
@@ -55,13 +51,19 @@ class State {
 
   getNetWealth() {
     return (
-      this.bank.getBalance(this.clock.getTime()) +
-      this.superan.getBalance(this.clock.getTime()) +
-      Object.values(this.stocks).reduce(
+      Array.from(this.banks.values()).reduce(
+        (acc, bank) => acc + bank.getBalance(this.clock.getTime()),
+        0
+      ) +
+      Array.from(this.superans.values()).reduce(
+        (acc, superan) => superan.getBalance(this.clock.getTime()),
+        0
+      ) +
+      Array.from(this.stocks.values()).reduce(
         (acc, stock) => acc + stock.getTotalValue(this.clock.getTime()),
         0
       ) +
-      Object.values(this.houses).reduce(
+      Array.from(this.houses.values()).reduce(
         (acc, house) => acc + house.getEquity(this.clock.getTime()),
         0
       )
@@ -73,19 +75,19 @@ class State {
     return this.clock;
   }
 
-  getBank() {
+  getBanks() {
     /* istanbul ignore next */
-    return this.bank;
+    return this.banks;
   }
 
-  getSalary() {
+  getSalaries() {
     /* istanbul ignore next */
-    return this.salary;
+    return this.salaries;
   }
 
-  getSuper() {
+  getSupers() {
     /* istanbul ignore next */
-    return this.superan;
+    return this.superans;
   }
 
   getTax() {
@@ -108,46 +110,93 @@ class State {
     return this.expenses;
   }
 
-  receiveMonthlySalaryPayment(salary: Salary) {
-    if (salary.getYearlyGrossSalary(this.clock.getTime()) < 1e-3) {
-      return this;
+  getSingletonTax() {
+    if (this.tax.size !== 1) {
+      throw new Error(`Expected 1 tax but got ${this.tax.size}`);
     }
 
+    const [tax] = [...this.tax.values()];
+    return tax;
+  }
+
+  getSingletonSuper() {
+    if (this.superans.size !== 1) {
+      throw new Error(`Expected 1 super but got ${this.superans.size}`);
+    }
+
+    const [superan] = [...this.superans.values()];
+    return superan;
+  }
+
+  getSingletonBank() {
+    if (this.banks.size !== 1) {
+      throw new Error(`Expected 1 bank but got ${this.banks.size}`);
+    }
+
+    const [bank] = [...this.banks.values()];
+    return bank;
+  }
+
+  getSingletonSalary() {
+    if (this.salaries.size !== 1) {
+      throw new Error(`Expected 1 salary but got ${this.salaries.size}`);
+    }
+
+    const [salary] = [...this.salaries.values()];
+    return salary;
+  }
+
+  receiveMonthlySalaryPayment(salary: Salary) {
     return new State({
       clock: this.clock,
-      tax: this.tax
-        .declareIncome(
-          this.clock.getTime(),
-          salary.getMonthlyGrossSalary(this.clock.getTime())
-        )
-        .payTax(
-          this.clock.getTime(),
-          this.tax.getMonthlyIncomeTax(
-            salary.getYearlyGrossSalary(this.clock.getTime())
+      tax: new Map(
+        [...this.tax].map(([id, tax]) => [
+          id,
+          tax
+            .declareIncome(
+              this.clock.getTime(),
+              salary.getMonthlyGrossSalary(this.clock.getTime())
+            )
+            .payTax(
+              this.clock.getTime(),
+              this.getSingletonTax().getMonthlyIncomeTax(
+                salary.getYearlyGrossSalary(this.clock.getTime())
+              ),
+              TaxType.Income
+            )
+            .payTax(
+              this.clock.getTime(),
+              this.getSingletonTax().getMonthlySuperTax(
+                this.getSingletonSuper().getMonthlyGrossSuperContribution(
+                  salary.getYearlyGrossSalary(this.clock.getTime())
+                )
+              ),
+              TaxType.Super
+            ),
+        ])
+      ),
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.deposit(
+            this.clock.getTime(),
+            salary.getMonthlyNetSalary(this.clock.getTime()),
+            "Salary"
           ),
-          TaxType.Income
-        )
-        .payTax(
-          this.clock.getTime(),
-          this.tax.getMonthlySuperTax(
-            this.superan.getMonthlyGrossSuperContribution(
+        ])
+      ),
+      superans: new Map(
+        [...this.getSupers()].map(([id, superan]) => [
+          id,
+          superan.deposit(
+            this.clock.getTime(),
+            superan.getMonthlyNetSuperContribution(
               salary.getYearlyGrossSalary(this.clock.getTime())
             )
           ),
-          TaxType.Super
-        ),
-      bank: this.bank.deposit(
-        this.clock.getTime(),
-        salary.getMonthlyNetSalary(this.clock.getTime()),
-        "Salary"
+        ])
       ),
-      superan: this.superan.deposit(
-        this.clock.getTime(),
-        this.superan.getMonthlyNetSuperContribution(
-          salary.getYearlyGrossSalary(this.clock.getTime())
-        )
-      ),
-      salary: this.salary,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
@@ -157,17 +206,27 @@ class State {
   receiveMonthlyRentalIncome(house: House) {
     return new State({
       clock: this.clock,
-      tax: this.tax.declareIncome(
-        this.clock.getTime(),
-        house.getMonthlyGrossRentalIncome(this.clock.getTime())
+      tax: new Map(
+        [...this.tax].map(([id, tax]) => [
+          id,
+          tax.declareIncome(
+            this.clock.getTime(),
+            house.getMonthlyGrossRentalIncome(this.clock.getTime())
+          ),
+        ])
       ),
-      bank: this.bank.deposit(
-        this.clock.getTime(),
-        house.getMonthlyGrossRentalIncome(this.clock.getTime()),
-        "Rental income"
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.deposit(
+            this.clock.getTime(),
+            house.getMonthlyGrossRentalIncome(this.clock.getTime()),
+            "Rental income"
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
@@ -178,13 +237,18 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank.withdraw(
-        this.clock.getTime(),
-        house.getMonthlyInterestPayment(),
-        "Interest payment"
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.withdraw(
+            this.clock.getTime(),
+            house.getMonthlyInterestPayment(),
+            "Interest payment"
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
@@ -194,13 +258,18 @@ class State {
   declareMonthlyDepreciationLoss(house: House) {
     return new State({
       clock: this.clock,
-      tax: this.tax.declareLoss(
-        this.clock.getTime(),
-        house.getMonthlyDepreciationAmount(this.clock.getTime())
+      tax: new Map(
+        [...this.tax].map(([id, tax]) => [
+          id,
+          tax.declareLoss(
+            this.clock.getTime(),
+            house.getMonthlyDepreciationAmount(this.clock.getTime())
+          ),
+        ])
       ),
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
@@ -211,13 +280,83 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank.withdraw(
-        this.clock.getTime(),
-        expense.getMonthlyAmount(this.clock.getTime()),
-        expense.getDescription()
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.withdraw(
+            this.clock.getTime(),
+            expense.getMonthlyAmount(this.clock.getTime()),
+            expense.getDescription()
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  addTax({ id, tax }: { id: string; tax: Tax }) {
+    return new State({
+      clock: this.clock,
+      tax: new Map([...this.tax, [id, tax]]),
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  addBank({ id, bank }: { id: string; bank: Bank }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: new Map([...this.banks, [id, bank]]),
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  addSuper({ id, superan }: { id: string; superan: Super }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: new Map([...this.superans, [id, superan]]),
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  addSalary({ id, salary }: { id: string; salary: Salary }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: new Map([...this.salaries, [id, salary]]),
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+    });
+  }
+
+  removeSalary({ id }: { id: string }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: new Map([...this.salaries].filter(([i]) => i !== id)),
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
@@ -228,12 +367,12 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
-      expenses: { ...this.expenses, [id]: expense },
+      expenses: new Map([...this.expenses, [id, expense]]),
     });
   }
 
@@ -241,41 +380,12 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
-      expenses: _.omit(this.expenses, id),
-    });
-  }
-
-  updateExpense({ id, data }: { id: string; data: ExpenseProps }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
-      houses: this.houses,
-      stocks: this.stocks,
-      expenses: {
-        ...this.expenses,
-        [id]: new Expense(data),
-      },
-    });
-  }
-
-  updateStock({ id, data }: { id: string; data: StockProps }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
-      houses: this.houses,
-      stocks: { ...this.stocks, [id]: new Stock(data) },
-      expenses: this.expenses,
+      expenses: new Map([...this.expenses].filter(([i]) => i !== id)),
     });
   }
 
@@ -283,63 +393,11 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: { ...this.stocks, [id]: stock },
-      expenses: this.expenses,
-    });
-  }
-
-  updateBank({ data }: { data: BankProps }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      bank: new Bank(data),
-      superan: this.superan,
-      salary: this.salary,
-      houses: this.houses,
-      stocks: this.stocks,
-      expenses: this.expenses,
-    });
-  }
-
-  updateSuper({ data }: { data: SuperProps }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      bank: this.bank,
-      superan: new Super(data),
-      salary: this.salary,
-      houses: this.houses,
-      stocks: this.stocks,
-      expenses: this.expenses,
-    });
-  }
-
-  updateSalary({ data }: { data: SalaryProps }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: new Salary(data),
-      houses: this.houses,
-      stocks: this.stocks,
-      expenses: this.expenses,
-    });
-  }
-
-  updateTax({ data }: { data: TaxProps }) {
-    return new State({
-      clock: this.clock,
-      tax: new Tax(data),
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
-      houses: this.houses,
-      stocks: this.stocks,
       expenses: this.expenses,
     });
   }
@@ -351,21 +409,27 @@ class State {
   registerTick() {
     if (
       this.isStartOfFinancialYear() &&
-      this.tax.getNetUnpaidTaxOverLastTwelveMonths(this.clock.getTime() - 1) >
-        1e-3
+      this.getSingletonTax().getNetUnpaidTaxOverLastTwelveMonths(
+        this.clock.getTime() - 1
+      ) > 1e-3
     ) {
       return new State({
         clock: this.clock.tick(),
         tax: this.tax,
-        bank: this.bank.withdraw(
-          this.clock.getTime(),
-          this.tax.getNetUnpaidTaxOverLastTwelveMonths(
-            this.clock.getTime() - 1
-          ),
-          "Tax correction"
+        banks: new Map(
+          [...this.getBanks()].map(([id, bank]) => [
+            id,
+            bank.withdraw(
+              this.clock.getTime(),
+              this.getSingletonTax().getNetUnpaidTaxOverLastTwelveMonths(
+                this.clock.getTime() - 1
+              ),
+              "Tax correction"
+            ),
+          ])
         ),
-        superan: this.superan,
-        salary: this.salary,
+        superans: this.superans,
+        salaries: this.salaries,
         houses: this.houses,
         stocks: this.stocks,
         expenses: this.expenses,
@@ -377,9 +441,9 @@ class State {
     return new State({
       clock: this.clock.tick(),
       tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
@@ -390,27 +454,19 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank.withdraw(
-        this.clock.getTime(),
-        house.getHouseValue(0) - house.getLoan(),
-        "Downpayment for house"
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.withdraw(
+            this.clock.getTime(),
+            house.getHouseValue(0) - house.getLoan(),
+            "Downpayment for house"
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
-      houses: { ...this.houses, [id]: house },
-      stocks: this.stocks,
-      expenses: this.expenses,
-    });
-  }
-
-  updateHouse({ id, data }: { id: string; data: HouseProps }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
-      houses: { ...this.houses, [id]: new House(data) },
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: new Map([...this.houses, [id, house]]),
       stocks: this.stocks,
       expenses: this.expenses,
     });
@@ -420,103 +476,145 @@ class State {
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank,
-      superan: this.superan,
-      salary: this.salary,
-      houses: { ...this.houses, [id]: house },
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: new Map([...this.houses, [id, house]]),
       stocks: this.stocks,
       expenses: this.expenses,
     });
   }
 
-  sellHouse({ id }: { id: keyof Props["houses"] }) {
+  sellHouse({ id }: { id: string }) {
+    const house = this.houses.get(id);
+
+    if (house === undefined) {
+      throw new Error(`Tried to sell non-existent house with id ${id}`);
+    }
+
     // TODO: declare capital loss if lost money
     return new State({
       clock: this.clock,
-      tax: this.tax.declareIncome(
-        this.clock.getTime(),
-        this.houses[id].getCapitalGain(this.clock.getTime())
+      tax: new Map(
+        [...this.tax].map(([id, tax]) => [
+          id,
+          tax.declareIncome(
+            this.clock.getTime(),
+            house.getCapitalGain(this.clock.getTime())
+          ),
+        ])
       ),
-      bank: this.bank.deposit(
-        this.clock.getTime(),
-        this.houses[id].getEquity(this.clock.getTime()),
-        "Sold house"
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.deposit(
+            this.clock.getTime(),
+            house.getEquity(this.clock.getTime()),
+            "Sold house"
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
-      houses: _.omit(this.houses, id),
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: new Map([...this.houses].filter(([i]) => i !== id)),
       stocks: this.stocks,
       expenses: this.expenses,
     });
   }
 
-  buyStock({ id, stock }: { id: keyof Props["stocks"]; stock: Stock }) {
+  buyStock({ id, stock }: { id: string; stock: Stock }) {
     // if stock already exists, update transaction
     return new State({
       clock: this.clock,
       tax: this.tax,
-      bank: this.bank.withdraw(
-        this.clock.getTime(),
-        stock.getTotalValue(this.clock.getTime()),
-        "Buy stock"
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.withdraw(
+            this.clock.getTime(),
+            stock.getTotalValue(this.clock.getTime()),
+            "Buy stock"
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
-      stocks: { ...this.stocks, [id]: stock },
+      stocks: new Map([...this.stocks, [id, stock]]),
       expenses: this.expenses,
     });
   }
 
-  sellStock({ id }: { id: keyof Props["stocks"] }) {
+  sellStock({ id }: { id: string }) {
     // TODO: declare capital loss if lost money
+
+    const stock = this.stocks.get(id);
+
+    if (stock === undefined) {
+      throw new Error(`Stock with id ${id} doesn't exist`);
+    }
+
     return new State({
       clock: this.clock,
-      tax: this.tax.declareIncome(
-        this.clock.getTime(),
-        this.stocks[id].getTotalValue(this.clock.getTime()) -
-          this.stocks[id].getTotalValue(this.stocks[id].getInitialTime())
+      tax: new Map(
+        [...this.tax].map(([id, tax]) => [
+          id,
+          tax.declareIncome(
+            this.clock.getTime(),
+            stock.getTotalValue(this.clock.getTime()) -
+              stock.getTotalValue(stock.getInitialTime())
+          ),
+        ])
       ),
-      bank: this.bank.deposit(
-        this.clock.getTime(),
-        this.stocks[id].getTotalValue(this.clock.getTime()),
-        "Sold stock"
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.deposit(
+            this.clock.getTime(),
+            stock.getTotalValue(this.clock.getTime()),
+            "Sold stock"
+          ),
+        ])
       ),
-      superan: this.superan,
-      salary: this.salary,
+      superans: this.superans,
+      salaries: this.salaries,
       houses: this.houses,
-      stocks: _.omit(this.stocks, id),
+      stocks: new Map([...this.stocks].filter(([i]) => i !== id)),
       expenses: this.expenses,
     });
   }
 
   isValidLoans() {
-    return (
-      Object.values(this.getHouses()).reduce(
-        (acc, house) => acc + house.getLoan(),
-        0
-      ) <=
-      8 * this.getSalary().getYearlyGrossSalary(this.getClock().getTime())
+    /* istanbul ignore next */
+
+    throw new Error(
+      "Not implemented! Returns true iff loaning less than 8x gross salary."
     );
   }
 
   isValid() {
-    return this.bank.isValid() && this.isValidLoans();
+    /* istanbul ignore next */
+
+    throw new Error(
+      "Not implemented! true iff all child classes are valid and not loaning too much."
+    );
   }
 
   waitOneMonth() {
     let state: State = this;
 
     // Salary
-    state = state.receiveMonthlySalaryPayment(this.salary);
+    this.salaries.forEach((salary) => {
+      state = state.receiveMonthlySalaryPayment(salary);
+    });
 
     // Expenses
-    Object.values(this.expenses).forEach((expense) => {
+    this.expenses.forEach((expense) => {
       state = state.payMonthlyExpense(expense);
     });
 
     // Properties
-    Object.values(this.houses).forEach((house) => {
+    this.houses.forEach((house) => {
       state = state.receiveMonthlyRentalIncome(house);
       state = state.payMonthlyInterestPayment(house);
       state = state.declareMonthlyDepreciationLoss(house);
@@ -539,4 +637,4 @@ class State {
 }
 
 export default State;
-export type { Props, Collection };
+export type { Props };
