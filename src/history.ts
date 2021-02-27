@@ -1,5 +1,3 @@
-import * as _ from "lodash";
-
 import State from "./state";
 import House from "./house";
 import Salary from "./salary";
@@ -10,51 +8,6 @@ import Super from "./super";
 import Tax from "./tax";
 import Clock from "./clock";
 import Event, { Action, ends as endActions } from "./event";
-
-// enum Action {
-//   // Bank
-//   AddTax,
-//   // Bank
-//   AddBank,
-
-//   // Super
-//   AddSuper,
-
-//   // Salaries
-//   AddSalary,
-//   RemoveSalary,
-
-//   // Expenses
-//   AddExpense,
-//   RemoveExpense,
-
-//   // Houses
-//   AddHouse,
-//   BuyHouse,
-//   SellHouse,
-
-//   // Stocks
-//   AddStock,
-//   BuyStock,
-//   SellStock,
-// }
-
-// const endActions = new Set([
-//   Action.RemoveSalary,
-//   Action.RemoveExpense,
-//   Action.SellHouse,
-//   Action.SellStock,
-// ]);
-
-// type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
-
-// interface Event {
-//   action: Action;
-//   item: {
-//     id: string;
-//     object: Item;
-//   };
-// }
 
 interface Props {
   events?: Map<number, Set<Event>>;
@@ -90,13 +43,26 @@ class History {
   removeEvent = ({ date, id }: { date: Date; id: string }) => {
     const events = this.events.get(this.toDateTime({ date }));
 
+    if (events === undefined) {
+      return this;
+    }
+
+    const newEvents = new Set(
+      [...events].filter((event) => event.item.id !== id)
+    );
+
+    if (newEvents.size === 0) {
+      return new History({
+        events: new Map(
+          [...this.events].filter(
+            ([time]) => time !== this.toDateTime({ date })
+          )
+        ),
+      });
+    }
+
     return new History({
-      events: new Map(this.events).set(
-        this.toDateTime({ date }),
-        events !== undefined
-          ? new Set([...events].filter((event) => event.item.id !== id))
-          : new Set([])
-      ),
+      events: new Map(this.events).set(this.toDateTime({ date }), newEvents),
     });
   };
 
@@ -224,7 +190,7 @@ class History {
     const actions = [...this.events].reduce(
       (acc, [, events]) =>
         new Set([...acc, ...[...events].map((event) => event.action)]),
-      new Set<Action>([])
+      new Set<Action>()
     );
 
     if (
