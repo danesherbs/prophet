@@ -397,7 +397,7 @@ class State {
       superans: this.superans,
       salaries: this.salaries,
       houses: this.houses,
-      stocks: { ...this.stocks, [id]: stock },
+      stocks: new Map([...this.stocks, [id, stock]]),
       expenses: this.expenses,
     });
   }
