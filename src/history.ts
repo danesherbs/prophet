@@ -146,7 +146,7 @@ class History {
       date: start,
       event: {
         action,
-        item: { id, object: event?.item.object },
+        item: { id, object: event.item.object },
       },
     });
   };
