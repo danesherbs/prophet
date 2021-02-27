@@ -41,7 +41,7 @@ class History {
     }
 
     throw new RangeError(
-      "Tried to retrieve event for id " + id + " which doesn't exist."
+      "Tried to retrieve event for id " + id + " but doesn't exist."
     );
   };
 
@@ -203,7 +203,6 @@ class History {
     if (
       !(
         actions.has(Action.AddBank) &&
-        actions.has(Action.AddSalary) &&
         actions.has(Action.AddTax) &&
         actions.has(Action.AddSuper)
       )
@@ -227,7 +226,7 @@ class History {
       start: this.fromDateTime({ dateTime: start }),
       end: this.fromDateTime({ dateTime: end }),
     });
-    const horizon = 120;
+    const horizon = 60;
 
     const states: Array<State> = [];
 
