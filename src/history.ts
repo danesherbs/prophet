@@ -29,6 +29,22 @@ class History {
 
   fromDateTime = ({ dateTime }: { dateTime: number }) => new Date(dateTime);
 
+  getEvent = ({ date, id }: { date: Date; id: string }) => {
+    const events = this.events.get(this.toDateTime({ date }));
+
+    if (events !== undefined) {
+      for (let event of events) {
+        if (event.item.id === id) {
+          return event;
+        }
+      }
+    }
+
+    throw new RangeError(
+      "Tried to retrieve event for id " + id + " which doesn't exist."
+    );
+  };
+
   addEvent = ({ date, event }: { date: Date; event: Event }) => {
     const events = this.events.get(this.toDateTime({ date }));
 
@@ -84,10 +100,6 @@ class History {
     const start = this.getStart({ id });
     const event = this.getEvent({ date: start, id });
 
-    if (event === null) {
-      throw new Error(`Tried to set start of non-existent event for id ${id}`);
-    }
-
     return this.removeEvent({
       date: start,
       id,
@@ -95,20 +107,6 @@ class History {
       date,
       event,
     });
-  };
-
-  getEvent = ({ date, id }: { date: Date; id: string }) => {
-    const events = this.events.get(this.toDateTime({ date }));
-
-    if (events !== undefined) {
-      for (let event of events) {
-        if (event.item.id === id) {
-          return event;
-        }
-      }
-    }
-
-    return null;
   };
 
   getEnd = ({ id }: { id: string }) => {
@@ -137,11 +135,20 @@ class History {
       id,
     });
 
-    if (event === null) {
-      throw new Error(`Tried to set end of non-existent event for id ${id}`);
-    }
-
     return this.removeEvent({ date: end, id }).addEvent({ date, event });
+  };
+
+  setAction = ({ id, action }: { id: string; action: Action }) => {
+    const start = this.getStart({ id });
+    const event = this.getEvent({ date: start, id });
+
+    return this.removeEvent({ date: start, id }).addEvent({
+      date: start,
+      event: {
+        action,
+        item: { id, object: event?.item.object },
+      },
+    });
   };
 
   getHouses = (): State["houses"] =>
