@@ -77,7 +77,7 @@ class History {
   fromDateTime = ({ dateTime }: { dateTime: number }) => new Date(dateTime);
 
   addEvent = ({ date, event }: { date: Date; event: Event }) => {
-    const events = this.events.get(this.toDateTime({ date }))?.values();
+    const events = this.events.get(this.toDateTime({ date }));
 
     return new History({
       events: new Map(this.events).set(
@@ -88,7 +88,7 @@ class History {
   };
 
   removeEvent = ({ date, id }: { date: Date; id: string }) => {
-    const events = this.events.get(this.toDateTime({ date }))?.values();
+    const events = this.events.get(this.toDateTime({ date }));
 
     return new History({
       events: new Map(this.events).set(
