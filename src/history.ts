@@ -24,6 +24,14 @@ class History {
     return this.events;
   };
 
+  isValid = () => {
+    /*
+    Checks if events are valid i.e. this DAG shorturl.at/fhyT6 can be topollogically sorted.
+    */
+
+    throw new Error("Not implemented!");
+  };
+
   toDateTime = ({ date }: { date: Date }) =>
     new Date(date.getFullYear(), date.getMonth()).getTime();
 
@@ -153,37 +161,37 @@ class History {
 
   getHouses = (): State["houses"] =>
     this.getStates().reduce(
-      (acc, state) => new Map([...acc, ...state.getHouses().entries()]),
+      (acc, state) => new Map([...state.getHouses().entries(), ...acc]),
       new Map<string, House>()
     );
 
   getStocks = (): State["stocks"] =>
     this.getStates().reduce(
-      (acc, state) => new Map([...acc, ...state.getStocks().entries()]),
+      (acc, state) => new Map([...state.getStocks().entries(), ...acc]),
       new Map<string, Stock>()
     );
 
   getExpenses = (): State["expenses"] =>
     this.getStates().reduce(
-      (acc, state) => new Map([...acc, ...state.getExpenses().entries()]),
+      (acc, state) => new Map([...state.getExpenses().entries(), ...acc]),
       new Map<string, Expense>()
     );
 
   getSalaries = (): State["salaries"] =>
     this.getStates().reduce(
-      (acc, state) => new Map([...acc, ...state.getSalaries().entries()]),
+      (acc, state) => new Map([...state.getSalaries().entries(), ...acc]),
       new Map<string, Salary>()
     );
 
   getSupers = (): State["superans"] =>
     this.getStates().reduce(
-      (acc, state) => new Map([...acc, ...state.getSupers().entries()]),
+      (acc, state) => new Map([...state.getSupers().entries(), ...acc]),
       new Map<string, Super>()
     );
 
   getBanks = (): State["banks"] =>
     this.getStates().reduce(
-      (acc, state) => new Map([...acc, ...state.getBanks().entries()]),
+      (acc, state) => new Map([...state.getBanks().entries(), ...acc]),
       new Map<string, Bank>()
     );
 

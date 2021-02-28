@@ -6,8 +6,8 @@ interface Props {
   monthlyGrossRentalIncome: number;
   yearlyRentalIncomeIncrease: number;
   buildingDepreciationRate: number;
-  purchaseTime: number;
-  description?: string;
+  monthsSincePurchase?: number;
+  initialHouseValue?: number;
 }
 
 class House {
@@ -18,8 +18,8 @@ class House {
   monthlyGrossRentalIncome: number;
   yearlyRentalIncomeIncrease: number;
   buildingDepreciationRate: number;
-  purchaseTime: number;
-  description?: string;
+  monthsSincePurchase: number;
+  initialHouseValue: number;
 
   constructor({
     houseValue,
@@ -29,8 +29,8 @@ class House {
     monthlyGrossRentalIncome,
     yearlyRentalIncomeIncrease,
     buildingDepreciationRate,
-    purchaseTime,
-    description,
+    monthsSincePurchase,
+    initialHouseValue,
   }: Props) {
     this.houseValue = houseValue;
     this.loan = loan;
@@ -39,8 +39,8 @@ class House {
     this.monthlyGrossRentalIncome = monthlyGrossRentalIncome;
     this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
     this.buildingDepreciationRate = buildingDepreciationRate;
-    this.purchaseTime = purchaseTime;
-    this.description = description;
+    this.monthsSincePurchase = monthsSincePurchase || 0;
+    this.initialHouseValue = initialHouseValue || houseValue;
   }
 
   getYearlyInterestRate() {
@@ -68,16 +68,6 @@ class House {
     return this.buildingDepreciationRate;
   }
 
-  getPurchaseTime() {
-    /* istanbul ignore next */
-    return this.purchaseTime;
-  }
-
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
-  }
-
   getProps(): Props {
     /* istanbul ignore next */
     return {
@@ -88,8 +78,8 @@ class House {
       monthlyGrossRentalIncome: this.monthlyGrossRentalIncome,
       yearlyRentalIncomeIncrease: this.yearlyRentalIncomeIncrease,
       buildingDepreciationRate: this.buildingDepreciationRate,
-      purchaseTime: this.purchaseTime,
-      description: this.description,
+      monthsSincePurchase: this.monthsSincePurchase,
+      initialHouseValue: this.initialHouseValue,
     };
   }
 
@@ -101,41 +91,60 @@ class House {
     return (this.loan * this.yearlyInterestRate) / 12;
   }
 
-  getMonthlyGrossRentalIncome(time: number) {
-    return (
-      this.monthlyGrossRentalIncome *
-      Math.pow(
-        1 + this.yearlyRentalIncomeIncrease,
-        Math.floor((time - this.purchaseTime) / 12)
-      )
-    );
+  getMonthlyGrossRentalIncome() {
+    return this.monthlyGrossRentalIncome;
   }
 
-  getHouseValue(time: number) {
-    return (
-      this.houseValue *
-      Math.pow(1 + this.getMonthlyAppreciationRate(), time - this.purchaseTime)
-    );
+  getHouseValue() {
+    return this.houseValue;
   }
 
   getMonthlyDepreciationRate() {
     return Math.pow(1 + this.buildingDepreciationRate, 1 / 12) - 1;
   }
 
-  getMonthlyDepreciationAmount(time: number) {
-    return 0.66 * this.getHouseValue(time) * this.getMonthlyDepreciationRate();
+  getMonthlyDepreciationAmount() {
+    return 0.66 * this.houseValue * this.getMonthlyDepreciationRate();
   }
 
-  getEquity(time: number) {
-    return this.getHouseValue(time) - this.loan;
+  getEquity() {
+    return this.houseValue - this.loan;
   }
 
-  getCapitalGain(time: number) {
-    return this.getEquity(time) - this.getEquity(0);
+  getCapitalGain() {
+    return this.houseValue - this.initialHouseValue;
   }
 
   getMonthlyAppreciationRate() {
     return Math.pow(1 + this.yearlyAppreciationRate, 1 / 12) - 1;
+  }
+
+  waitOneMonth() {
+    return new House({
+      houseValue: this.houseValue * (1 + this.getMonthlyAppreciationRate()),
+      loan: this.loan,
+      yearlyInterestRate: this.yearlyInterestRate,
+      yearlyAppreciationRate: this.yearlyAppreciationRate,
+      monthlyGrossRentalIncome:
+        (this.monthsSincePurchase + 1) % 12 === 0
+          ? this.monthlyGrossRentalIncome *
+            (1 + this.getYearlyRentalIncomeIncrease())
+          : this.monthlyGrossRentalIncome,
+      yearlyRentalIncomeIncrease: this.yearlyRentalIncomeIncrease,
+      buildingDepreciationRate: this.buildingDepreciationRate,
+      monthsSincePurchase: this.monthsSincePurchase + 1,
+      initialHouseValue: this.initialHouseValue,
+    });
+  }
+
+  waitOneYear() {
+    let house: House = this;
+
+    for (let i = 0; i < 12; i++) {
+      house = house.waitOneMonth();
+    }
+
+    return house;
   }
 }
 

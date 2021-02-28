@@ -84,7 +84,6 @@ class Environment {
             monthlyGrossRentalIncome: 2500,
             yearlyRentalIncomeIncrease: 0.03,
             buildingDepreciationRate: 0.02,
-            purchaseTime: 0,
           }),
         });
         break;

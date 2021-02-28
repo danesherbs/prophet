@@ -64,7 +64,7 @@ class State {
         0
       ) +
       Array.from(this.houses.values()).reduce(
-        (acc, house) => acc + house.getEquity(this.clock.getTime()),
+        (acc, house) => acc + house.getEquity(),
         0
       )
     );
@@ -211,7 +211,7 @@ class State {
           id,
           tax.declareIncome(
             this.clock.getTime(),
-            house.getMonthlyGrossRentalIncome(this.clock.getTime())
+            house.getMonthlyGrossRentalIncome()
           ),
         ])
       ),
@@ -220,7 +220,7 @@ class State {
           id,
           bank.deposit(
             this.clock.getTime(),
-            house.getMonthlyGrossRentalIncome(this.clock.getTime()),
+            house.getMonthlyGrossRentalIncome(),
             "Rental income"
           ),
         ])
@@ -263,7 +263,7 @@ class State {
           id,
           tax.declareLoss(
             this.clock.getTime(),
-            house.getMonthlyDepreciationAmount(this.clock.getTime())
+            house.getMonthlyDepreciationAmount()
           ),
         ])
       ),
@@ -459,7 +459,7 @@ class State {
           id,
           bank.withdraw(
             this.clock.getTime(),
-            house.getHouseValue(0) - house.getLoan(),
+            house.getHouseValue() - house.getLoan(),
             "Downpayment for house"
           ),
         ])
@@ -498,20 +498,13 @@ class State {
       tax: new Map(
         [...this.tax].map(([id, tax]) => [
           id,
-          tax.declareIncome(
-            this.clock.getTime(),
-            house.getCapitalGain(this.clock.getTime())
-          ),
+          tax.declareIncome(this.clock.getTime(), house.getCapitalGain()),
         ])
       ),
       banks: new Map(
         [...this.getBanks()].map(([id, bank]) => [
           id,
-          bank.deposit(
-            this.clock.getTime(),
-            house.getEquity(this.clock.getTime()),
-            "Sold house"
-          ),
+          bank.deposit(this.clock.getTime(), house.getEquity(), "Sold house"),
         ])
       ),
       superans: this.superans,
@@ -613,10 +606,11 @@ class State {
     });
 
     // Properties
-    this.houses.forEach((house) => {
+    this.houses.forEach((house, id) => {
       state = state.receiveMonthlyRentalIncome(house);
       state = state.payMonthlyInterestPayment(house);
       state = state.declareMonthlyDepreciationLoss(house);
+      state = state.addHouse({ id, house: house.waitOneMonth() });
     });
 
     // Stocks

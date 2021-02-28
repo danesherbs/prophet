@@ -51,7 +51,6 @@ const house = new House({
   monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
   buildingDepreciationRate: 0.025,
-  purchaseTime: 0,
 });
 
 const stock = new Stock({
@@ -232,18 +231,18 @@ test("correct net wealth after a month with salary, house, stock and expense", (
   });
 
   expect(state.getNetWealth()).toEqual(
-    house.getEquity(0) + stock.getTotalValue()
+    house.getEquity() + stock.getTotalValue()
   );
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
     (salary.getMonthlyNetSalary(0) +
-      house.getMonthlyGrossRentalIncome(0) -
+      house.getMonthlyGrossRentalIncome() -
       expense.getMonthlyAmount(0) -
       house.getMonthlyInterestPayment()) *
       (1 + bank.getMonthlyInterestRate()) +
       superan.getMonthlyNetSuperContribution(120_000) *
         (1 + superan.getMonthlyInterestRate()) +
-      house.getEquity(1) +
+      house.waitOneMonth().getEquity() +
       stock.waitOneMonth().getTotalValue(),
     10
   );
@@ -454,12 +453,12 @@ test("correct state change when selling a house", () => {
   // Changed after one month
   expect(state.waitOneMonth().getHouses()).toEqual(
     new Map([
-      ["house a", house],
-      ["house b", house],
+      ["house a", house.waitOneMonth()],
+      ["house b", house.waitOneMonth()],
     ])
   );
   expect(state.waitOneMonth().sellHouse({ id: "house a" }).getHouses()).toEqual(
-    new Map([["house b", house]])
+    new Map([["house b", house.waitOneMonth()]])
   );
   expect(
     state
@@ -468,7 +467,8 @@ test("correct state change when selling a house", () => {
       .getSingletonBank()
       .getBalance(1)
   ).toBeCloseTo(
-    state.waitOneMonth().getSingletonBank().getBalance(1) + house.getEquity(1),
+    state.waitOneMonth().getSingletonBank().getBalance(1) +
+      house.waitOneMonth().getEquity(),
     10
   );
   expect(
@@ -477,7 +477,7 @@ test("correct state change when selling a house", () => {
     state
       .waitOneMonth()
       .getSingletonTax()
-      .declareIncome(1, house.getCapitalGain(1))
+      .declareIncome(1, house.waitOneMonth().getCapitalGain())
   );
 });
 
@@ -504,10 +504,10 @@ test("correct bank change after one month with salary and a house", () => {
   ).toBeCloseTo(
     (state.getSingletonBank().getBalance(0) +
       salary.getMonthlyNetSalary(0) +
-      house.getMonthlyGrossRentalIncome(0) -
+      house.getMonthlyGrossRentalIncome() -
       house.getMonthlyInterestPayment()) *
       (1 + bank.getMonthlyInterestRate()) +
-      house.getEquity(1),
+      house.waitOneMonth().getEquity(),
     10
   );
 });
@@ -570,7 +570,9 @@ test("correct state change after one month when owning single house", () => {
   // Unchanged
   expect(state.waitOneMonth().getStocks()).toEqual(state.getStocks());
   expect(state.waitOneMonth().getSalaries()).toEqual(state.getSalaries());
-  expect(state.waitOneMonth().getHouses()).toEqual(state.getHouses());
+  expect(state.waitOneMonth().getHouses()).toEqual(
+    state.waitOneMonth().getHouses()
+  );
 
   // Changed
   expect(state.waitOneMonth().getSingletonSuper()).toEqual(
@@ -582,14 +584,14 @@ test("correct state change after one month when owning single house", () => {
       .getSingletonTax()
       .declareIncome(0, 0)
       .declareIncome(0, 2_500)
-      .declareLoss(0, house.getMonthlyDepreciationAmount(0))
+      .declareLoss(0, house.getMonthlyDepreciationAmount())
       .payTax(0, 0, TaxType.Income)
       .payTax(0, 0, TaxType.Super)
   );
   expect(state.waitOneMonth().getSingletonBank().getBalance(1)).toEqual(
     state
       .getSingletonBank()
-      .deposit(0, house.getMonthlyGrossRentalIncome(0), "Rental income")
+      .deposit(0, house.getMonthlyGrossRentalIncome(), "Rental income")
       .withdraw(0, house.getMonthlyInterestPayment(), "Interest payment")
       .getBalance(0) *
       (1 + bank.getMonthlyInterestRate())
@@ -605,7 +607,6 @@ test("unpaid tax is paid at beginning of financial year", () => {
     monthlyGrossRentalIncome: 5_000,
     yearlyRentalIncomeIncrease: 0.03,
     buildingDepreciationRate: 0.025,
-    purchaseTime: 0,
   });
 
   const state = new State({

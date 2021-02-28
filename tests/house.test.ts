@@ -8,11 +8,18 @@ const house = new House({
   monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
   buildingDepreciationRate: 0.025,
-  purchaseTime: 0,
 });
 
 test("house value appreciating correctly", () => {
-  expect(house.getHouseValue(36)).toBeCloseTo(600_000 * Math.pow(1.05, 3), 8);
+  expect(
+    house
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .getHouseValue()
+  ).toBeCloseTo(600_000 * Math.pow(1.05, 5), 8);
 });
 
 test("correct monthly appreciation rate", () => {
@@ -23,21 +30,26 @@ test("correct monthly appreciation rate", () => {
 });
 
 test("house equity is value minus loan", () => {
-  expect(house.getEquity(0)).toEqual(50_000);
+  expect(house.getEquity()).toEqual(50_000);
 
-  expect(house.getEquity(36)).toBeCloseTo(
+  expect(
+    house.waitOneYear().waitOneYear().waitOneYear().getEquity()
+  ).toBeCloseTo(
     600_000 * Math.pow(1 + house.getYearlyAppreciationRate(), 3) - 550_000,
     8
   );
 });
 
 test("house rental income grows correctly", () => {
-  expect(house.getMonthlyGrossRentalIncome(0)).toEqual(2_500);
+  expect(house.getMonthlyGrossRentalIncome()).toEqual(2_500);
 
-  expect(house.getMonthlyGrossRentalIncome(36)).toBeCloseTo(
-    2_500 * Math.pow(1.03, 3),
-    8
-  );
+  expect(
+    house
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .getMonthlyGrossRentalIncome()
+  ).toBeCloseTo(2_500 * Math.pow(1.03, 3), 8);
 });
 
 test("correct monthly interest rate", () => {
@@ -59,18 +71,23 @@ test("correct monthly depreciation rate", () => {
 });
 
 test("monthly depreciation amount is in sensible range", () => {
-  const amount = Array(...Array(12).keys()).reduce(
-    (acc: number, month: number) =>
-      acc + house.getMonthlyDepreciationAmount(month),
-    0
+  const [amount] = Array(...Array(12).keys()).reduce(
+    ([accAmount, accHouse]: [number, House]) => [
+      accAmount + accHouse.getMonthlyDepreciationAmount(),
+      house.waitOneMonth(),
+    ],
+    [0, house]
   );
 
   expect(amount).toBeGreaterThanOrEqual(
-    0.66 * house.getHouseValue(0) * house.getMonthlyDepreciationRate() * 12
+    0.66 * house.getHouseValue() * house.getMonthlyDepreciationRate() * 12
   );
 
   expect(amount).toBeLessThanOrEqual(
-    0.66 * house.getHouseValue(12) * house.getMonthlyDepreciationRate() * 12
+    0.66 *
+      house.waitOneYear().getHouseValue() *
+      house.getMonthlyDepreciationRate() *
+      12
   );
 });
 
@@ -79,15 +96,26 @@ test("can compare houses as JSON objects", () => {
 });
 
 test("correct capital gain", () => {
-  expect(house.getCapitalGain(0)).toBeCloseTo(0, 10);
+  expect(house.getCapitalGain()).toBeCloseTo(0, 10);
 
-  expect(house.getCapitalGain(12)).toBeCloseTo(
-    600_000 * Math.pow(1 + house.getMonthlyAppreciationRate(), 12) - 600_000,
-    10
+  expect(house.waitOneYear().getCapitalGain()).toBeCloseTo(
+    house.getHouseValue() *
+      Math.pow(1 + house.getMonthlyAppreciationRate(), 12) -
+      house.getHouseValue(),
+    8
   );
 
-  expect(house.getCapitalGain(56)).toBeCloseTo(
-    600_000 * Math.pow(1 + house.getMonthlyAppreciationRate(), 56) - 600_000,
-    10
+  expect(
+    house
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .getCapitalGain()
+  ).toBeCloseTo(
+    house.getHouseValue() *
+      Math.pow(1 + house.getMonthlyAppreciationRate(), 48) -
+      house.getHouseValue(),
+    8
   );
 });

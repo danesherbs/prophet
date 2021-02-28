@@ -58,7 +58,6 @@ const house = new House({
   monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
   buildingDepreciationRate: 0.025,
-  purchaseTime: 0,
 });
 
 const stock = new Stock({
@@ -353,9 +352,21 @@ test("adding event at time adds correct asset", () => {
           },
         },
       })
-      .getState(12)
+      .getState(5)
       .getHouses()
-  ).toEqual(new Map([["house a", house]]));
+  ).toEqual(
+    new Map([
+      [
+        "house a",
+        house
+          .waitOneMonth()
+          .waitOneMonth()
+          .waitOneMonth()
+          .waitOneMonth()
+          .waitOneMonth(),
+      ],
+    ])
+  );
 });
 
 test("adding and removing event doesn't alter original state", () => {
@@ -589,7 +600,6 @@ test("setting start of existing house at same time overwrites exiting house", ()
     monthlyGrossRentalIncome: 2_500,
     yearlyRentalIncomeIncrease: 0.03,
     buildingDepreciationRate: 0.025,
-    purchaseTime: 0,
   });
 
   expect(
