@@ -58,7 +58,6 @@ const stock = new Stock({
   numberOfUnits: 10,
   pricePerUnit: 500,
   rateOfReturn: 0.1,
-  initialTime: 0,
 });
 
 const state = new State({
@@ -233,7 +232,7 @@ test("correct net wealth after a month with salary, house, stock and expense", (
   });
 
   expect(state.getNetWealth()).toEqual(
-    house.getEquity(0) + stock.getTotalValue(0)
+    house.getEquity(0) + stock.getTotalValue()
   );
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
@@ -245,7 +244,7 @@ test("correct net wealth after a month with salary, house, stock and expense", (
       superan.getMonthlyNetSuperContribution(120_000) *
         (1 + superan.getMonthlyInterestRate()) +
       house.getEquity(1) +
-      stock.getTotalValue(1),
+      stock.waitOneMonth().getTotalValue(),
     10
   );
 });
@@ -255,7 +254,6 @@ test("correct state change when buying stock", () => {
     numberOfUnits: 10,
     pricePerUnit: 500,
     rateOfReturn: 0.1,
-    initialTime: 0,
   });
 
   const state = new State({
@@ -337,12 +335,12 @@ test("correct state change when selling stock", () => {
   // Changed after one month
   expect(state.waitOneMonth().getStocks()).toEqual(
     new Map([
-      ["stock a", stock],
-      ["stock b", stock],
+      ["stock a", stock.waitOneMonth()],
+      ["stock b", stock.waitOneMonth()],
     ])
   );
   expect(state.waitOneMonth().sellStock({ id: "stock a" }).getStocks()).toEqual(
-    new Map([["stock b", stock]])
+    new Map([["stock b", stock.waitOneMonth()]])
   );
   expect(
     state
@@ -352,7 +350,7 @@ test("correct state change when selling stock", () => {
       .getBalance(1)
   ).toBeCloseTo(
     salary.getMonthlyNetSalary(0) * (1 + bank.getMonthlyInterestRate()) +
-      stock.getTotalValue(1),
+      stock.waitOneMonth().getTotalValue(),
     10
   );
 
@@ -375,7 +373,10 @@ test("correct state change when selling stock", () => {
           12,
         TaxType.Super
       )
-      .declareIncome(1, stock.getTotalValue(1) - stock.getTotalValue(0))
+      .declareIncome(
+        1,
+        stock.waitOneMonth().getTotalValue() - stock.getTotalValue()
+      )
   );
 });
 

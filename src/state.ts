@@ -60,7 +60,7 @@ class State {
         0
       ) +
       Array.from(this.stocks.values()).reduce(
-        (acc, stock) => acc + stock.getTotalValue(this.clock.getTime()),
+        (acc, stock) => acc + stock.getTotalValue(),
         0
       ) +
       Array.from(this.houses.values()).reduce(
@@ -532,7 +532,7 @@ class State {
           id,
           bank.withdraw(
             this.clock.getTime(),
-            stock.getTotalValue(this.clock.getTime()),
+            stock.getTotalValue(),
             "Buy stock"
           ),
         ])
@@ -561,8 +561,7 @@ class State {
           id,
           tax.declareIncome(
             this.clock.getTime(),
-            stock.getTotalValue(this.clock.getTime()) -
-              stock.getTotalValue(stock.getInitialTime())
+            stock.getTotalValue() - stock.getInitialValue()
           ),
         ])
       ),
@@ -571,7 +570,7 @@ class State {
           id,
           bank.deposit(
             this.clock.getTime(),
-            stock.getTotalValue(this.clock.getTime()),
+            stock.getTotalValue(),
             "Sold stock"
           ),
         ])
@@ -618,6 +617,11 @@ class State {
       state = state.receiveMonthlyRentalIncome(house);
       state = state.payMonthlyInterestPayment(house);
       state = state.declareMonthlyDepreciationLoss(house);
+    });
+
+    // Stocks
+    this.stocks.forEach((stock, id) => {
+      state = state.addStock({ id, stock: stock.waitOneMonth() });
     });
 
     state = state.registerTick();

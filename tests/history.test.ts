@@ -65,7 +65,6 @@ const stock = new Stock({
   numberOfUnits: 10,
   pricePerUnit: 500,
   rateOfReturn: 0.1,
-  initialTime: 0,
 });
 
 const start = new Date(2020, 0);

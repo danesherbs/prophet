@@ -2,25 +2,25 @@ interface Props {
   numberOfUnits: number;
   pricePerUnit: number;
   rateOfReturn: number;
-  initialTime: number;
+  initialValue?: number;
 }
 
 class Stock {
   numberOfUnits: number;
   pricePerUnit: number;
   rateOfReturn: number;
-  initialTime: number;
+  initialValue?: number;
 
   constructor({
     numberOfUnits,
     pricePerUnit,
     rateOfReturn,
-    initialTime,
+    initialValue,
   }: Props) {
     this.numberOfUnits = numberOfUnits;
     this.pricePerUnit = pricePerUnit;
     this.rateOfReturn = rateOfReturn;
-    this.initialTime = initialTime;
+    this.initialValue = initialValue || numberOfUnits * pricePerUnit;
   }
 
   getNumberOfUnits() {
@@ -38,18 +38,12 @@ class Stock {
     return this.rateOfReturn;
   }
 
-  getInitialTime() {
-    /* istanbul ignore next */
-    return this.initialTime;
-  }
-
   getProps(): Props {
     /* istanbul ignore next */
     return {
       numberOfUnits: this.numberOfUnits,
       pricePerUnit: this.pricePerUnit,
       rateOfReturn: this.rateOfReturn,
-      initialTime: this.initialTime,
     };
   }
 
@@ -57,12 +51,21 @@ class Stock {
     return Math.pow(1 + this.rateOfReturn, 1 / 12) - 1;
   }
 
-  getTotalValue(time: number) {
-    return (
-      this.getNumberOfUnits() *
-      this.getPricePerUnit() *
-      Math.pow(1 + this.getMonthlyRateOfReturn(), time - this.getInitialTime())
-    );
+  getTotalValue() {
+    return this.getNumberOfUnits() * this.getPricePerUnit();
+  }
+
+  getInitialValue() {
+    return this.initialValue || this.getTotalValue();
+  }
+
+  waitOneMonth() {
+    return new Stock({
+      numberOfUnits: this.numberOfUnits,
+      pricePerUnit: this.pricePerUnit * (1 + this.getMonthlyRateOfReturn()),
+      rateOfReturn: this.rateOfReturn,
+      initialValue: this.initialValue,
+    });
   }
 }
 
