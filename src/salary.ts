@@ -1,30 +1,30 @@
 import Tax from "./tax";
 
 interface Props {
+  tax: Tax;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
-  tax: Tax;
   creationTime: number;
   description?: string;
 }
 
 class Salary {
+  tax: Tax;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
-  tax: Tax;
   creationTime: number;
   description?: string;
 
   constructor({
+    tax,
     yearlyGrossSalary,
     yearlySalaryIncrease,
-    tax,
     creationTime,
     description,
   }: Props) {
+    this.tax = tax;
     this.yearlyGrossSalary = yearlyGrossSalary;
     this.yearlySalaryIncrease = yearlySalaryIncrease;
-    this.tax = tax;
     this.creationTime = creationTime;
     this.description = description;
   }
