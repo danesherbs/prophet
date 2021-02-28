@@ -39,7 +39,6 @@ const reset = (): Environment => {
     tax: tax,
     yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
-    creationTime: clock.getTime(),
   });
 
   const state = new State({
