@@ -51,9 +51,7 @@ class Environment {
   render() {
     return {
       Time: this.state.getClock().getTime(),
-      Salary: this.state
-        .getSingletonSalary()
-        .getYearlyGrossSalary(this.state.getClock().getTime()),
+      Salary: this.state.getSingletonSalary().getYearlyGrossSalary(),
       "Bank balance:": this.state
         .getSingletonBank()
         .getBalance(this.state.getClock().getTime()),

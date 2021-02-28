@@ -4,44 +4,30 @@ interface Props {
   tax: Tax;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
-  creationTime: number;
-  description?: string;
+  monthsSincePurchase?: number;
 }
 
 class Salary {
   tax: Tax;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
-  creationTime: number;
-  description?: string;
+  monthsSincePurchase: number;
 
   constructor({
     tax,
     yearlyGrossSalary,
     yearlySalaryIncrease,
-    creationTime,
-    description,
+    monthsSincePurchase,
   }: Props) {
     this.tax = tax;
     this.yearlyGrossSalary = yearlyGrossSalary;
     this.yearlySalaryIncrease = yearlySalaryIncrease;
-    this.creationTime = creationTime;
-    this.description = description;
-  }
-
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
+    this.monthsSincePurchase = monthsSincePurchase || 0;
   }
 
   getTax() {
     /* istanbul ignore next */
     return this.tax;
-  }
-
-  getCreationTime() {
-    /* istanbul ignore next */
-    return this.creationTime;
   }
 
   getYearlySalaryIncrease() {
@@ -55,44 +41,59 @@ class Salary {
       yearlyGrossSalary: this.yearlyGrossSalary,
       yearlySalaryIncrease: this.yearlySalaryIncrease,
       tax: this.tax,
-      creationTime: this.creationTime,
-      description: this.description,
+      monthsSincePurchase: this.monthsSincePurchase,
     };
   }
 
-  getYearlyGrossSalary(time: number) {
-    return (
-      this.yearlyGrossSalary *
-      Math.pow(
-        1 + this.yearlySalaryIncrease,
-        Math.floor((time - this.creationTime) / 12)
-      )
-    );
+  getYearlyGrossSalary() {
+    return this.yearlyGrossSalary;
   }
 
-  getYearlyNetSalary(time: number) {
+  getYearlyNetSalary() {
     return (
-      this.getYearlyGrossSalary(time) -
+      this.yearlyGrossSalary -
       this.tax.getYearlyIncomeTax(this.yearlyGrossSalary)
     );
   }
 
-  getMonthlyGrossSalary(time: number) {
-    return this.getYearlyGrossSalary(time) / 12.0;
+  getMonthlyGrossSalary() {
+    return this.yearlyGrossSalary / 12.0;
   }
 
-  getMonthlyNetSalary(time: number) {
+  getMonthlyNetSalary() {
     return (
-      this.getMonthlyGrossSalary(time) -
-      this.tax.getMonthlyIncomeTax(this.getYearlyGrossSalary(time))
+      this.getMonthlyGrossSalary() -
+      this.tax.getMonthlyIncomeTax(this.yearlyGrossSalary)
     );
   }
 
-  getMonthlyNetSuperContribution(time: number) {
+  getMonthlyNetSuperContribution() {
     return (
-      this.getMonthlyGrossSalary(time) -
-      this.tax.getMonthlySuperTax(this.getMonthlyGrossSalary(time))
+      this.getMonthlyGrossSalary() -
+      this.tax.getMonthlySuperTax(this.getMonthlyGrossSalary())
     );
+  }
+
+  waitOneMonth() {
+    return new Salary({
+      tax: this.tax,
+      yearlyGrossSalary:
+        (this.monthsSincePurchase + 1) % 12 === 0
+          ? this.yearlyGrossSalary * (1 + this.getYearlySalaryIncrease())
+          : this.yearlyGrossSalary,
+      yearlySalaryIncrease: this.yearlySalaryIncrease,
+      monthsSincePurchase: this.monthsSincePurchase + 1,
+    });
+  }
+
+  waitOneYear() {
+    let salary: Salary = this;
+
+    for (let i = 0; i < 12; i++) {
+      salary = salary.waitOneMonth();
+    }
+
+    return salary;
   }
 }
 

@@ -153,14 +153,11 @@ class State {
         [...this.tax].map(([id, tax]) => [
           id,
           tax
-            .declareIncome(
-              this.clock.getTime(),
-              salary.getMonthlyGrossSalary(this.clock.getTime())
-            )
+            .declareIncome(this.clock.getTime(), salary.getMonthlyGrossSalary())
             .payTax(
               this.clock.getTime(),
               this.getSingletonTax().getMonthlyIncomeTax(
-                salary.getYearlyGrossSalary(this.clock.getTime())
+                salary.getYearlyGrossSalary()
               ),
               TaxType.Income
             )
@@ -168,7 +165,7 @@ class State {
               this.clock.getTime(),
               this.getSingletonTax().getMonthlySuperTax(
                 this.getSingletonSuper().getMonthlyGrossSuperContribution(
-                  salary.getYearlyGrossSalary(this.clock.getTime())
+                  salary.getYearlyGrossSalary()
                 )
               ),
               TaxType.Super
@@ -180,7 +177,7 @@ class State {
           id,
           bank.deposit(
             this.clock.getTime(),
-            salary.getMonthlyNetSalary(this.clock.getTime()),
+            salary.getMonthlyNetSalary(),
             "Salary"
           ),
         ])
@@ -191,7 +188,7 @@ class State {
           superan.deposit(
             this.clock.getTime(),
             superan.getMonthlyNetSuperContribution(
-              salary.getYearlyGrossSalary(this.clock.getTime())
+              salary.getYearlyGrossSalary()
             )
           ),
         ])
@@ -596,8 +593,9 @@ class State {
     let state: State = this;
 
     // Salary
-    this.salaries.forEach((salary) => {
+    this.salaries.forEach((salary, id) => {
       state = state.receiveMonthlySalaryPayment(salary);
+      state = state.addSalary({ id, salary: salary.waitOneMonth() });
     });
 
     // Expenses

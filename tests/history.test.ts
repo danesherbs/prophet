@@ -40,7 +40,6 @@ const salary = new Salary({
   tax: tax,
   yearlyGrossSalary: 340_000,
   yearlySalaryIncrease: 0.1,
-  creationTime: clock.getTime(),
 });
 
 const expense = new Expense({
