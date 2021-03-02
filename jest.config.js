@@ -7,5 +7,5 @@ module.exports = {
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
-  testPathIgnorePatterns: ["<rootDir>/tests/loan.test.ts"],
+  // testPathIgnorePatterns: ["<rootDir>/tests/loan.test.ts"],
 };
