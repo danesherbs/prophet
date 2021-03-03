@@ -69,9 +69,7 @@ test("correct monthly interest rate", () => {
 });
 
 test("correct monthly interest payments", () => {
-  expect(house.getMonthlyInterestPayment()).toEqual(
-    loan.getMonthlyPrincipleAndInterestPayment()
-  );
+  expect(house.getMonthlyInterestPayment()).toEqual(loan.getMonthlyPayment());
 });
 
 test("correct monthly depreciation rate", () => {
