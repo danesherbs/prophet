@@ -46,10 +46,10 @@ class Loan {
 
   getMonthlyPayment() {
     if (this.isInterestOnly) {
-      return this.getMonthlyInterestOnlyPayment();
+      return this.getMonthlyInterestOnlyPayment() + this.monthlyFee;
     }
 
-    return this.getMonthlyPrincipleAndInterestPayment();
+    return this.getMonthlyPrincipleAndInterestPayment() + this.monthlyFee;
   }
 
   getMonthlyInterestOnlyPayment() {
@@ -68,9 +68,21 @@ class Loan {
       return P / N;
     }
 
-    return (
-      (r * P * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1) + this.monthlyFee
-    );
+    return (r * P * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
+  }
+
+  waitOneMonth() {
+    return new Loan({
+      amountBorrowed:
+        this.amountBorrowed * (1 + this.getMonthlyInterestRate()) -
+        (this.isInterestOnly
+          ? this.getMonthlyInterestOnlyPayment()
+          : this.getMonthlyPrincipleAndInterestPayment()),
+      yearlyInterestRate: this.yearlyInterestRate,
+      monthlyFee: this.monthlyFee,
+      isInterestOnly: this.isInterestOnly,
+      lengthOfLoanInYears: this.lengthOfLoanInYears - 1 / 12,
+    });
   }
 
   // getMonthlyInterestRate() {
