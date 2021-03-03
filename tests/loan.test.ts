@@ -5,7 +5,7 @@ const interestOnlyLoan = new Loan({
   yearlyInterestRate: 0.065,
   monthlyFee: 10,
   isInterestOnly: true,
-  lengthOfLoanInYears: 30,
+  lengthOfLoanInMonths: 12 * 30,
 });
 
 const principalAndInterestLoan = new Loan({
@@ -13,7 +13,7 @@ const principalAndInterestLoan = new Loan({
   yearlyInterestRate: 0.065,
   monthlyFee: 10,
   isInterestOnly: false,
-  lengthOfLoanInYears: 30,
+  lengthOfLoanInMonths: 12 * 30,
 });
 
 test("correct monthly repayments on principal interest loan", () => {
@@ -38,4 +38,22 @@ test("monthly payments for interest only loans do not change month to month", ()
     interestOnlyLoan.getMonthlyPayment(),
     2
   );
+});
+
+test("loan length decreases over time", () => {
+  expect(
+    principalAndInterestLoan
+      .waitOneMonth()
+      .waitOneMonth()
+      .waitOneMonth()
+      .getLengthOfLoanInMonths()
+  ).toEqual(principalAndInterestLoan.getLengthOfLoanInMonths() - 3);
+
+  expect(
+    principalAndInterestLoan
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .getLengthOfLoanInMonths()
+  ).toEqual(principalAndInterestLoan.getLengthOfLoanInMonths() - 36);
 });

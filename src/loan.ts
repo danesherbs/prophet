@@ -3,27 +3,27 @@ class Loan {
   yearlyInterestRate: number;
   monthlyFee: number;
   isInterestOnly: boolean;
-  lengthOfLoanInYears: number;
+  lengthOfLoanInMonths: number;
   constructor({
     amountBorrowed,
     yearlyInterestRate,
     monthlyFee,
     isInterestOnly,
-    lengthOfLoanInYears,
+    lengthOfLoanInMonths,
   }: {
     amountBorrowed: number;
     yearlyInterestRate: number;
     monthlyFee: number;
     isInterestOnly: boolean;
-    lengthOfLoanInYears: number;
+    lengthOfLoanInMonths: number;
   }) {
     this.amountBorrowed = amountBorrowed;
     this.yearlyInterestRate = yearlyInterestRate;
     this.monthlyFee = monthlyFee;
     this.isInterestOnly = isInterestOnly;
-    this.lengthOfLoanInYears = lengthOfLoanInYears;
+    this.lengthOfLoanInMonths = lengthOfLoanInMonths;
 
-    if (!this.isInterestOnly && this.lengthOfLoanInYears === undefined) {
+    if (!this.isInterestOnly && this.lengthOfLoanInMonths === undefined) {
       throw new RangeError(
         "Must specify length of loan for principal and interest loan."
       );
@@ -38,6 +38,11 @@ class Loan {
   getYearlyInterestRate() {
     /* istanbul ignore next */
     return this.yearlyInterestRate;
+  }
+
+  getLengthOfLoanInMonths() {
+    /* istanbul ignore next */
+    return this.lengthOfLoanInMonths;
   }
 
   getMonthlyInterestRate() {
@@ -62,7 +67,7 @@ class Loan {
     */
     const r = this.getMonthlyInterestRate();
     const P = this.amountBorrowed;
-    const N = this.lengthOfLoanInYears * 12;
+    const N = this.lengthOfLoanInMonths;
 
     if (0 < r && r < 1e-3) {
       return P / N;
@@ -81,8 +86,18 @@ class Loan {
       yearlyInterestRate: this.yearlyInterestRate,
       monthlyFee: this.monthlyFee,
       isInterestOnly: this.isInterestOnly,
-      lengthOfLoanInYears: this.lengthOfLoanInYears - 1 / 12,
+      lengthOfLoanInMonths: this.lengthOfLoanInMonths - 1,
     });
+  }
+
+  waitOneYear() {
+    let loan: Loan = this;
+
+    for (let i = 0; i < 12; i++) {
+      loan = loan.waitOneMonth();
+    }
+
+    return loan;
   }
 
   // getMonthlyInterestRate() {
