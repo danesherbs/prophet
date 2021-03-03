@@ -1,6 +1,8 @@
+import Loan from "./loan";
+
 interface Props {
   houseValue: number;
-  loan: number;
+  loan: Loan;
   yearlyInterestRate: number;
   yearlyAppreciationRate: number;
   monthlyGrossRentalIncome: number;
@@ -12,7 +14,7 @@ interface Props {
 
 class House {
   houseValue: number;
-  loan: number;
+  loan: Loan;
   yearlyInterestRate: number;
   yearlyAppreciationRate: number;
   monthlyGrossRentalIncome: number;
@@ -88,7 +90,7 @@ class House {
   }
 
   getMonthlyInterestPayment() {
-    return (this.loan * this.yearlyInterestRate) / 12;
+    return this.loan.getMonthlyPayment();
   }
 
   getMonthlyGrossRentalIncome() {
@@ -108,7 +110,7 @@ class House {
   }
 
   getEquity() {
-    return this.houseValue - this.loan;
+    return this.houseValue - this.loan.getAmountBorrowed();
   }
 
   getCapitalGain() {

@@ -8,6 +8,7 @@ import Super from "../src/super";
 import Expense from "../src/expense";
 import History, { Action, Event } from "../src/history";
 import State from "../src/state";
+import Loan from "../src/loan";
 
 const clock = new Clock(0);
 
@@ -49,8 +50,16 @@ const expense = new Expense({
   initialTime: 0,
 });
 
+const loan = new Loan({
+  amountBorrowed: 550_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: false,
+  lengthOfLoanInMonths: 12 * 30,
+});
+
 const house = new House({
-  loan: 550_000,
+  loan: loan,
   houseValue: 600_000,
   yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.05,
@@ -592,7 +601,7 @@ test("adding two houses and removing one results in singleton event list", () =>
 
 test("setting start of existing house at same time overwrites exiting house", () => {
   const house = new House({
-    loan: 550_000,
+    loan: loan,
     houseValue: 700_000,
     yearlyInterestRate: 0.03,
     yearlyAppreciationRate: 0.05,

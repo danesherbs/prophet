@@ -7,6 +7,7 @@ import Stock from "../src/stock";
 import Super from "../src/super";
 import State from "../src/state";
 import Expense from "../src/expense";
+import Loan from "../src/loan";
 
 const clock = new Clock(0);
 
@@ -42,8 +43,16 @@ const expense = new Expense({
   initialTime: clock.getTime(),
 });
 
+const loan = new Loan({
+  amountBorrowed: 550_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: false,
+  lengthOfLoanInMonths: 12 * 30,
+});
+
 const house = new House({
-  loan: 550_000,
+  loan: loan,
   houseValue: 600_000,
   yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.03,
@@ -588,19 +597,20 @@ test("correct state change after one month when owning single house", () => {
       .payTax(0, 0, TaxType.Income)
       .payTax(0, 0, TaxType.Super)
   );
-  expect(state.waitOneMonth().getSingletonBank().getBalance(1)).toEqual(
+  expect(state.waitOneMonth().getSingletonBank().getBalance(1)).toBeCloseTo(
     state
       .getSingletonBank()
       .deposit(0, house.getMonthlyGrossRentalIncome(), "Rental income")
       .withdraw(0, house.getMonthlyInterestPayment(), "Interest payment")
       .getBalance(0) *
-      (1 + bank.getMonthlyInterestRate())
+      (1 + bank.getMonthlyInterestRate()),
+    8
   );
 });
 
 test("unpaid tax is paid at beginning of financial year", () => {
   const house = new House({
-    loan: 550_000,
+    loan: loan,
     houseValue: 600_000,
     yearlyInterestRate: 0.03,
     yearlyAppreciationRate: 0.03,

@@ -1,7 +1,16 @@
 import House from "../src/house";
+import Loan from "../src/loan";
+
+const loan = new Loan({
+  amountBorrowed: 550_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: false,
+  lengthOfLoanInMonths: 12 * 30,
+});
 
 const house = new House({
-  loan: 550_000,
+  loan: loan,
   houseValue: 600_000,
   yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.05,
@@ -60,7 +69,9 @@ test("correct monthly interest rate", () => {
 });
 
 test("correct monthly interest payments", () => {
-  expect(house.getMonthlyInterestPayment()).toEqual(1_375);
+  expect(house.getMonthlyInterestPayment()).toEqual(
+    loan.getMonthlyPrincipleAndInterestPayment()
+  );
 });
 
 test("correct monthly depreciation rate", () => {

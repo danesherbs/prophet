@@ -456,7 +456,7 @@ class State {
           id,
           bank.withdraw(
             this.clock.getTime(),
-            house.getHouseValue() - house.getLoan(),
+            house.getEquity(),
             "Downpayment for house"
           ),
         ])
