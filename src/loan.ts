@@ -1,22 +1,25 @@
+interface Props {
+  amountBorrowed: number;
+  yearlyInterestRate: number;
+  monthlyFee: number;
+  isInterestOnly: boolean;
+  lengthOfLoanInMonths: number;
+}
+
 class Loan {
   amountBorrowed: number;
   yearlyInterestRate: number;
   monthlyFee: number;
   isInterestOnly: boolean;
   lengthOfLoanInMonths: number;
+
   constructor({
     amountBorrowed,
     yearlyInterestRate,
     monthlyFee,
     isInterestOnly,
     lengthOfLoanInMonths,
-  }: {
-    amountBorrowed: number;
-    yearlyInterestRate: number;
-    monthlyFee: number;
-    isInterestOnly: boolean;
-    lengthOfLoanInMonths: number;
-  }) {
+  }: Props) {
     this.amountBorrowed = amountBorrowed;
     this.yearlyInterestRate = yearlyInterestRate;
     this.monthlyFee = monthlyFee;
@@ -43,6 +46,17 @@ class Loan {
   getLengthOfLoanInMonths() {
     /* istanbul ignore next */
     return this.lengthOfLoanInMonths;
+  }
+
+  getProps(): Props {
+    /* istanbul ignore next */
+    return {
+      amountBorrowed: this.amountBorrowed,
+      yearlyInterestRate: this.yearlyInterestRate,
+      monthlyFee: this.monthlyFee,
+      isInterestOnly: this.isInterestOnly,
+      lengthOfLoanInMonths: this.lengthOfLoanInMonths,
+    };
   }
 
   getMonthlyInterestRate() {
