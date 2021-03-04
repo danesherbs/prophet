@@ -1,6 +1,7 @@
 import State from "../state";
 import Stock from "../stock";
 import House from "../house";
+import Loan from "../loan";
 
 enum Action {
   NoOp,
@@ -75,7 +76,13 @@ class Environment {
         newState = this.state.buyHouse({
           id: "a",
           house: new House({
-            loan: 550_000,
+            loan: new Loan({
+              amountBorrowed: 550_000,
+              yearlyInterestRate: 0.03,
+              monthlyFee: 30,
+              isInterestOnly: false,
+              lengthOfLoanInMonths: 12 * 30,
+            }),
             houseValue: 600_000,
             yearlyInterestRate: 0.03,
             yearlyAppreciationRate: 0.03,
