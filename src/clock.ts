@@ -19,4 +19,4 @@ class Clock {
 }
 
 export default Clock;
-export { Props };
+export type { Props };
