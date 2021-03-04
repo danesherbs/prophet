@@ -64,6 +64,10 @@ class Loan {
   }
 
   getMonthlyPayment() {
+    if (this.lengthOfLoanInMonths <= 0) {
+      return 0;
+    }
+
     if (this.isInterestOnly) {
       return this.getMonthlyInterestOnlyPayment() + this.monthlyFee;
     }
@@ -100,7 +104,7 @@ class Loan {
       yearlyInterestRate: this.yearlyInterestRate,
       monthlyFee: this.monthlyFee,
       isInterestOnly: this.isInterestOnly,
-      lengthOfLoanInMonths: this.lengthOfLoanInMonths - 1,
+      lengthOfLoanInMonths: Math.max(this.lengthOfLoanInMonths - 1, 0),
     });
   }
 
