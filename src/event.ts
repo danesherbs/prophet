@@ -5,10 +5,12 @@ import Stock from "./stock";
 import Bank from "./bank";
 import Super from "./super";
 import Tax from "./tax";
+import Loan from "./loan";
 
 enum Action {
-  // Bank
+  // Tax
   AddTax,
+
   // Bank
   AddBank,
 
@@ -32,6 +34,10 @@ enum Action {
   AddStock,
   BuyStock,
   SellStock,
+
+  // Loans
+  AddLoan,
+  RemoveLoan,
 }
 
 const ends = new Set([
@@ -41,7 +47,7 @@ const ends = new Set([
   Action.SellStock,
 ]);
 
-type Item = Bank | Expense | House | Salary | Stock | Super | Tax;
+type Item = Bank | Expense | House | Salary | Stock | Super | Tax | Loan;
 
 interface Props {
   action: Action;

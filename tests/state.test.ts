@@ -76,6 +76,7 @@ const state = new State({
   houses: new Map(),
   stocks: new Map(),
   expenses: new Map(),
+  loans: new Map(),
 });
 
 test("getters are working correctly", () => {
@@ -94,6 +95,7 @@ test("getters are working correctly", () => {
       ["stock b", stock],
     ]),
     expenses: new Map([["expense a", expense]]),
+    loans: new Map(),
   });
 
   expect(state.getClock()).toEqual(clock);
@@ -125,6 +127,7 @@ test("correct salary transition", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   expect(
@@ -168,6 +171,7 @@ test("correct net wealth after a month with salary only", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   expect(state.getNetWealth()).toEqual(0);
@@ -201,6 +205,7 @@ test("correct net wealth after a month with salary and expense", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map([["expense a", expense]]),
+    loans: new Map(),
   });
 
   expect(state.getNetWealth()).toEqual(0);
@@ -236,6 +241,7 @@ test("correct net wealth after a month with salary, house, stock and expense", (
     houses: new Map([["house a", house]]),
     stocks: new Map([["stock a", stock]]),
     expenses: new Map([["expense a", expense]]),
+    loans: new Map(),
   });
 
   expect(state.getNetWealth()).toEqual(
@@ -272,6 +278,7 @@ test("correct state change when buying stock", () => {
     houses: new Map(),
     stocks: new Map([["stock a", stock]]),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   // Unchanged
@@ -316,6 +323,7 @@ test("correct state change when selling stock", () => {
       ["stock b", stock],
     ]),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   const sold = state.sellStock({ id: "stock a" });
@@ -398,6 +406,7 @@ test("correct state change when buying a house", () => {
     houses: new Map([["house a", house]]),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   const bought = state.buyHouse({ id: "house b", house });
@@ -434,6 +443,7 @@ test("correct state change when selling a house", () => {
     ]),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   const sold = state.sellHouse({ id: "house a" });
@@ -500,6 +510,7 @@ test("correct bank change after one month with salary and a house", () => {
     houses: new Map([["house a", house]]),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   expect(state.getSingletonBank().getBalance(0)).toEqual(0);
@@ -531,6 +542,7 @@ test("correct state change when paying an expense", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   // Unchanged
@@ -573,6 +585,7 @@ test("correct state change after one month when owning single house", () => {
     houses: new Map([["house a", house]]),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   expect(state.waitOneMonth().getStocks()).toEqual(
@@ -628,6 +641,7 @@ test("unpaid tax is paid at beginning of financial year", () => {
     houses: new Map([["house a", house]]),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   expect(state.waitOneYear().waitOneMonth().getClock().getTime()).toEqual(13);
@@ -674,6 +688,7 @@ test("buying house subtracts from bank balance", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   expect(

@@ -120,6 +120,7 @@ test("singleton event is applied correctly", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   const event = {
@@ -142,6 +143,7 @@ test("multiple events are applied correctly", () => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   const addTaxEvent = {

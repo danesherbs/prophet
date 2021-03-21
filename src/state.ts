@@ -7,6 +7,7 @@ import Stock from "./stock";
 import House from "./house";
 import Super from "./super";
 import Expense from "./expense";
+import Loan from "./loan";
 
 interface Props {
   clock: Clock;
@@ -17,6 +18,7 @@ interface Props {
   houses: Map<string, House>;
   stocks: Map<string, Stock>;
   expenses: Map<string, Expense>;
+  loans: Map<string, Loan>;
 }
 
 class State {
@@ -28,6 +30,7 @@ class State {
   houses: Map<string, House>;
   stocks: Map<string, Stock>;
   expenses: Map<string, Expense>;
+  loans: Map<string, Loan>;
 
   constructor({
     clock,
@@ -38,6 +41,7 @@ class State {
     houses,
     stocks,
     expenses,
+    loans,
   }: Props) {
     this.clock = clock;
     this.tax = tax;
@@ -47,6 +51,7 @@ class State {
     this.houses = houses;
     this.stocks = stocks;
     this.expenses = expenses;
+    this.loans = loans;
   }
 
   getNetWealth() {
@@ -197,6 +202,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -227,6 +233,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -249,6 +256,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -270,6 +278,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -292,6 +301,30 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
+    });
+  }
+
+  payMonthlyLoanRepayment(loan: Loan) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: new Map(
+        [...this.getBanks()].map(([id, bank]) => [
+          id,
+          bank.withdraw(
+            this.clock.getTime(),
+            loan.getMonthlyPayment(),
+            "Loan payment"
+          ),
+        ])
+      ),
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -305,6 +338,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -318,6 +352,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -331,6 +366,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -344,6 +380,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -357,6 +394,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -370,6 +408,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: new Map([...this.expenses, [id, expense]]),
+      loans: this.loans,
     });
   }
 
@@ -383,67 +422,7 @@ class State {
       houses: this.houses,
       stocks: this.stocks,
       expenses: new Map([...this.expenses].filter(([i]) => i !== id)),
-    });
-  }
-
-  addStock({ id, stock }: { id: string; stock: Stock }) {
-    return new State({
-      clock: this.clock,
-      tax: this.tax,
-      banks: this.banks,
-      superans: this.superans,
-      salaries: this.salaries,
-      houses: this.houses,
-      stocks: new Map([...this.stocks, [id, stock]]),
-      expenses: this.expenses,
-    });
-  }
-
-  isStartOfFinancialYear() {
-    return this.clock.getTime() % 12 === 0;
-  }
-
-  registerTick() {
-    if (
-      this.isStartOfFinancialYear() &&
-      this.getSingletonTax().getNetUnpaidTaxOverLastTwelveMonths(
-        this.clock.getTime() - 1
-      ) > 1e-3
-    ) {
-      return new State({
-        clock: this.clock.tick(),
-        tax: this.tax,
-        banks: new Map(
-          [...this.getBanks()].map(([id, bank]) => [
-            id,
-            bank.withdraw(
-              this.clock.getTime(),
-              this.getSingletonTax().getNetUnpaidTaxOverLastTwelveMonths(
-                this.clock.getTime() - 1
-              ),
-              "Tax correction"
-            ),
-          ])
-        ),
-        superans: this.superans,
-        salaries: this.salaries,
-        houses: this.houses,
-        stocks: this.stocks,
-        expenses: this.expenses,
-      });
-    }
-
-    // TODO: carry losses forward into next year if net tax is negative
-
-    return new State({
-      clock: this.clock.tick(),
-      tax: this.tax,
-      banks: this.banks,
-      superans: this.superans,
-      salaries: this.salaries,
-      houses: this.houses,
-      stocks: this.stocks,
-      expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -466,6 +445,7 @@ class State {
       houses: new Map([...this.houses, [id, house]]),
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -479,6 +459,7 @@ class State {
       houses: new Map([...this.houses, [id, house]]),
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -509,6 +490,21 @@ class State {
       houses: new Map([...this.houses].filter(([i]) => i !== id)),
       stocks: this.stocks,
       expenses: this.expenses,
+      loans: this.loans,
+    });
+  }
+
+  addStock({ id, stock }: { id: string; stock: Stock }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: new Map([...this.stocks, [id, stock]]),
+      expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -532,6 +528,7 @@ class State {
       houses: this.houses,
       stocks: new Map([...this.stocks, [id, stock]]),
       expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -570,6 +567,85 @@ class State {
       houses: this.houses,
       stocks: new Map([...this.stocks].filter(([i]) => i !== id)),
       expenses: this.expenses,
+      loans: this.loans,
+    });
+  }
+
+  addLoan({ id, loan }: { id: string; loan: Loan }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+      loans: new Map([...this.loans, [id, loan]]),
+    });
+  }
+
+  removeLoan({ id }: { id: string }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+      loans: new Map([...this.loans].filter(([i]) => i !== id)),
+    });
+  }
+
+  isStartOfFinancialYear() {
+    return this.clock.getTime() % 12 === 0;
+  }
+
+  registerTick() {
+    if (
+      this.isStartOfFinancialYear() &&
+      this.getSingletonTax().getNetUnpaidTaxOverLastTwelveMonths(
+        this.clock.getTime() - 1
+      ) > 1e-3
+    ) {
+      return new State({
+        clock: this.clock.tick(),
+        tax: this.tax,
+        banks: new Map(
+          [...this.getBanks()].map(([id, bank]) => [
+            id,
+            bank.withdraw(
+              this.clock.getTime(),
+              this.getSingletonTax().getNetUnpaidTaxOverLastTwelveMonths(
+                this.clock.getTime() - 1
+              ),
+              "Tax correction"
+            ),
+          ])
+        ),
+        superans: this.superans,
+        salaries: this.salaries,
+        houses: this.houses,
+        stocks: this.stocks,
+        expenses: this.expenses,
+        loans: this.loans,
+      });
+    }
+
+    // TODO: carry losses forward into next year if net tax is negative
+
+    return new State({
+      clock: this.clock.tick(),
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: this.houses,
+      stocks: this.stocks,
+      expenses: this.expenses,
+      loans: this.loans,
     });
   }
 
@@ -614,6 +690,12 @@ class State {
     // Stocks
     this.stocks.forEach((stock, id) => {
       state = state.addStock({ id, stock: stock.waitOneMonth() });
+    });
+
+    // Loans
+    this.loans.forEach((loan, id) => {
+      state = state.payMonthlyLoanRepayment(loan);
+      state = state.addLoan({ id, loan: loan.waitOneMonth() });
     });
 
     state = state.registerTick();
