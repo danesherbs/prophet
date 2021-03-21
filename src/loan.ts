@@ -117,31 +117,7 @@ class Loan {
 
     return loan;
   }
-
-  // getMonthlyInterestRate() {
-  //   return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
-  // }
-
-  // getMonthlyInterestPayment() {
-  //   if (this.isInterestOnly) {
-  //     return (this.amountBorrowed * this.yearlyInterestRate) / 12;
-  //   }
-
-  //   if (this.lengthOfLoanInYears === undefined) {
-  //     throw new RangeError(
-  //       "Must specify length of loan for principal and interest loan."
-  //     );
-  //   }
-
-  //   return (
-  //     (this.amountBorrowed * this.yearlyInterestRate) / 12 +
-  //     this.amountBorrowed / this.lengthOfLoanInYears
-  //   ); // mortgage repayments
-  // }
-
-  // getPrincipalRemaining(time: number) {
-  //   return Infinity;
-  // }
 }
 
 export default Loan;
+export type { Props };
