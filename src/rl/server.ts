@@ -50,6 +50,7 @@ const reset = (): Environment => {
     houses: new Map(),
     stocks: new Map(),
     expenses: new Map(),
+    loans: new Map(),
   });
 
   return new Environment(state);
