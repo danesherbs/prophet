@@ -261,6 +261,7 @@ class History {
                   houses: new Map(),
                   stocks: new Map(),
                   expenses: new Map(),
+                  loans: new Map(),
                 })
               : states[i - 1].waitOneMonth(),
           events: events !== undefined ? events : new Set(),
