@@ -715,5 +715,7 @@ test("getter for multiple houses retrieves all houses", () => {
 });
 
 test("able to save and load history", () => {
-  expect(History.fromJSON(JSON.parse(history.toJSON()))).toBe(history);
+  expect(
+    JSON.stringify(History.fromJSON(JSON.parse(history.toJSON())))
+  ).toEqual(JSON.stringify(history));
 });

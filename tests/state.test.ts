@@ -39,7 +39,6 @@ const salary = new Salary({
 const expense = new Expense({
   yearlyIncrease: 0.03,
   weeklyAmount: 240,
-  description: "Living expenses",
   initialTime: clock.getTime(),
 });
 
