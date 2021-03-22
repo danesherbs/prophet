@@ -24,6 +24,15 @@ class History {
     return this.events;
   };
 
+  toJSON = () => {
+    return JSON.stringify(
+      [...this.events.entries()].map(([time, evts]) => [
+        this.fromDateTime({ dateTime: time }),
+        [...evts],
+      ])
+    );
+  };
+
   isValid = () => {
     /*
     Checks if events are valid i.e. this DAG shorturl.at/fhyT6 can be topollogically sorted.
