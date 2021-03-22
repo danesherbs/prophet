@@ -1,11 +1,11 @@
 import State from "./state";
-import House from "./house";
-import Salary from "./salary";
-import Expense from "./expense";
-import Stock from "./stock";
-import Bank from "./bank";
-import Super from "./super";
-import Tax from "./tax";
+import House, { Props as HouseProps } from "./house";
+import Salary, { Props as SalaryProps } from "./salary";
+import Expense, { Props as ExpenseProps } from "./expense";
+import Stock, { Props as StockProps } from "./stock";
+import Bank, { Props as BankProps } from "./bank";
+import Super, { Props as SuperProps } from "./super";
+import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, ends as endActions } from "./event";
 
@@ -288,28 +288,28 @@ class History {
       case Action.AddTax: {
         return state.addTax({
           id: event.item.id,
-          tax: event.item.object as Tax,
+          tax: new Tax(event.item.object as TaxProps),
         });
       }
 
       case Action.AddBank: {
         return state.addBank({
           id: event.item.id,
-          bank: event.item.object as Bank,
+          bank: new Bank(event.item.object as BankProps),
         });
       }
 
       case Action.AddSuper: {
         return state.addSuper({
           id: event.item.id,
-          superan: event.item.object as Super,
+          superan: new Super(event.item.object as SuperProps),
         });
       }
 
       case Action.AddSalary: {
         return state.addSalary({
           id: event.item.id,
-          salary: event.item.object as Salary,
+          salary: new Salary(event.item.object as SalaryProps),
         });
       }
 
@@ -320,7 +320,7 @@ class History {
       case Action.AddExpense: {
         return state.addExpense({
           id: event.item.id,
-          expense: event.item.object as Expense,
+          expense: new Expense(event.item.object as ExpenseProps),
         });
       }
 
@@ -331,14 +331,14 @@ class History {
       case Action.AddHouse: {
         return state.addHouse({
           id: event.item.id,
-          house: event.item.object as House,
+          house: new House(event.item.object as HouseProps),
         });
       }
 
       case Action.BuyHouse: {
         return state.buyHouse({
           id: event.item.id,
-          house: event.item.object as House,
+          house: new House(event.item.object as HouseProps),
         });
       }
 
@@ -349,14 +349,14 @@ class History {
       case Action.AddStock: {
         return state.addStock({
           id: event.item.id,
-          stock: event.item.object as Stock,
+          stock: new Stock(event.item.object as StockProps),
         });
       }
 
       case Action.BuyStock: {
         return state.buyStock({
           id: event.item.id,
-          stock: event.item.object as Stock,
+          stock: new Stock(event.item.object as StockProps),
         });
       }
 

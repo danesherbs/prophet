@@ -1,9 +1,9 @@
-import Tax from "./tax";
+import Tax, { Props as TaxProps } from "./tax";
 
 type Transaction = [number, number];
 
 interface Props {
-  tax: Tax;
+  tax: TaxProps;
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   contributionRate: number;
@@ -27,7 +27,7 @@ class Super {
     initialBalance,
     description,
   }: Props) {
-    this.tax = tax;
+    this.tax = new Tax(tax);
     this.transactions = transactions;
     this.yearlyInterestRate = yearlyInterestRate;
     this.contributionRate = contributionRate;

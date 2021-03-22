@@ -1,11 +1,11 @@
-import House from "./house";
-import Salary from "./salary";
-import Expense from "./expense";
-import Stock from "./stock";
-import Bank from "./bank";
-import Super from "./super";
-import Tax from "./tax";
-import Loan from "./loan";
+import { Props as HouseProps } from "./house";
+import { Props as SalaryProps } from "./salary";
+import { Props as ExpenseProps } from "./expense";
+import { Props as StockProps } from "./stock";
+import { Props as BankProps } from "./bank";
+import { Props as SuperProps } from "./super";
+import { Props as TaxProps } from "./tax";
+import { Props as LoanProps } from "./loan";
 
 enum Action {
   // Tax
@@ -47,13 +47,21 @@ const ends = new Set([
   Action.SellStock,
 ]);
 
-type Item = Bank | Expense | House | Salary | Stock | Super | Tax | Loan;
+type ItemProps =
+  | BankProps
+  | ExpenseProps
+  | HouseProps
+  | SalaryProps
+  | StockProps
+  | SuperProps
+  | TaxProps
+  | LoanProps;
 
 interface Props {
   action: Action;
   item: {
     id: string;
-    object: Item;
+    object: ItemProps;
   };
 }
 
@@ -61,7 +69,7 @@ class Event {
   action: Action;
   item: {
     id: string;
-    object: Item;
+    object: ItemProps;
   };
 
   constructor({ action, item }: Props) {
@@ -71,4 +79,5 @@ class Event {
 }
 
 export default Event;
-export { Action, ends };
+export type { Props };
+export { Action, ItemProps, ends };

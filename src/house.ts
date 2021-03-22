@@ -1,8 +1,8 @@
-import Loan from "./loan";
+import Loan, { Props as LoanProps } from "./loan";
 
 interface Props {
   houseValue: number;
-  loan: Loan;
+  loan: LoanProps;
   yearlyInterestRate: number;
   yearlyAppreciationRate: number;
   monthlyGrossRentalIncome: number;
@@ -35,7 +35,7 @@ class House {
     initialHouseValue,
   }: Props) {
     this.houseValue = houseValue;
-    this.loan = loan;
+    this.loan = new Loan(loan);
     this.yearlyInterestRate = yearlyInterestRate;
     this.yearlyAppreciationRate = yearlyAppreciationRate;
     this.monthlyGrossRentalIncome = monthlyGrossRentalIncome;

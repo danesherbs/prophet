@@ -1,7 +1,7 @@
-import Tax from "./tax";
+import Tax, { Props as TaxProps } from "./tax";
 
 interface Props {
-  tax: Tax;
+  tax: TaxProps;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
   monthsSincePurchase?: number;
@@ -19,7 +19,7 @@ class Salary {
     yearlySalaryIncrease,
     monthsSincePurchase,
   }: Props) {
-    this.tax = tax;
+    this.tax = new Tax(tax);
     this.yearlyGrossSalary = yearlyGrossSalary;
     this.yearlySalaryIncrease = yearlySalaryIncrease;
     this.monthsSincePurchase = monthsSincePurchase || 0;
