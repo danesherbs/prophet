@@ -40,7 +40,7 @@ class Salary {
     return {
       yearlyGrossSalary: this.yearlyGrossSalary,
       yearlySalaryIncrease: this.yearlySalaryIncrease,
-      tax: this.tax,
+      tax: this.tax.getProps(),
       monthsSincePurchase: this.monthsSincePurchase,
     };
   }

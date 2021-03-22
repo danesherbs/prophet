@@ -33,6 +33,21 @@ class History {
     );
   };
 
+  static fromJSON = (data: [[string, [Event]]]) => {
+    try {
+      return data.reduce(
+        (acc: History, [date, events]) =>
+          events.reduce(
+            (hst, event) => hst.addEvent({ date: new Date(date), event }),
+            acc
+          ),
+        new History({})
+      );
+    } catch {
+      return null;
+    }
+  };
+
   isValid = () => {
     /*
     Checks if events are valid i.e. this DAG shorturl.at/fhyT6 can be topollogically sorted.

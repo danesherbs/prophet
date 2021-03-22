@@ -8,7 +8,7 @@ enum TaxType {
   Super = "Super",
 }
 
-type IncomeBracket = [number, number];
+type IncomeBracket = [number, number | null];
 type TaxRate = number;
 type TaxBracket = [IncomeBracket, TaxRate];
 
@@ -25,20 +25,21 @@ class Tax {
   superTaxRate: number;
   declared: Array<[number, number, DeclarationType]>;
   paid: Array<[number, number, TaxType]>;
-  description?: string;
 
-  constructor({
-    incomeTaxBrackets,
-    superTaxRate,
-    declared,
-    paid,
-    description,
-  }: Props) {
+  constructor({ incomeTaxBrackets, superTaxRate, declared, paid }: Props) {
     this.incomeTaxBrackets = incomeTaxBrackets;
     this.superTaxRate = superTaxRate;
     this.declared = declared;
     this.paid = paid;
-    this.description = description;
+  }
+
+  getProps(): Props {
+    return {
+      incomeTaxBrackets: this.incomeTaxBrackets,
+      superTaxRate: this.superTaxRate,
+      declared: this.declared,
+      paid: this.paid,
+    };
   }
 
   getIncomeTaxBrackets() {
@@ -61,15 +62,12 @@ class Tax {
     return this.paid;
   }
 
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
-  }
-
   getYearlyIncomeTax(yearlyGrossSalary: number) {
     return this.incomeTaxBrackets.reduce((acc, [[lo, hi], rate]) => {
       return (
-        acc + Math.min(Math.max(0, yearlyGrossSalary - lo), hi - lo) * rate
+        acc +
+        Math.min(Math.max(0, yearlyGrossSalary - lo), (hi || Infinity) - lo) *
+          rate
       );
     }, 0);
   }
@@ -84,12 +82,12 @@ class Tax {
 
   getDeclaredIncomeOverLastTwelveMonths(time: number) {
     /*
-        Gets declared income in last 12 months, upto and including the current month.
+    Gets declared income in last 12 months, upto and including the current month.
 
-        Example:
-        --------
-        If called on June 2020, it'd calculate the declared income from July 2019 to June 2020.
-        */
+    Example:
+    --------
+    If called on June 2020, it'd calculate the declared income from July 2019 to June 2020.
+    */
     return this.declared
       .filter(
         ([t, , type]) =>
@@ -100,12 +98,12 @@ class Tax {
 
   getLossesOverLastTwelveMonths(time: number) {
     /*
-        Gets losses in last 12 months, upto and including the current month.
+    Gets losses in last 12 months, upto and including the current month.
 
-        Example:
-        --------
-        If called on June 2020, it'd calculate the losses from July 2019 to June 2020.
-        */
+    Example:
+    --------
+    If called on June 2020, it'd calculate the losses from July 2019 to June 2020.
+    */
     return this.declared
       .filter(
         ([t, , type]) =>
@@ -116,12 +114,12 @@ class Tax {
 
   getPaidIncomeTaxOverLastTwelveMonths(time: number) {
     /*
-        Gets paid income tax in last 12 months, upto and including the current month.
+    Gets paid income tax in last 12 months, upto and including the current month.
 
-        Example:
-        --------
-        If called on June 2020, it'd calculate the paid income tax from July 2019 to June 2020.
-        */
+    Example:
+    --------
+    If called on June 2020, it'd calculate the paid income tax from July 2019 to June 2020.
+    */
     return this.paid
       .filter(
         ([t, , type]) => time - 12 < t && t <= time && type === TaxType.Income

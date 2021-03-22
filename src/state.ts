@@ -292,7 +292,7 @@ class State {
           bank.withdraw(
             this.clock.getTime(),
             expense.getMonthlyAmount(this.clock.getTime()),
-            expense.getDescription()
+            "Pay expense"
           ),
         ])
       ),

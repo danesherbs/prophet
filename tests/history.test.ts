@@ -18,7 +18,7 @@ const tax = new Tax({
     [[18_201, 37_000], 0.19],
     [[37_001, 87_000], 0.325],
     [[87_001, 180_000], 0.37],
-    [[180_001, Infinity], 0.45],
+    [[180_001, null], 0.45],
   ],
   superTaxRate: 0.15,
   declared: [],
@@ -46,7 +46,6 @@ const salary = new Salary({
 const expense = new Expense({
   yearlyIncrease: 0.03,
   weeklyAmount: 550,
-  description: "Living expenses",
   initialTime: 0,
 });
 
@@ -79,22 +78,31 @@ const start = new Date(2020, 0);
 const history = new History({})
   .addEvent({
     date: start,
-    event: { action: Action.AddTax, item: { id: "tax", object: tax } },
+    event: {
+      action: Action.AddTax,
+      item: { id: "tax", object: tax.getProps() },
+    },
   })
   .addEvent({
     date: start,
     event: {
       action: Action.AddSuper,
-      item: { id: "superan", object: superan },
+      item: { id: "superan", object: superan.getProps() },
     },
   })
   .addEvent({
     date: start,
-    event: { action: Action.AddBank, item: { id: "bank", object: bank } },
+    event: {
+      action: Action.AddBank,
+      item: { id: "bank", object: bank.getProps() },
+    },
   })
   .addEvent({
     date: start,
-    event: { action: Action.AddSalary, item: { id: "salary", object: salary } },
+    event: {
+      action: Action.AddSalary,
+      item: { id: "salary", object: salary.getProps() },
+    },
   });
 
 test("adding event adds correct event", () => {
@@ -310,7 +318,6 @@ test("adding expense applies to first and last states in history", () => {
   const newExpense = new Expense({
     yearlyIncrease: 0.1,
     weeklyAmount: 1_000,
-    description: "New expenses",
     initialTime: 0,
   });
 
@@ -705,4 +712,8 @@ test("getter for multiple houses retrieves all houses", () => {
       ["B", house],
     ])
   );
+});
+
+test("able to save and load history", () => {
+  expect(History.fromJSON(JSON.parse(history.toJSON()))).toBe(history);
 });

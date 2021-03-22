@@ -8,7 +8,6 @@ interface Props {
   yearlyInterestRate: number;
   contributionRate: number;
   initialBalance?: number;
-  description?: string;
 }
 
 class Super {
@@ -17,7 +16,6 @@ class Super {
   yearlyInterestRate: number;
   contributionRate: number;
   initialBalance?: number;
-  description?: string;
 
   constructor({
     tax,
@@ -25,14 +23,12 @@ class Super {
     yearlyInterestRate,
     contributionRate,
     initialBalance,
-    description,
   }: Props) {
     this.tax = new Tax(tax);
     this.transactions = transactions;
     this.yearlyInterestRate = yearlyInterestRate;
     this.contributionRate = contributionRate;
     this.initialBalance = initialBalance;
-    this.description = description;
   }
 
   getTax() {
@@ -60,20 +56,23 @@ class Super {
     return this.initialBalance === undefined ? 0 : this.initialBalance;
   }
 
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
-  }
-
   getProps() {
     /* istanbul ignore next */
+    if (this.initialBalance) {
+      return {
+        tax: this.tax.getProps(),
+        transactions: this.transactions,
+        yearlyInterestRate: this.yearlyInterestRate,
+        contributionRate: this.contributionRate,
+        initialBalance: this.initialBalance,
+      };
+    }
+
     return {
-      tax: this.tax,
+      tax: this.tax.getProps(),
       transactions: this.transactions,
       yearlyInterestRate: this.yearlyInterestRate,
       contributionRate: this.contributionRate,
-      initialBalance: this.initialBalance,
-      description: this.description,
     };
   }
 
@@ -87,7 +86,6 @@ class Super {
       yearlyInterestRate: this.yearlyInterestRate,
       contributionRate: this.contributionRate,
       initialBalance: this.initialBalance,
-      description: this.description,
     });
   }
 

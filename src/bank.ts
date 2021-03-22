@@ -4,25 +4,17 @@ interface Props {
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   initialBalance?: number;
-  description?: string;
 }
 
 class Bank {
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   initialBalance?: number;
-  description?: string;
 
-  constructor({
-    transactions,
-    yearlyInterestRate,
-    initialBalance,
-    description,
-  }: Props) {
+  constructor({ transactions, yearlyInterestRate, initialBalance }: Props) {
     this.transactions = transactions;
     this.yearlyInterestRate = yearlyInterestRate;
     this.initialBalance = initialBalance;
-    this.description = description;
   }
   getYearlyInterestRate() {
     /* istanbul ignore next */
@@ -38,18 +30,19 @@ class Bank {
     return this.initialBalance === undefined ? 0 : this.initialBalance;
   }
 
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
-  }
-
   getProps(): Props {
     /* istanbul ignore next */
+    if (this.initialBalance) {
+      return {
+        transactions: this.transactions,
+        yearlyInterestRate: this.yearlyInterestRate,
+        initialBalance: this.initialBalance,
+      };
+    }
+
     return {
       transactions: this.transactions,
       yearlyInterestRate: this.yearlyInterestRate,
-      initialBalance: this.initialBalance,
-      description: this.description,
     };
   }
 
@@ -62,7 +55,6 @@ class Bank {
       ]),
       yearlyInterestRate: this.yearlyInterestRate,
       initialBalance: this.initialBalance,
-      description: this.description,
     });
   }
 
@@ -75,7 +67,6 @@ class Bank {
       ]),
       yearlyInterestRate: this.yearlyInterestRate,
       initialBalance: this.initialBalance,
-      description: this.description,
     });
   }
 
@@ -119,19 +110,5 @@ class Bank {
   }
 }
 
-const parser = (obj: Props): Bank => {
-  try {
-    return new Bank({
-      transactions: obj.transactions as Props["transactions"],
-      yearlyInterestRate: obj.yearlyInterestRate as Props["yearlyInterestRate"],
-      initialBalance: obj.initialBalance as Props["initialBalance"],
-      description: obj.description as Props["description"],
-    });
-  } finally {
-    console.log("Couldn't parse", obj);
-  }
-};
-
 export default Bank;
 export type { Props };
-export { parser };
