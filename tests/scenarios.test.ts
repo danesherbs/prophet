@@ -51,7 +51,7 @@ const loan = new Loan({
 
 const start = new Date(2020, 0);
 
-const history = new History({})
+const history = new History({ events: {} })
   .addEvent({
     date: start,
     event: {
@@ -99,4 +99,19 @@ test("able to load serialised string", () => {
   expect(
     JSON.stringify(Scenarios.fromJSON(JSON.parse(scenarios.toString())))
   ).toEqual(JSON.stringify(scenarios));
+});
+
+test("able to call methods on de-serialised string", () => {
+  const deserialised = Scenarios.fromJSON(JSON.parse(scenarios.toString()));
+
+  // console.log(
+  //   "deserialised?.histories['a']",
+  //   JSON.stringify(deserialised?.histories["a"])
+  // );
+
+  expect(deserialised?.getProps()).toEqual(scenarios.getProps());
+  expect(deserialised?.getIds()).toEqual(scenarios.getIds());
+  expect(JSON.stringify(deserialised?.getHistory({ id: "a" }))).toEqual(
+    JSON.stringify(scenarios.getHistory({ id: "a" }))
+  );
 });

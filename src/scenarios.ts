@@ -38,7 +38,7 @@ class Scenarios {
 
   getHistory = ({ id }: { id: string }) => {
     if (id in this.histories) {
-      return new History(this.histories["id"]);
+      return new History(this.histories[id]);
     }
 
     throw new Error(

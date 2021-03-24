@@ -14,22 +14,19 @@ interface Events {
 }
 
 interface Props {
-  events?: Events;
+  events: Events;
 }
 
 class History {
   events: Map<number, Set<Event>>;
 
   constructor({ events }: Props) {
-    this.events =
-      events !== undefined
-        ? new Map(
-            [...Object.entries(events)].map(([id, evts]) => [
-              parseInt(id),
-              new Set(evts),
-            ])
-          )
-        : new Map<number, Set<Event>>();
+    this.events = new Map(
+      [...Object.entries(events)].map(([id, evts]) => [
+        parseInt(id),
+        new Set(evts),
+      ])
+    );
   }
 
   getEvents = () => {
@@ -37,15 +34,11 @@ class History {
   };
 
   getProps = (): Props => {
-    if (this.events) {
-      return {
-        events: Object.fromEntries(
-          [...this.events.entries()].map(([id, events]) => [id, [...events]])
-        ),
-      };
-    }
-
-    return {};
+    return {
+      events: Object.fromEntries(
+        [...this.events.entries()].map(([id, events]) => [id, [...events]])
+      ),
+    };
   };
 
   toString = () => {
@@ -65,7 +58,7 @@ class History {
             (hst, event) => hst.addEvent({ date: new Date(date), event }),
             acc
           ),
-        new History({})
+        new History({ events: {} })
       );
     } catch {
       return null;
