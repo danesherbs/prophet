@@ -75,7 +75,7 @@ const stock = new Stock({
 
 const start = new Date(2020, 0);
 
-const history = new History({})
+const history = new History({ events: {} })
   .addEvent({
     date: start,
     event: {
@@ -113,9 +113,9 @@ test("adding event adds correct event", () => {
     item: { id: "salary", object: salary },
   };
 
-  expect(new History({}).addEvent({ date, event }).getEvents()).toEqual(
-    new Map([[new Date(2020, 0).getTime(), new Set([event])]])
-  );
+  expect(
+    new History({ events: {} }).addEvent({ date, event }).getEvents()
+  ).toEqual(new Map([[new Date(2020, 0).getTime(), new Set([event])]]));
 });
 
 test("singleton event is applied correctly", () => {
@@ -227,7 +227,7 @@ test("event can be retrieved from map", () => {
   };
 
   expect(
-    new History({})
+    new History({ events: {} })
       .addEvent({ date, event })
       .getEvents()
       .get(new Date(2020, 0).getTime())
@@ -239,7 +239,7 @@ test("history with required events has non-empty states array", () => {
 });
 
 test("creating history without minimum events throws error", () => {
-  expect(() => new History({}).getStates()).toThrowError(Error);
+  expect(() => new History({ events: {} }).getStates()).toThrowError(Error);
 });
 
 test("bank balance is growing over time", () => {
@@ -570,7 +570,7 @@ test("adding and removing event results in original event list", () => {
 
 test("adding two houses and removing one results in singleton event list", () => {
   expect(
-    new History({})
+    new History({ events: {} })
       .addEvent({
         date: new Date(2020, 0, 5),
         event: {
