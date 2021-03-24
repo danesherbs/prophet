@@ -9,22 +9,46 @@ import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, ends as endActions } from "./event";
 
+interface Events {
+  [time: number]: Array<Event>;
+}
+
 interface Props {
-  events?: Map<number, Set<Event>>;
+  events?: Events;
 }
 
 class History {
   events: Map<number, Set<Event>>;
 
   constructor({ events }: Props) {
-    this.events = events !== undefined ? events : new Map<number, Set<Event>>();
+    this.events =
+      events !== undefined
+        ? new Map(
+            [...Object.entries(events)].map(([id, evts]) => [
+              parseInt(id),
+              new Set(evts),
+            ])
+          )
+        : new Map<number, Set<Event>>();
   }
 
   getEvents = () => {
     return this.events;
   };
 
-  toJSON = () => {
+  getProps = (): Props => {
+    if (this.events) {
+      return {
+        events: Object.fromEntries(
+          [...this.events.entries()].map(([id, events]) => [id, [...events]])
+        ),
+      };
+    }
+
+    return {};
+  };
+
+  toString = () => {
     return JSON.stringify(
       [...this.events.entries()].map(([time, evts]) => [
         this.fromDateTime({ dateTime: time }),
@@ -81,10 +105,11 @@ class History {
     const events = this.events.get(this.toDateTime({ date }));
 
     return new History({
-      events: new Map(this.events).set(
-        this.toDateTime({ date }),
-        events !== undefined ? new Set([...events, event]) : new Set([event])
-      ),
+      events: {
+        ...Object.fromEntries(this.events.entries()),
+        [this.toDateTime({ date })]:
+          events !== undefined ? new Set([...events, event]) : new Set([event]),
+      },
     });
   };
 
@@ -101,16 +126,25 @@ class History {
 
     if (newEvents.size === 0) {
       return new History({
-        events: new Map(
-          [...this.events].filter(
-            ([time]) => time !== this.toDateTime({ date })
-          )
+        events: Object.fromEntries(
+          [...this.events.entries()]
+            .filter(([time]) => time !== this.toDateTime({ date }))
+            .map(([id, events]) => [id, [...events]])
         ),
+
+        //   new Map(
+        //   [...this.events].filter(
+        //     ([time]) => time !== this.toDateTime({ date })
+        //   )
+        // ),
       });
     }
 
     return new History({
-      events: new Map(this.events).set(this.toDateTime({ date }), newEvents),
+      events: {
+        ...Object.fromEntries(this.events.entries()),
+        [this.toDateTime({ date })]: newEvents,
+      },
     });
   };
 

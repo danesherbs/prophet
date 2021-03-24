@@ -214,7 +214,7 @@ test("history with singleton event has non-empty events mapping", () => {
   };
 
   expect(
-    new History({ events: new Map() }).addEvent({ date, event }).getEvents()
+    new History({ events: {} }).addEvent({ date, event }).getEvents()
   ).toEqual(new Map([[new Date(2020, 0).getTime(), new Set([event])]]));
 });
 
@@ -716,6 +716,6 @@ test("getter for multiple houses retrieves all houses", () => {
 
 test("able to save and load history", () => {
   expect(
-    JSON.stringify(History.fromJSON(JSON.parse(history.toJSON())))
+    JSON.stringify(History.fromJSON(JSON.parse(history.toString())))
   ).toEqual(JSON.stringify(history));
 });
