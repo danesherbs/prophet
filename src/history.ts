@@ -285,7 +285,7 @@ class History {
       start: this.fromDateTime({ dateTime: start }),
       end: this.fromDateTime({ dateTime: end }),
     });
-    const horizon = 60;
+    const horizon = 120;
 
     const states: Array<State> = [];
 
