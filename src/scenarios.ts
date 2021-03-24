@@ -19,6 +19,10 @@ class Scenarios {
     return { histories: this.histories };
   };
 
+  getIds = () => {
+    return Object.keys(this.histories);
+  };
+
   toString = () => {
     return JSON.stringify(this.histories);
   };
