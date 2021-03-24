@@ -20,7 +20,7 @@ class Scenarios {
   };
 
   getIds = () => {
-    return Object.keys(this.histories);
+    return [...Object.keys(this.histories)];
   };
 
   toString = () => {
