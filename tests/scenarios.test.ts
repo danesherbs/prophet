@@ -104,14 +104,13 @@ test("able to load serialised string", () => {
 test("able to call methods on de-serialised string", () => {
   const deserialised = Scenarios.fromJSON(JSON.parse(scenarios.toString()));
 
-  // console.log(
-  //   "deserialised?.histories['a']",
-  //   JSON.stringify(deserialised?.histories["a"])
-  // );
-
   expect(deserialised?.getProps()).toEqual(scenarios.getProps());
   expect(deserialised?.getIds()).toEqual(scenarios.getIds());
   expect(JSON.stringify(deserialised?.getHistory({ id: "a" }))).toEqual(
     JSON.stringify(scenarios.getHistory({ id: "a" }))
   );
+});
+
+test("deleting scenario removes id from id list", () => {
+  expect(scenarios.removeHistory({ id: "a" }).getIds()).toEqual(["b", "c"]);
 });

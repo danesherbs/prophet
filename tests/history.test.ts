@@ -266,8 +266,8 @@ test("retrieval of house with start time returns correct time", () => {
   ).toEqual(new Date(2020, 0));
 });
 
-test("retrieval of house with no start time throws an error", () => {
-  expect(() => history.getStart({ id: "new id" })).toThrowError(RangeError);
+test("retrieval of house with no start time returns null", () => {
+  expect(history.getStart({ id: "new id" })).toEqual(null);
 });
 
 test("retrieval house with end time returns correct time", () => {
@@ -514,7 +514,16 @@ test("setting start of existing house sets to correct value", () => {
           },
         },
       })
-      .setStart({ date: new Date(2021, 0, 1), id: "A" })
+      .setStart({
+        date: new Date(2021, 0, 1),
+        event: {
+          action: Action.BuyHouse,
+          item: {
+            id: "A",
+            object: house,
+          },
+        },
+      })
       .getStart({ id: "A" })
   ).toEqual(new Date(2021, 0, 1));
 });
@@ -541,8 +550,26 @@ test("setting start of multiple houses sets correct times", () => {
         },
       },
     })
-    .setStart({ date: new Date(2020, 0), id: "A" })
-    .setStart({ date: new Date(2021, 0, 1), id: "B" });
+    .setStart({
+      date: new Date(2020, 0),
+      event: {
+        action: Action.AddHouse,
+        item: {
+          id: "A",
+          object: house,
+        },
+      },
+    })
+    .setStart({
+      date: new Date(2021, 0, 1),
+      event: {
+        action: Action.BuyHouse,
+        item: {
+          id: "B",
+          object: house,
+        },
+      },
+    });
 
   expect(newHistory.getStart({ id: "A" })).toEqual(new Date(2020, 0));
   expect(newHistory.getStart({ id: "B" })).toEqual(new Date(2021, 0, 1));
@@ -631,7 +658,16 @@ test("setting start of existing house at same time overwrites exiting house", ()
           },
         },
       })
-      .setStart({ date: new Date(2021, 0, 1), id: "A" })
+      .setStart({
+        date: new Date(2021, 0, 1),
+        event: {
+          action: Action.BuyHouse,
+          item: {
+            id: "A",
+            object: house,
+          },
+        },
+      })
       .getEvent({ date: new Date(2021, 0, 1), id: "A" })
   ).toEqual({ action: Action.BuyHouse, item: { id: "A", object: house } });
 });
@@ -659,7 +695,16 @@ test("setting end of existing house sets to correct value", () => {
           },
         },
       })
-      .setEnd({ date: new Date(2022, 0, 1), id: "A" })
+      .setEnd({
+        date: new Date(2022, 0, 1),
+        event: {
+          action: Action.SellHouse,
+          item: {
+            id: "A",
+            object: house,
+          },
+        },
+      })
       .getEnd({ id: "A" })
   ).toEqual(new Date(2022, 0, 1));
 });

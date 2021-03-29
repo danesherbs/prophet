@@ -42,7 +42,7 @@ class Scenarios {
     }
 
     throw new Error(
-      `Tried to retrieve history ${id} but didn't exist in ${this.histories}`
+      `Tried to retrieve history ${id} but didn't exist in list of ids ${this.getIds()}`
     );
   };
 

@@ -8,6 +8,7 @@ import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, ends as endActions } from "./event";
+import { isTemplateExpression } from "typescript";
 
 interface Events {
   [time: number]: Array<Event>;
@@ -150,18 +151,22 @@ class History {
       }
     }
 
-    throw new RangeError(
-      "Tried to retrieve start for id " + id + " which doesn't exist."
-    );
+    return null;
   };
 
-  setStart = ({ date, id }: { date: Date; id: string }) => {
-    const start = this.getStart({ id });
-    const event = this.getEvent({ date: start, id });
+  setStart = ({ date, event }: { date: Date; event: Event }) => {
+    const start = this.getStart({ id: event.item.id });
+
+    if (start === null) {
+      return this.addEvent({
+        date,
+        event,
+      });
+    }
 
     return this.removeEvent({
       date: start,
-      id,
+      id: event.item.id,
     }).addEvent({
       date,
       event,
@@ -180,35 +185,31 @@ class History {
     return null;
   };
 
-  setEnd = ({ date, id }: { date: Date; id: string }) => {
-    const end = this.getEnd({ id });
+  setEnd = ({ date, event }: { date: Date; event: Event }) => {
+    const currentEnd = this.getEnd({ id: event.item.id });
 
-    if (end === null) {
-      throw new Error(
-        `Tried to reset end for id ${id} but end hasn't been set.`
-      );
+    if (currentEnd === null) {
+      return this.addEvent({ date, event });
     }
 
-    const event = this.getEvent({
-      date: end,
-      id,
-    });
-
-    return this.removeEvent({ date: end, id }).addEvent({ date, event });
-  };
-
-  setAction = ({ id, action }: { id: string; action: Action }) => {
-    const start = this.getStart({ id });
-    const event = this.getEvent({ date: start, id });
-
-    return this.removeEvent({ date: start, id }).addEvent({
-      date: start,
-      event: {
-        action,
-        item: { id, object: event.item.object },
-      },
+    return this.removeEvent({ date: currentEnd, id: event.item.id }).addEvent({
+      date,
+      event,
     });
   };
+
+  // setAction = ({ id, action }: { id: string; action: Action }) => {
+  //   const start = this.getStart({ id });
+  //   const event = this.getEvent({ date: start, id });
+
+  //   return this.removeEvent({ date: start, id }).addEvent({
+  //     date: start,
+  //     event: {
+  //       action,
+  //       item: { id, object: event.item.object },
+  //     },
+  //   });
+  // };
 
   getHouses = (): State["houses"] =>
     this.getStates().reduce(
