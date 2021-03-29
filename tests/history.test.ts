@@ -734,3 +734,88 @@ test("able to save and load history", () => {
     JSON.stringify(History.fromJSON(JSON.parse(history.toString())))
   ).toEqual(JSON.stringify(history));
 });
+
+test("setting start and end and setting start again gives correct start and end", () => {
+  const historyWithHouse = history
+    .setStart({
+      id: "new house",
+      date: new Date("2021-1-1"),
+      startEvent: {
+        action: Action.AddHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    })
+    .setEnd({
+      id: "new house",
+      date: new Date("2027-1-1"),
+      endEvent: {
+        action: Action.SellHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    })
+    .setStart({
+      id: "new house",
+      date: new Date("2022-1-1"),
+      startEvent: {
+        action: Action.AddHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    });
+
+  expect(historyWithHouse.getStart({ id: "new house" })).toEqual(
+    new Date("2022-1-1")
+  );
+
+  expect(historyWithHouse.getEnd({ id: "new house" })).toEqual(
+    new Date("2027-1-1")
+  );
+});
+
+test("creating history with house, setting end date and pushing start date forward returns correct start and end dates", () => {
+  const historyWithHouse = history
+    .setStart({
+      id: "new house",
+      date: new Date(2021, 1, 1),
+      startEvent: {
+        action: Action.AddHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    })
+    .setEnd({
+      id: "new house",
+      date: new Date(2027, 1, 1),
+      endEvent: {
+        action: Action.SellHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    })
+    .setStart({
+      id: "new house",
+      date: new Date(2022, 1, 1),
+      startEvent: {
+        action: Action.AddHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    })
+    .setStart({
+      id: "new house",
+      date: new Date(2023, 1, 1),
+      startEvent: {
+        action: Action.AddHouse,
+        item: { id: "new house", object: house.getProps() },
+      },
+    });
+
+  const states = historyWithHouse.getStates();
+
+  expect(historyWithHouse.getStart({ id: "new house" })).toEqual(
+    new Date(2023, 1, 1)
+  );
+
+  expect(historyWithHouse.getEnd({ id: "new house" })).toEqual(
+    new Date(2027, 1, 1)
+  );
+
+  expect(states[5 * 12].getHouses().size).toBeGreaterThan(0);
+  expect(states[10 * 12].getHouses().size).toEqual(0);
+});

@@ -7,8 +7,7 @@ import Bank, { Props as BankProps } from "./bank";
 import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
-import Event, { Action, ends as endActions } from "./event";
-import { isTemplateExpression } from "typescript";
+import Event, { Action, endActions, startActions } from "./event";
 
 interface Events {
   [time: number]: Array<Event>;
@@ -145,7 +144,7 @@ class History {
   getStart = ({ id }: { id: string }) => {
     for (let [time, events] of this.events) {
       for (let event of events) {
-        if (event.item.id === id) {
+        if (event.item.id === id && startActions.has(event.action)) {
           return this.fromDateTime({ dateTime: time });
         }
       }
@@ -180,19 +179,19 @@ class History {
       return this.removeEvent({ date: start, id }).addEvent({ date, event });
     }
 
-    return this;
+    return this; // should never happen
   };
 
   getEnd = ({ id }: { id: string }) => {
     for (let [time, events] of this.events) {
       for (let event of events) {
-        if (endActions.has(event.action)) {
+        if (event.item.id === id && endActions.has(event.action)) {
           return this.fromDateTime({ dateTime: time });
         }
       }
     }
 
-    return null; // should never happen
+    return null;
   };
 
   setEnd = ({
@@ -207,7 +206,7 @@ class History {
     const end = this.getEnd({ id });
 
     if (end === null && date !== null && endEvent === undefined) {
-      throw new Error(`Called setStart on ${id} but didn't give initial event`);
+      throw new Error(`Called setEnd on ${id} but didn't give end event`);
     }
 
     if (end === null && date === null) {
