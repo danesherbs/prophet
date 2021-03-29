@@ -154,23 +154,33 @@ class History {
     return null;
   };
 
-  setStart = ({ date, event }: { date: Date; event: Event }) => {
-    const start = this.getStart({ id: event.item.id });
+  setStart = ({
+    id,
+    date,
+    startEvent,
+  }: {
+    id: string;
+    date: Date | null;
+    startEvent?: Event;
+  }) => {
+    const start = this.getStart({ id });
 
-    if (start === null) {
-      return this.addEvent({
-        date,
-        event,
-      });
+    if (start === null && date !== null && startEvent === undefined) {
+      throw new Error(`Called setStart on ${id} but didn't give initial event`);
     }
 
-    return this.removeEvent({
-      date: start,
-      id: event.item.id,
-    }).addEvent({
-      date,
-      event,
-    });
+    if (start === null && date === null) {
+      return this; // nothing to do
+    } else if (start !== null && date === null) {
+      return this.removeEvent({ date: start, id });
+    } else if (start === null && date !== null && startEvent !== undefined) {
+      return this.addEvent({ date, event: startEvent });
+    } else if (start !== null && date !== null) {
+      const event = this.getEvent({ date: start, id });
+      return this.removeEvent({ date: start, id }).addEvent({ date, event });
+    }
+
+    return this;
   };
 
   getEnd = ({ id }: { id: string }) => {
@@ -182,20 +192,36 @@ class History {
       }
     }
 
-    return null;
+    return null; // should never happen
   };
 
-  setEnd = ({ date, event }: { date: Date; event: Event }) => {
-    const currentEnd = this.getEnd({ id: event.item.id });
+  setEnd = ({
+    id,
+    date,
+    endEvent,
+  }: {
+    id: string;
+    date: Date | null;
+    endEvent?: Event;
+  }) => {
+    const end = this.getEnd({ id });
 
-    if (currentEnd === null) {
-      return this.addEvent({ date, event });
+    if (end === null && date !== null && endEvent === undefined) {
+      throw new Error(`Called setStart on ${id} but didn't give initial event`);
     }
 
-    return this.removeEvent({ date: currentEnd, id: event.item.id }).addEvent({
-      date,
-      event,
-    });
+    if (end === null && date === null) {
+      return this; // nothing to do
+    } else if (end !== null && date === null) {
+      return this.removeEvent({ date: end, id });
+    } else if (end === null && date !== null && endEvent !== undefined) {
+      return this.addEvent({ date, event: endEvent });
+    } else if (end !== null && date !== null) {
+      const event = this.getEvent({ date: end, id });
+      return this.removeEvent({ date: end, id }).addEvent({ date, event });
+    }
+
+    return this; // should never happen
   };
 
   // setAction = ({ id, action }: { id: string; action: Action }) => {

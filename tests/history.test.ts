@@ -515,14 +515,8 @@ test("setting start of existing house sets to correct value", () => {
         },
       })
       .setStart({
+        id: "A",
         date: new Date(2021, 0, 1),
-        event: {
-          action: Action.BuyHouse,
-          item: {
-            id: "A",
-            object: house,
-          },
-        },
       })
       .getStart({ id: "A" })
   ).toEqual(new Date(2021, 0, 1));
@@ -551,24 +545,12 @@ test("setting start of multiple houses sets correct times", () => {
       },
     })
     .setStart({
+      id: "A",
       date: new Date(2020, 0),
-      event: {
-        action: Action.AddHouse,
-        item: {
-          id: "A",
-          object: house,
-        },
-      },
     })
     .setStart({
+      id: "B",
       date: new Date(2021, 0, 1),
-      event: {
-        action: Action.BuyHouse,
-        item: {
-          id: "B",
-          object: house,
-        },
-      },
     });
 
   expect(newHistory.getStart({ id: "A" })).toEqual(new Date(2020, 0));
@@ -659,14 +641,8 @@ test("setting start of existing house at same time overwrites exiting house", ()
         },
       })
       .setStart({
+        id: "A",
         date: new Date(2021, 0, 1),
-        event: {
-          action: Action.BuyHouse,
-          item: {
-            id: "A",
-            object: house,
-          },
-        },
       })
       .getEvent({ date: new Date(2021, 0, 1), id: "A" })
   ).toEqual({ action: Action.BuyHouse, item: { id: "A", object: house } });
@@ -696,14 +672,8 @@ test("setting end of existing house sets to correct value", () => {
         },
       })
       .setEnd({
+        id: "A",
         date: new Date(2022, 0, 1),
-        event: {
-          action: Action.SellHouse,
-          item: {
-            id: "A",
-            object: house,
-          },
-        },
       })
       .getEnd({ id: "A" })
   ).toEqual(new Date(2022, 0, 1));
