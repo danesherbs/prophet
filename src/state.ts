@@ -116,8 +116,8 @@ class State {
   }
 
   getSingletonTax() {
-    if (this.tax.size !== 1) {
-      throw new Error(`Expected 1 tax but got ${this.tax.size}`);
+    if (this.tax.size > 1) {
+      throw new Error(`Expected at most 1 tax but got ${this.tax.size}`);
     }
 
     const [tax] = [...this.tax.values()];
@@ -125,8 +125,8 @@ class State {
   }
 
   getSingletonSuper() {
-    if (this.superans.size !== 1) {
-      throw new Error(`Expected 1 super but got ${this.superans.size}`);
+    if (this.superans.size > 1) {
+      throw new Error(`Expected at most 1 super but got ${this.superans.size}`);
     }
 
     const [superan] = [...this.superans.values()];
@@ -134,21 +134,12 @@ class State {
   }
 
   getSingletonBank() {
-    if (this.banks.size !== 1) {
-      throw new Error(`Expected 1 bank but got ${this.banks.size}`);
+    if (this.banks.size > 1) {
+      throw new Error(`Expected at most 1 bank but got ${this.banks.size}`);
     }
 
     const [bank] = [...this.banks.values()];
     return bank;
-  }
-
-  getSingletonSalary() {
-    if (this.salaries.size !== 1) {
-      throw new Error(`Expected 1 salary but got ${this.salaries.size}`);
-    }
-
-    const [salary] = [...this.salaries.values()];
-    return salary;
   }
 
   receiveMonthlySalaryPayment(salary: Salary) {

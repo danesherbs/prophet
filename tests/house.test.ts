@@ -12,7 +12,6 @@ const loan = new Loan({
 const house = new House({
   loan: loan,
   houseValue: 600_000,
-  yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.05,
   monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
@@ -62,10 +61,9 @@ test("house rental income grows correctly", () => {
 });
 
 test("correct monthly interest rate", () => {
-  expect(Math.pow(1 + house.getMonthlyInterestRate(), 12)).toBeCloseTo(
-    1.03,
-    10
-  );
+  expect(
+    Math.pow(1 + house.getLoan().getMonthlyInterestRate(), 12)
+  ).toBeCloseTo(1.03, 10);
 });
 
 test("correct monthly interest payments", () => {

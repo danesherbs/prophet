@@ -3,7 +3,6 @@ import Loan, { Props as LoanProps } from "./loan";
 interface Props {
   houseValue: number;
   loan: LoanProps;
-  yearlyInterestRate: number;
   yearlyAppreciationRate: number;
   monthlyGrossRentalIncome: number;
   yearlyRentalIncomeIncrease: number;
@@ -15,7 +14,6 @@ interface Props {
 class House {
   houseValue: number;
   loan: Loan;
-  yearlyInterestRate: number;
   yearlyAppreciationRate: number;
   monthlyGrossRentalIncome: number;
   yearlyRentalIncomeIncrease: number;
@@ -26,7 +24,6 @@ class House {
   constructor({
     houseValue,
     loan,
-    yearlyInterestRate,
     yearlyAppreciationRate,
     monthlyGrossRentalIncome,
     yearlyRentalIncomeIncrease,
@@ -36,18 +33,12 @@ class House {
   }: Props) {
     this.houseValue = houseValue;
     this.loan = new Loan(loan);
-    this.yearlyInterestRate = yearlyInterestRate;
     this.yearlyAppreciationRate = yearlyAppreciationRate;
     this.monthlyGrossRentalIncome = monthlyGrossRentalIncome;
     this.yearlyRentalIncomeIncrease = yearlyRentalIncomeIncrease;
     this.buildingDepreciationRate = buildingDepreciationRate;
     this.monthsSincePurchase = monthsSincePurchase || 0;
     this.initialHouseValue = initialHouseValue || houseValue;
-  }
-
-  getYearlyInterestRate() {
-    /* istanbul ignore next */
-    return this.yearlyInterestRate;
   }
 
   getYearlyRentalIncomeIncrease() {
@@ -75,7 +66,6 @@ class House {
     return {
       houseValue: this.houseValue,
       loan: this.loan,
-      yearlyInterestRate: this.yearlyInterestRate,
       yearlyAppreciationRate: this.yearlyAppreciationRate,
       monthlyGrossRentalIncome: this.monthlyGrossRentalIncome,
       yearlyRentalIncomeIncrease: this.yearlyRentalIncomeIncrease,
@@ -83,10 +73,6 @@ class House {
       monthsSincePurchase: this.monthsSincePurchase,
       initialHouseValue: this.initialHouseValue,
     };
-  }
-
-  getMonthlyInterestRate() {
-    return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
   }
 
   getMonthlyInterestPayment() {
@@ -129,7 +115,6 @@ class House {
     return new House({
       houseValue: this.houseValue * (1 + this.getMonthlyAppreciationRate()),
       loan: this.loan,
-      yearlyInterestRate: this.yearlyInterestRate,
       yearlyAppreciationRate: this.yearlyAppreciationRate,
       monthlyGrossRentalIncome:
         (this.monthsSincePurchase + 1) % 12 === 0

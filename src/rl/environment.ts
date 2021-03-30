@@ -52,7 +52,7 @@ class Environment {
   render() {
     return {
       Time: this.state.getClock().getTime(),
-      Salary: this.state.getSingletonSalary().getYearlyGrossSalary(),
+      // Salary: this.state.getSalary().getYearlyGrossSalary(),
       "Bank balance:": this.state
         .getSingletonBank()
         .getBalance(this.state.getClock().getTime()),
@@ -84,7 +84,6 @@ class Environment {
               lengthOfLoanInMonths: 12 * 30,
             }),
             houseValue: 600_000,
-            yearlyInterestRate: 0.03,
             yearlyAppreciationRate: 0.03,
             monthlyGrossRentalIncome: 2500,
             yearlyRentalIncomeIncrease: 0.03,
