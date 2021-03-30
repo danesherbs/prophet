@@ -53,7 +53,6 @@ const loan = new Loan({
 const house = new House({
   loan: loan,
   houseValue: 600_000,
-  yearlyInterestRate: 0.03,
   yearlyAppreciationRate: 0.03,
   monthlyGrossRentalIncome: 2_500,
   yearlyRentalIncomeIncrease: 0.03,
@@ -624,7 +623,6 @@ test("unpaid tax is paid at beginning of financial year", () => {
   const house = new House({
     loan: loan,
     houseValue: 600_000,
-    yearlyInterestRate: 0.03,
     yearlyAppreciationRate: 0.03,
     monthlyGrossRentalIncome: 5_000,
     yearlyRentalIncomeIncrease: 0.03,
