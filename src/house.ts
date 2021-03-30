@@ -97,6 +97,10 @@ class House {
     return this.monthlyGrossRentalIncome;
   }
 
+  getInitialHouseValue() {
+    return this.initialHouseValue;
+  }
+
   getHouseValue() {
     return this.houseValue;
   }
