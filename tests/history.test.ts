@@ -970,3 +970,29 @@ test("check dependecy graph is correct for salaries", () => {
       .hasValidDependencyGraph()
   ).toBeTruthy();
 });
+
+test("setting end to null deletes end", () => {
+  const buyingDoggo = history
+    .setStart({
+      id: "dog",
+      date: new Date(2020, 0, 1),
+      startEvent: {
+        action: Action.AddExpense,
+        item: { id: "dog", object: expense.getProps() },
+      },
+    })
+    .setEnd({
+      id: "dog",
+      date: new Date(2050, 0, 1),
+      endEvent: {
+        action: Action.RemoveExpense,
+        item: { id: "dog", object: expense.getProps() },
+      },
+    });
+
+  expect(buyingDoggo.getEnd({ id: "dog" })).toEqual(new Date(2050, 0, 1));
+
+  expect(
+    buyingDoggo.setEnd({ id: "dog", date: null }).getEnd({ id: "dog" })
+  ).toEqual(null);
+});
