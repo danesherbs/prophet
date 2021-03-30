@@ -8,10 +8,9 @@ import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, endActions, startActions } from "./event";
-import { isAccessor } from "typescript";
 
 interface Events {
-  [time: number]: Array<Event>;
+  [time: number]: Event[];
 }
 
 interface Props {
@@ -23,8 +22,8 @@ class History {
 
   constructor({ events }: Props) {
     this.events = new Map(
-      [...Object.entries(events)].map(([id, evts]) => [
-        parseInt(id),
+      [...Object.entries(events)].map(([time, evts]) => [
+        parseInt(time),
         new Set(evts),
       ])
     );
@@ -125,12 +124,6 @@ class History {
             .filter(([time]) => time !== this.toDateTime({ date }))
             .map(([id, events]) => [id, [...events]])
         ),
-
-        //   new Map(
-        //   [...this.events].filter(
-        //     ([time]) => time !== this.toDateTime({ date })
-        //   )
-        // ),
       });
     }
 
@@ -140,6 +133,24 @@ class History {
         [this.toDateTime({ date })]: newEvents,
       },
     });
+  };
+
+  removeId = ({ id }: { id: string }) => {
+    const newEvents = Object.fromEntries(
+      [...this.events].map(([time, evts]) => [
+        time,
+        [...evts].filter((evt) => evt.item.id !== id),
+      ])
+    );
+
+    // Remove any empty time periods
+    for (const [time, evts] of Object.entries(newEvents)) {
+      if (evts.length === 0) {
+        delete newEvents[time];
+      }
+    }
+
+    return new History({ events: newEvents });
   };
 
   getStart = ({ id }: { id: string }) => {

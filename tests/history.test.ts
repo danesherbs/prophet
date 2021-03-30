@@ -996,3 +996,9 @@ test("setting end to null deletes end", () => {
     buyingDoggo.setEnd({ id: "dog", date: null }).getEnd({ id: "dog" })
   ).toEqual(null);
 });
+
+test("removing salary id actually removes id", () => {
+  expect(history.removeId({ id: "salary" }).getStart({ id: "salary" })).toEqual(
+    null
+  );
+});
