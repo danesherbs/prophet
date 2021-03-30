@@ -713,7 +713,7 @@ test("getter for multiple houses retrieves all houses", () => {
       .addEvent({
         date: new Date(2021, 0, 1),
         event: {
-          action: Action.BuyHouse,
+          action: Action.AddHouse,
           item: {
             id: "B",
             object: house,
@@ -725,6 +725,38 @@ test("getter for multiple houses retrieves all houses", () => {
     new Map([
       ["A", house],
       ["B", house],
+    ])
+  );
+});
+
+test("getter for multiple stocks retrieves all stocks", () => {
+  expect(
+    history
+      .addEvent({
+        date: new Date(2020, 0),
+        event: {
+          action: Action.BuyStock,
+          item: {
+            id: "A",
+            object: stock,
+          },
+        },
+      })
+      .addEvent({
+        date: new Date(2021, 0, 1),
+        event: {
+          action: Action.AddStock,
+          item: {
+            id: "B",
+            object: stock,
+          },
+        },
+      })
+      .getStocks()
+  ).toEqual(
+    new Map([
+      ["A", stock],
+      ["B", stock],
     ])
   );
 });
@@ -818,4 +850,123 @@ test("creating history with house, setting end date and pushing start date forwa
 
   expect(states[5 * 12].getHouses().size).toBeGreaterThan(0);
   expect(states[10 * 12].getHouses().size).toEqual(0);
+});
+
+test("check that history with single house has invalid dependency graph", () => {
+  const invalidHistory = new History({ events: {} }).setStart({
+    id: "house",
+    date: new Date(2021, 0, 1),
+    startEvent: {
+      action: Action.AddHouse,
+      item: { id: "new house", object: house.getProps() },
+    },
+  });
+
+  expect(invalidHistory.hasValidDependencyGraph()).toBeFalsy();
+});
+
+test("check that history with house added before bank has invalid dependency graph", () => {
+  expect(
+    history
+      .addEvent({
+        date: new Date(1950, 0, 1),
+        event: {
+          action: Action.BuyHouse,
+          item: { id: "house", object: house.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeFalsy();
+});
+
+test("check that history with house added at same time as bank and tax has valid dependency graph", () => {
+  expect(
+    history
+      .addEvent({
+        date: start,
+        event: {
+          action: Action.BuyHouse,
+          item: { id: "house", object: house.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeTruthy();
+});
+
+test("check dependecy graph is correct for stocks", () => {
+  expect(
+    history
+      .addEvent({
+        date: new Date(1950, 0, 1),
+        event: {
+          action: Action.BuyStock,
+          item: { id: "stock", object: stock.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeFalsy();
+
+  expect(
+    history
+      .addEvent({
+        date: new Date(2050, 0, 1),
+        event: {
+          action: Action.AddStock,
+          item: { id: "stock", object: stock.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeTruthy();
+});
+
+test("check dependecy graph is correct for expenses", () => {
+  expect(
+    history
+      .addEvent({
+        date: new Date(1950, 0, 1),
+        event: {
+          action: Action.AddExpense,
+          item: { id: "expense", object: expense.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeFalsy();
+
+  expect(
+    history
+      .addEvent({
+        date: new Date(2050, 0, 1),
+        event: {
+          action: Action.AddExpense,
+          item: { id: "expense", object: expense.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeTruthy();
+});
+
+test("check dependecy graph is correct for salaries", () => {
+  expect(
+    history
+      .addEvent({
+        date: new Date(1950, 0, 1),
+        event: {
+          action: Action.AddSalary,
+          item: { id: "sidejob", object: salary.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeFalsy();
+
+  expect(
+    history
+      .addEvent({
+        date: new Date(2050, 0, 1),
+        event: {
+          action: Action.AddSalary,
+          item: { id: "sidejob", object: salary.getProps() },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeTruthy();
 });

@@ -8,6 +8,7 @@ import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, endActions, startActions } from "./event";
+import { isAccessor } from "typescript";
 
 interface Events {
   [time: number]: Array<Event>;
@@ -223,54 +224,80 @@ class History {
     return this; // should never happen
   };
 
-  // setAction = ({ id, action }: { id: string; action: Action }) => {
-  //   const start = this.getStart({ id });
-  //   const event = this.getEvent({ date: start, id });
-
-  //   return this.removeEvent({ date: start, id }).addEvent({
-  //     date: start,
-  //     event: {
-  //       action,
-  //       item: { id, object: event.item.object },
-  //     },
-  //   });
-  // };
-
   getHouses = (): State["houses"] =>
-    this.getStates().reduce(
-      (acc, state) => new Map([...state.getHouses().entries(), ...acc]),
-      new Map<string, House>()
-    );
+    [...this.events].reduce((acc, [time, events]) => {
+      const houses: [string, House][] = [...events]
+        .filter(
+          (evt) =>
+            evt.action === Action.AddHouse || evt.action === Action.BuyHouse
+        )
+        .map((evt) => [evt.item.id, new House(evt.item.object as HouseProps)]);
+
+      return new Map([...acc, ...houses]);
+    }, new Map<string, House>());
 
   getStocks = (): State["stocks"] =>
-    this.getStates().reduce(
-      (acc, state) => new Map([...state.getStocks().entries(), ...acc]),
-      new Map<string, Stock>()
-    );
+    [...this.events].reduce((acc, [time, events]) => {
+      const stocks: [string, Stock][] = [...events]
+        .filter(
+          (evt) =>
+            evt.action === Action.AddStock || evt.action === Action.BuyStock
+        )
+        .map((evt) => [evt.item.id, new Stock(evt.item.object as StockProps)]);
+
+      return new Map([...acc, ...stocks]);
+    }, new Map<string, Stock>());
 
   getExpenses = (): State["expenses"] =>
-    this.getStates().reduce(
-      (acc, state) => new Map([...state.getExpenses().entries(), ...acc]),
-      new Map<string, Expense>()
-    );
+    [...this.events].reduce((acc, [time, events]) => {
+      const expenses: [string, Expense][] = [...events]
+        .filter((evt) => evt.action === Action.AddExpense)
+        .map((evt) => [
+          evt.item.id,
+          new Expense(evt.item.object as ExpenseProps),
+        ]);
+
+      return new Map([...acc, ...expenses]);
+    }, new Map<string, Expense>());
 
   getSalaries = (): State["salaries"] =>
-    this.getStates().reduce(
-      (acc, state) => new Map([...state.getSalaries().entries(), ...acc]),
-      new Map<string, Salary>()
-    );
+    [...this.events].reduce((acc, [time, events]) => {
+      const salaries: [string, Salary][] = [...events]
+        .filter((evt) => evt.action === Action.AddSalary)
+        .map((evt) => [
+          evt.item.id,
+          new Salary(evt.item.object as SalaryProps),
+        ]);
+
+      return new Map([...acc, ...salaries]);
+    }, new Map<string, Salary>());
 
   getSupers = (): State["superans"] =>
-    this.getStates().reduce(
-      (acc, state) => new Map([...state.getSupers().entries(), ...acc]),
-      new Map<string, Super>()
-    );
+    [...this.events].reduce((acc, [time, events]) => {
+      const supers: [string, Super][] = [...events]
+        .filter((evt) => evt.action === Action.AddSuper)
+        .map((evt) => [evt.item.id, new Super(evt.item.object as SuperProps)]);
+
+      return new Map([...acc, ...supers]);
+    }, new Map<string, Super>());
 
   getBanks = (): State["banks"] =>
-    this.getStates().reduce(
-      (acc, state) => new Map([...state.getBanks().entries(), ...acc]),
-      new Map<string, Bank>()
-    );
+    [...this.events].reduce((acc, [time, events]) => {
+      const banks: [string, Bank][] = [...events]
+        .filter((evt) => evt.action === Action.AddBank)
+        .map((evt) => [evt.item.id, new Bank(evt.item.object as BankProps)]);
+
+      return new Map([...acc, ...banks]);
+    }, new Map<string, Bank>());
+
+  getTaxes = (): State["tax"] =>
+    [...this.events].reduce((acc, [time, events]) => {
+      const txs: [string, Tax][] = [...events]
+        .filter((evt) => evt.action === Action.AddTax)
+        .map((evt) => [evt.item.id, new Tax(evt.item.object as TaxProps)]);
+
+      return new Map([...acc, ...txs]);
+    }, new Map<string, Tax>());
 
   private monthsBetween = ({ start, end }: { start: Date; end: Date }) => {
     const years = end.getFullYear() - start.getFullYear();
@@ -442,9 +469,106 @@ class History {
       }
 
       default: {
-        throw new Error(`Action ${event.action} is not registered.`);
+        throw new Error(`Action ${event.action} is not recognised.`);
       }
     }
+  };
+
+  hasValidDependencyGraph = (): boolean => {
+    const actions = [...this.events].reduce(
+      (acc, [, events]) =>
+        new Set([...acc, ...[...events].map((event) => event.action)]),
+      new Set<Action>()
+    );
+
+    if (
+      !actions.has(Action.AddBank) ||
+      !actions.has(Action.AddTax) ||
+      !actions.has(Action.AddSuper)
+    ) {
+      return false;
+    }
+
+    const [bankId] = [...this.getBanks().keys()];
+    const [taxId] = [...this.getTaxes().keys()];
+    const [superId] = [...this.getSupers().keys()];
+
+    const bankStart = this.getStart({ id: bankId });
+    const taxStart = this.getStart({ id: taxId });
+    const superStart = this.getStart({ id: superId });
+
+    // Check wether bank, tax and super exist
+    if (bankStart === null || taxStart === null || superStart === null) {
+      return false;
+    }
+
+    // Check super comes after bank and tax
+    if (!(bankStart <= superStart && taxStart <= superStart)) {
+      return false;
+    }
+
+    // Check houses come after bank and tax
+    for (const [id] of this.getHouses()) {
+      const houseStart = this.getStart({ id });
+
+      if (
+        !(
+          houseStart !== null &&
+          bankStart <= houseStart &&
+          taxStart <= houseStart
+        )
+      ) {
+        return false;
+      }
+    }
+
+    // Check stocks come after bank and tax
+    for (const [id] of this.getStocks()) {
+      const stockStart = this.getStart({ id });
+
+      if (
+        !(
+          stockStart !== null &&
+          bankStart <= stockStart &&
+          taxStart <= stockStart
+        )
+      ) {
+        return false;
+      }
+    }
+
+    // Check expenses come after bank and tax
+    for (const [id] of this.getExpenses()) {
+      const expenseStart = this.getStart({ id });
+
+      if (
+        !(
+          expenseStart !== null &&
+          bankStart <= expenseStart &&
+          taxStart <= expenseStart
+        )
+      ) {
+        return false;
+      }
+    }
+
+    // Check salary comes after bank, super and tax
+    for (const [id] of this.getSalaries()) {
+      const salaryStart = this.getStart({ id });
+
+      if (
+        !(
+          salaryStart !== null &&
+          bankStart <= salaryStart &&
+          taxStart <= salaryStart &&
+          superStart <= salaryStart
+        )
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   };
 }
 
