@@ -186,7 +186,13 @@ class History {
       return this.removeEvent({ date: start, id });
     } else if (start === null && date !== null && startEvent !== undefined) {
       return this.addEvent({ date, event: startEvent });
-    } else if (start !== null && date !== null) {
+    } else if (start !== null && date !== null && startEvent !== undefined) {
+      const event = this.getEvent({ date: start, id });
+      return this.removeEvent({ date: start, id }).addEvent({
+        date,
+        event: startEvent,
+      });
+    } else if (start !== null && date !== null && startEvent === undefined) {
       const event = this.getEvent({ date: start, id });
       return this.removeEvent({ date: start, id }).addEvent({ date, event });
     }

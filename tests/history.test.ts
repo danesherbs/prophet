@@ -1002,3 +1002,29 @@ test("removing salary id actually removes id", () => {
     null
   );
 });
+
+test("setting start on existing object updates the object", () => {
+  expect(
+    history
+      .setStart({
+        id: "dog",
+        date: new Date(2020, 0, 1),
+        startEvent: {
+          action: Action.AddExpense,
+          item: { id: "dog", object: expense.getProps() },
+        },
+      })
+      .setStart({
+        id: "dog",
+        date: new Date(2050, 0, 1),
+        startEvent: {
+          action: Action.AddExpense,
+          item: {
+            id: "dog",
+            object: { ...expense.getProps(), weeklyAmount: 900 },
+          },
+        },
+      })
+      .getExpenses()
+  ).toEqual(new Map([["dog", { ...expense.getProps(), weeklyAmount: 900 }]]));
+});
