@@ -71,6 +71,12 @@ class History {
     Checks if events are valid i.e. this DAG shorturl.at/fhyT6 can be topollogically sorted.
     */
 
+    // Call isValidDAG
+
+    // Call isValidEvents, which checks:
+    //      - Valid start and ends for each id
+    //      - Valid actions event.item.object types e.g. AddHouse w/ house.isAlreadyOwned = False is invalid
+
     throw new Error("Not implemented!");
   };
 
@@ -600,7 +606,7 @@ class History {
 
   generateId = () => `${new Date().getTime()}-${uuidv4()}`;
 
-  cloneEvent = (event: Event) => {
+  cloneEvent = (event: Event): Event => {
     return {
       action: event.action,
       item: {
@@ -610,7 +616,7 @@ class History {
     };
   };
 
-  clone = () => {
+  clone = (): History => {
     return new History({
       events: Object.fromEntries(
         [...this.events].map(([time, events]) => [
