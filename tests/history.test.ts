@@ -1026,3 +1026,20 @@ test("setting start on existing object updates the object", () => {
       .getExpenses()
   ).toEqual(new Map([["dog", { ...expense.getProps(), weeklyAmount: 900 }]]));
 });
+
+test("get ids returns correct ids", () => {
+  expect(history.getIds()).toEqual(["tax", "superan", "bank", "salary"]);
+});
+
+test("cloning history clones values but not keys", () => {
+  expect(history.clone().getEvents().keys()).toEqual(
+    history.getEvents().keys()
+  );
+
+  const intersectionOfIds = history
+    .clone()
+    .getIds()
+    .filter((id) => history.getIds().includes(id));
+
+  expect(intersectionOfIds).toEqual([]);
+});
