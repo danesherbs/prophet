@@ -60,12 +60,6 @@ test("house rental income grows correctly", () => {
   ).toBeCloseTo(2_500 * Math.pow(1.03, 3), 8);
 });
 
-test("correct monthly interest rate", () => {
-  expect(
-    Math.pow(1 + house.getLoan().getMonthlyInterestRate(), 12)
-  ).toBeCloseTo(1.03, 10);
-});
-
 test("correct monthly interest payments", () => {
   expect(house.getMonthlyInterestPayment()).toEqual(loan.getMonthlyPayment());
 });

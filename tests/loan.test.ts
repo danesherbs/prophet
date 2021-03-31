@@ -16,6 +16,13 @@ const principalAndInterestLoan = new Loan({
   lengthOfLoanInMonths: 12 * 30,
 });
 
+test("correct monthly interest rate", () => {
+  expect(principalAndInterestLoan.getMonthlyInterestRate() * 12).toBeCloseTo(
+    principalAndInterestLoan.getYearlyInterestRate(),
+    10
+  );
+});
+
 test("correct monthly repayments on principal interest loan", () => {
   expect(principalAndInterestLoan.getMonthlyPayment()).toBeCloseTo(1_274.14, 2);
 });
