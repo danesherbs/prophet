@@ -8,6 +8,7 @@ import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, endActions, startActions } from "./event";
+import { v4 as uuidv4 } from "uuid";
 
 interface Events {
   [time: number]: Event[];
@@ -135,6 +136,15 @@ class History {
     });
   };
 
+  getIds = (): string[] =>
+    [...this.events].reduce(
+      (acc: string[], [time, events]) => [
+        ...acc,
+        ...[...events].map((event) => event.item.id),
+      ],
+      []
+    );
+
   removeId = ({ id }: { id: string }) => {
     const newEvents = Object.fromEntries(
       [...this.events].map(([time, evts]) => [
@@ -197,7 +207,7 @@ class History {
       return this.removeEvent({ date: start, id }).addEvent({ date, event });
     }
 
-    return this; // should never happen
+    return this; // should never happen -- throw error instead?
   };
 
   getEnd = ({ id }: { id: string }) => {
@@ -238,7 +248,7 @@ class History {
       return this.removeEvent({ date: end, id }).addEvent({ date, event });
     }
 
-    return this; // should never happen
+    return this; // should never happen -- throw error instead?
   };
 
   getHouses = (): State["houses"] =>
@@ -586,6 +596,29 @@ class History {
     }
 
     return true;
+  };
+
+  generateId = () => `${new Date().getTime()}-${uuidv4()}`;
+
+  cloneEvent = (event: Event) => {
+    return {
+      action: event.action,
+      item: {
+        id: this.generateId(),
+        object: event.item.object,
+      },
+    };
+  };
+
+  clone = () => {
+    return new History({
+      events: Object.fromEntries(
+        [...this.events].map(([time, events]) => [
+          time,
+          [...events].map((event) => this.cloneEvent(event)),
+        ])
+      ),
+    });
   };
 }
 
