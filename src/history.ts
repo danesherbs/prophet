@@ -338,7 +338,13 @@ class History {
     return years * 12 + months + 1; // includes both start and end
   };
 
-  getStates = () => {
+  getStates = ({ horizonInMonths }: { horizonInMonths: number }) => {
+    if (horizonInMonths <= 0) {
+      throw new Error(
+        `Horizon is expected to be natural number but got ${horizonInMonths}`
+      );
+    }
+
     const actions = [...this.events].reduce(
       (acc, [, events]) =>
         new Set([...acc, ...[...events].map((event) => event.action)]),
@@ -371,11 +377,10 @@ class History {
       start: this.fromDateTime({ dateTime: start }),
       end: this.fromDateTime({ dateTime: end }),
     });
-    const horizon = 120;
 
     const states: Array<State> = [];
 
-    for (let i = 0; i < elapsed + horizon; i++) {
+    for (let i = 0; i < elapsed + horizonInMonths; i++) {
       const date = this.toDateTime({
         date: new Date(
           new Date(start).getFullYear() + Math.floor(i / 12),
@@ -410,7 +415,7 @@ class History {
   };
 
   getState = (time: number) => {
-    return this.getStates()[time];
+    return this.getStates({ horizonInMonths: 120 })[time];
   };
 
   applyEvents = ({ state, events }: { state: State; events: Set<Event> }) => {

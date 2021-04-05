@@ -234,11 +234,13 @@ test("event can be retrieved from map", () => {
 });
 
 test("history with required events has non-empty states array", () => {
-  expect(history.getStates().length).toBeGreaterThan(0);
+  expect(history.getStates({ horizonInMonths: 120 }).length).toBeGreaterThan(0);
 });
 
 test("creating history without minimum events throws error", () => {
-  expect(() => new History({ events: {} }).getStates()).toThrowError(Error);
+  expect(() =>
+    new History({ events: {} }).getStates({ horizonInMonths: 120 })
+  ).toThrowError(Error);
 });
 
 test("bank balance is growing over time", () => {
@@ -836,7 +838,7 @@ test("creating history with house, setting end date and pushing start date forwa
       },
     });
 
-  const states = historyWithHouse.getStates();
+  const states = historyWithHouse.getStates({ horizonInMonths: 120 });
 
   expect(historyWithHouse.getStart({ id: "new house" })).toEqual(
     new Date(2023, 1, 1)
