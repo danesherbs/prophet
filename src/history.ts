@@ -620,22 +620,24 @@ class History {
 
   generateId = () => `${new Date().getTime()}-${uuidv4()}`;
 
-  cloneEvent = (event: Event): Event => {
-    return {
-      action: event.action,
-      item: {
-        id: this.generateId(),
-        object: event.item.object,
-      },
-    };
-  };
-
   clone = (): History => {
+    const newIds = new Map<string, string>(
+      this.getIds().map((id) => [id, this.generateId()])
+    ); // create mapping from old ids to new ids
+
     return new History({
       events: Object.fromEntries(
         [...this.events].map(([time, events]) => [
           time,
-          [...events].map((event) => this.cloneEvent(event)),
+          [...events].map((event) => {
+            return {
+              action: event.action,
+              item: {
+                id: newIds.get(event.item.id) as string,
+                object: event.item.object,
+              },
+            };
+          }),
         ])
       ),
     });

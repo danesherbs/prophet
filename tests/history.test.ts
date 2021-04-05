@@ -1046,6 +1046,44 @@ test("cloning history clones values but not keys", () => {
   expect(intersectionOfIds).toEqual([]);
 });
 
+test("networth of clone is the same as original", () => {
+  const newHistory = history
+    .addEvent({
+      date: new Date(2020, 2),
+      event: {
+        action: Action.BuyHouse,
+        item: {
+          id: "A",
+          object: house,
+        },
+      },
+    })
+    .addEvent({
+      date: new Date(2020, 3),
+      event: {
+        action: Action.AddStock,
+        item: {
+          id: "B",
+          object: stock,
+        },
+      },
+    })
+    .addEvent({
+      date: new Date(2028, 3),
+      event: {
+        action: Action.SellStock,
+        item: {
+          id: "B",
+          object: stock,
+        },
+      },
+    });
+
+  expect(newHistory.clone().getState(120).getNetWealth()).toEqual(
+    newHistory.getState(120).getNetWealth()
+  );
+});
+
 test("already owned returns correct values for added and bought stocks, houses and salaries", () => {
   const complicatedHisotry = history
     .addEvent({
