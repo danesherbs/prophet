@@ -3,6 +3,7 @@ interface Props {
   pricePerUnit: number;
   rateOfReturn: number;
   initialValue?: number;
+  description?: string;
 }
 
 class Stock {
@@ -10,17 +11,20 @@ class Stock {
   pricePerUnit: number;
   rateOfReturn: number;
   initialValue?: number;
+  description?: string;
 
   constructor({
     numberOfUnits,
     pricePerUnit,
     rateOfReturn,
     initialValue,
+    description,
   }: Props) {
     this.numberOfUnits = numberOfUnits;
     this.pricePerUnit = pricePerUnit;
     this.rateOfReturn = rateOfReturn;
     this.initialValue = initialValue || numberOfUnits * pricePerUnit;
+    this.description = description;
   }
 
   getNumberOfUnits() {
@@ -38,8 +42,22 @@ class Stock {
     return this.rateOfReturn;
   }
 
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
+  }
+
   getProps(): Props {
     /* istanbul ignore next */
+    if (this.description !== undefined) {
+      return {
+        numberOfUnits: this.numberOfUnits,
+        pricePerUnit: this.pricePerUnit,
+        rateOfReturn: this.rateOfReturn,
+        description: this.description,
+      };
+    }
+
     return {
       numberOfUnits: this.numberOfUnits,
       pricePerUnit: this.pricePerUnit,

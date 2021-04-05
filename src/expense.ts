@@ -2,17 +2,25 @@ interface Props {
   yearlyIncrease: number;
   weeklyAmount: number;
   initialTime: number;
+  description?: string;
 }
 
 class Expense {
   yearlyIncrease: number;
   weeklyAmount: number;
   initialTime: number;
+  description?: string;
 
-  constructor({ yearlyIncrease, weeklyAmount, initialTime }: Props) {
+  constructor({
+    yearlyIncrease,
+    weeklyAmount,
+    initialTime,
+    description,
+  }: Props) {
     this.yearlyIncrease = yearlyIncrease;
     this.weeklyAmount = weeklyAmount;
     this.initialTime = initialTime;
+    this.description = description;
   }
 
   getYearlyIncrease() {
@@ -35,8 +43,22 @@ class Expense {
     return this.initialTime;
   }
 
+  getDescription() {
+    /* istanbul ignore next */
+    return this.description;
+  }
+
   getProps(): Props {
     /* istanbul ignore next */
+    if (this.description !== undefined) {
+      return {
+        yearlyIncrease: this.yearlyIncrease,
+        weeklyAmount: this.weeklyAmount,
+        initialTime: this.initialTime,
+        description: this.description,
+      };
+    }
+
     return {
       yearlyIncrease: this.yearlyIncrease,
       weeklyAmount: this.weeklyAmount,
