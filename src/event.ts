@@ -40,7 +40,7 @@ enum Action {
   RemoveLoan,
 }
 
-const startActions = new Set([
+const addActions = new Set([
   // Tax
   Action.AddTax,
 
@@ -58,32 +58,44 @@ const startActions = new Set([
 
   // Houses
   Action.AddHouse,
-  Action.BuyHouse,
 
   // Stocks
   Action.AddStock,
-  Action.BuyStock,
 
   // Loans
   Action.AddLoan,
 ]);
 
-const endActions = new Set([
+const buyActions = new Set([
+  // Houses
+  Action.BuyHouse,
+
+  // Stocks
+  Action.BuyStock,
+]);
+
+const startActions = new Set([...addActions, ...buyActions]);
+
+const removeActions = new Set([
   // Salaries
   Action.RemoveSalary,
 
   // Expenses
   Action.RemoveExpense,
 
+  // Loans
+  Action.RemoveLoan,
+]);
+
+const sellActions = new Set([
   // Houses
   Action.SellHouse,
 
   // Stocks
   Action.SellStock,
-
-  // Loans
-  Action.RemoveLoan,
 ]);
+
+const endActions = new Set([...removeActions, ...sellActions]);
 
 type ItemProps =
   | BankProps
@@ -118,4 +130,13 @@ class Event {
 
 export default Event;
 export type { Props };
-export { Action, ItemProps, startActions, endActions };
+export {
+  Action,
+  ItemProps,
+  buyActions,
+  addActions,
+  startActions,
+  removeActions,
+  sellActions,
+  endActions,
+};

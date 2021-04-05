@@ -1045,3 +1045,63 @@ test("cloning history clones values but not keys", () => {
 
   expect(intersectionOfIds).toEqual([]);
 });
+
+test("already owned returns correct values for added and bought stocks, houses and salaries", () => {
+  const complicatedHisotry = history
+    .addEvent({
+      date: new Date(2020, 1),
+      event: {
+        action: Action.AddHouse,
+        item: {
+          id: "A",
+          object: house,
+        },
+      },
+    })
+    .addEvent({
+      date: new Date(2020, 2),
+      event: {
+        action: Action.BuyHouse,
+        item: {
+          id: "B",
+          object: house,
+        },
+      },
+    })
+    .addEvent({
+      date: new Date(2020, 3),
+      event: {
+        action: Action.AddStock,
+        item: {
+          id: "C",
+          object: stock,
+        },
+      },
+    })
+    .addEvent({
+      date: new Date(2020, 4),
+      event: {
+        action: Action.BuyStock,
+        item: {
+          id: "D",
+          object: stock,
+        },
+      },
+    })
+    .addEvent({
+      date: new Date(2020, 5),
+      event: {
+        action: Action.AddSalary,
+        item: {
+          id: "E",
+          object: salary,
+        },
+      },
+    });
+
+  expect(complicatedHisotry.isAlreadyOwned({ id: "A" })).toBeTruthy();
+  expect(complicatedHisotry.isAlreadyOwned({ id: "B" })).toBeFalsy();
+  expect(complicatedHisotry.isAlreadyOwned({ id: "C" })).toBeTruthy();
+  expect(complicatedHisotry.isAlreadyOwned({ id: "D" })).toBeFalsy();
+  expect(complicatedHisotry.isAlreadyOwned({ id: "E" })).toBeTruthy();
+});

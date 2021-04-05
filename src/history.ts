@@ -7,7 +7,7 @@ import Bank, { Props as BankProps } from "./bank";
 import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
-import Event, { Action, endActions, startActions } from "./event";
+import Event, { Action, endActions, startActions, addActions } from "./event";
 import { v4 as uuidv4 } from "uuid";
 
 interface Events {
@@ -630,6 +630,17 @@ class History {
         ])
       ),
     });
+  };
+
+  isAlreadyOwned = ({ id }: { id: string }) => {
+    const start = this.getStart({ id });
+
+    if (start !== null) {
+      const event = this.getEvent({ date: start, id });
+      return addActions.has(event.action);
+    }
+
+    return false;
   };
 }
 
