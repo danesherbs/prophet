@@ -20,6 +20,7 @@ interface Props {
 
 class History {
   events: Map<number, Set<Event>>;
+  memo: Map<number, State[]>;
 
   constructor({ events }: Props) {
     this.events = new Map(
@@ -28,6 +29,8 @@ class History {
         new Set(evts),
       ])
     );
+
+    this.memo = new Map<number, State[]>(); // cache for getStates
   }
 
   getEvents = () => {
@@ -345,6 +348,10 @@ class History {
       );
     }
 
+    if (this.memo.has(horizonInMonths)) {
+      return this.memo.get(horizonInMonths) as State[];
+    }
+
     const actions = [...this.events].reduce(
       (acc, [, events]) =>
         new Set([...acc, ...[...events].map((event) => event.action)]),
@@ -410,6 +417,8 @@ class History {
         })
       );
     }
+
+    this.memo.set(horizonInMonths, states);
 
     return states;
   };
