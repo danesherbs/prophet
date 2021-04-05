@@ -34,6 +34,13 @@ test("correct monthly repayments on interest only loan", () => {
   );
 });
 
+test("correct yearly repayments on interest only loan", () => {
+  expect(interestOnlyLoan.getYearlyPayment()).toBeCloseTo(
+    12 * interestOnlyLoan.getMonthlyPayment(),
+    10
+  );
+});
+
 test("monthly payments for principal and interest loans do not change month to month", () => {
   expect(
     principalAndInterestLoan.waitOneMonth().getMonthlyPayment()

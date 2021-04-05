@@ -79,6 +79,10 @@ class House {
     return this.loan.getMonthlyPayment();
   }
 
+  getYearlyInterestPayment() {
+    return this.loan.getYearlyPayment();
+  }
+
   getMonthlyGrossRentalIncome() {
     return this.monthlyGrossRentalIncome;
   }

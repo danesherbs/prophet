@@ -75,6 +75,10 @@ class Loan {
     return this.getMonthlyPrincipleAndInterestPayment() + this.monthlyFee;
   }
 
+  getYearlyPayment() {
+    return 12 * this.getMonthlyPayment();
+  }
+
   getMonthlyInterestOnlyPayment() {
     return (this.amountBorrowed * this.yearlyInterestRate) / 12;
   }
