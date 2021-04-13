@@ -1,4 +1,5 @@
 import Loan, { Props as LoanProps } from "./loan";
+import Tax from "./tax";
 
 interface Props {
   houseValue: number;
@@ -116,6 +117,16 @@ class House {
 
   getHouseValue() {
     return this.houseValue;
+  }
+
+  getYearlyNetRentalIncome({ tax }: { tax: Tax }) {
+    // TODO: test this
+
+    const yearlyGrossRentalIncome = 12 * this.monthlyGrossRentalIncome;
+
+    return (
+      yearlyGrossRentalIncome - tax.getYearlyIncomeTax(yearlyGrossRentalIncome)
+    );
   }
 
   getMonthlyDepreciationRate() {
