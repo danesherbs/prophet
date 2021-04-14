@@ -3,6 +3,7 @@ import House, { Props as HouseProps } from "./house";
 import Salary, { Props as SalaryProps } from "./salary";
 import Expense, { Props as ExpenseProps } from "./expense";
 import Stock, { Props as StockProps } from "./stock";
+import Loan, { Props as LoanProps } from "./loan";
 import Bank, { Props as BankProps } from "./bank";
 import Super, { Props as SuperProps } from "./super";
 import Tax, { Props as TaxProps } from "./tax";
@@ -283,6 +284,15 @@ class History {
 
       return new Map([...acc, ...stocks]);
     }, new Map<string, Stock>());
+
+  getLoans = (): State["loans"] =>
+    [...this.events].reduce((acc, [time, events]) => {
+      const stocks: [string, Loan][] = [...events]
+        .filter((evt) => evt.action === Action.AddLoan)
+        .map((evt) => [evt.item.id, new Loan(evt.item.object as LoanProps)]);
+
+      return new Map([...acc, ...stocks]);
+    }, new Map<string, Loan>());
 
   getExpenses = (): State["expenses"] =>
     [...this.events].reduce((acc, [time, events]) => {
