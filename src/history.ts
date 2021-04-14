@@ -638,6 +638,15 @@ class History {
       }
     }
 
+    // Check loans come after bank
+    for (const [id] of this.getLoans()) {
+      const loanStart = this.getStart({ id });
+
+      if (!(loanStart !== null && bankStart <= loanStart)) {
+        return false;
+      }
+    }
+
     return true;
   };
 
