@@ -129,10 +129,9 @@ class Event {
 }
 
 export default Event;
-export type { Props };
+export type { Props, ItemProps };
 export {
   Action,
-  ItemProps,
   buyActions,
   addActions,
   startActions,
