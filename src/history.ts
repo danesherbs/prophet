@@ -525,6 +525,19 @@ class History {
         return state.sellStock({ id: event.item.id });
       }
 
+      case Action.AddLoan: {
+        return state.addLoan({
+          id: event.item.id,
+          loan: new Loan(event.item.object as LoanProps),
+        });
+      }
+
+      case Action.RemoveLoan: {
+        return state.removeLoan({
+          id: event.item.id,
+        });
+      }
+
       default: {
         throw new Error(`Action ${event.action} is not recognised.`);
       }
