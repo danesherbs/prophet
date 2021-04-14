@@ -141,11 +141,7 @@ class Tax {
     return new Tax({
       incomeTaxBrackets: this.incomeTaxBrackets,
       superTaxRate: this.superTaxRate,
-      declared: new Array(...this.declared, [
-        time,
-        amount,
-        DeclarationType.Income,
-      ]),
+      declared: [...this.declared, [time, amount, DeclarationType.Income]],
       paid: this.paid,
     });
   }
@@ -154,11 +150,7 @@ class Tax {
     return new Tax({
       incomeTaxBrackets: this.incomeTaxBrackets,
       superTaxRate: this.superTaxRate,
-      declared: new Array(...this.declared, [
-        time,
-        amount,
-        DeclarationType.Loss,
-      ]),
+      declared: [...this.declared, [time, amount, DeclarationType.Loss]],
       paid: this.paid,
     });
   }
@@ -168,7 +160,7 @@ class Tax {
       incomeTaxBrackets: this.incomeTaxBrackets,
       superTaxRate: this.superTaxRate,
       declared: this.declared,
-      paid: new Array(...this.paid, [time, amount, type]),
+      paid: [...this.paid, [time, amount, type]],
     });
   }
 }
