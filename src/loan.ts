@@ -48,6 +48,11 @@ class Loan {
     return this.lengthOfLoanInMonths;
   }
 
+  getMonthlyFee() {
+    /* istanbul ignore next */
+    return this.monthlyFee;
+  }
+
   getProps(): Props {
     /* istanbul ignore next */
     return {
