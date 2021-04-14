@@ -53,6 +53,11 @@ class Loan {
     return this.monthlyFee;
   }
 
+  getIsInterestOnly() {
+    /* istanbul ignore next */
+    return this.isInterestOnly;
+  }
+
   getProps(): Props {
     /* istanbul ignore next */
     return {
