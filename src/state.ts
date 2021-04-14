@@ -115,6 +115,11 @@ class State {
     return this.expenses;
   }
 
+  getLoans() {
+    /* istanbul ignore next */
+    return this.loans;
+  }
+
   getSingletonTax() {
     if (this.tax.size > 1) {
       throw new Error(`Expected at most 1 tax but got ${this.tax.size}`);
