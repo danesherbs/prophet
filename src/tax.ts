@@ -174,5 +174,5 @@ class Tax {
 }
 
 export default Tax;
-export type { Props };
-export { TaxType, TaxBracket };
+export type { Props, TaxBracket };
+export { TaxType };

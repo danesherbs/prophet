@@ -119,16 +119,6 @@ class House {
     return this.houseValue;
   }
 
-  getYearlyNetRentalIncome({ tax }: { tax: Tax }) {
-    // TODO: test this
-
-    const yearlyGrossRentalIncome = 12 * this.monthlyGrossRentalIncome;
-
-    return (
-      yearlyGrossRentalIncome - tax.getYearlyIncomeTax(yearlyGrossRentalIncome)
-    );
-  }
-
   getMonthlyDepreciationRate() {
     return Math.pow(1 + this.buildingDepreciationRate, 1 / 12) - 1;
   }
