@@ -357,9 +357,9 @@ class History {
       );
     }
 
-    // if (this.memo.has(horizonInMonths)) {
-    //   return this.memo.get(horizonInMonths) as State[];
-    // }
+    if (this.memo.has(horizonInMonths)) {
+      return this.memo.get(horizonInMonths) as State[];
+    }
 
     const actions = [...this.events].reduce(
       (acc, [, events]) =>
