@@ -3,7 +3,6 @@ import Tax, { Props as TaxProps } from "./tax";
 type Transaction = [number, number];
 
 interface Props {
-  tax: TaxProps;
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   contributionRate: number;
@@ -11,29 +10,21 @@ interface Props {
 }
 
 class Super {
-  tax: Tax;
   transactions: Array<Transaction>;
   yearlyInterestRate: number;
   contributionRate: number;
   initialBalance?: number;
 
   constructor({
-    tax,
     transactions,
     yearlyInterestRate,
     contributionRate,
     initialBalance,
   }: Props) {
-    this.tax = new Tax(tax);
     this.transactions = transactions;
     this.yearlyInterestRate = yearlyInterestRate;
     this.contributionRate = contributionRate;
     this.initialBalance = initialBalance;
-  }
-
-  getTax() {
-    /* istanbul ignore next */
-    return this.tax;
   }
 
   getTransactions() {
@@ -60,7 +51,6 @@ class Super {
     /* istanbul ignore next */
     if (this.initialBalance) {
       return {
-        tax: this.tax.getProps(),
         transactions: this.transactions,
         yearlyInterestRate: this.yearlyInterestRate,
         contributionRate: this.contributionRate,
@@ -69,7 +59,6 @@ class Super {
     }
 
     return {
-      tax: this.tax.getProps(),
       transactions: this.transactions,
       yearlyInterestRate: this.yearlyInterestRate,
       contributionRate: this.contributionRate,
@@ -78,7 +67,6 @@ class Super {
 
   deposit(time: number, amount: number) {
     return new Super({
-      tax: this.tax,
       transactions: new Array<Transaction>(...this.transactions, [
         time,
         amount,
@@ -93,10 +81,16 @@ class Super {
     return (this.contributionRate * yearlyGrossSalary) / 12;
   }
 
-  getMonthlyNetSuperContribution(yearlyGrossSalary: number) {
+  getMonthlyNetSuperContribution({
+    yearlyGrossSalary,
+    tax,
+  }: {
+    yearlyGrossSalary: number;
+    tax: TaxProps;
+  }) {
     return (
       this.getMonthlyGrossSuperContribution(yearlyGrossSalary) -
-      this.tax.getMonthlySuperTax(
+      new Tax(tax).getMonthlySuperTax(
         this.getMonthlyGrossSuperContribution(yearlyGrossSalary)
       )
     );

@@ -24,14 +24,12 @@ const bank = new Bank({
 });
 
 const superan = new Super({
-  tax: tax,
   transactions: new Array(),
   yearlyInterestRate: 0.1,
   contributionRate: 0.125,
 });
 
 const salary = new Salary({
-  tax: tax,
   yearlyGrossSalary: 120_000,
   yearlySalaryIncrease: 0.05,
 });
@@ -130,12 +128,18 @@ test("correct salary transition", () => {
 
   expect(
     state.receiveMonthlySalaryPayment(salary).getSingletonBank().getBalance(0)
-  ).toBeCloseTo(salary.getMonthlyNetSalary(), 10);
+  ).toBeCloseTo(
+    salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }),
+    10
+  );
 
   expect(
     state.receiveMonthlySalaryPayment(salary).getSingletonSuper().getBalance(0)
   ).toBeCloseTo(
-    superan.getMonthlyNetSuperContribution(salary.getYearlyGrossSalary()),
+    superan.getMonthlyNetSuperContribution({
+      yearlyGrossSalary: salary.getYearlyGrossSalary(),
+      tax: state.getSingletonTax(),
+    }),
     10
   );
 
@@ -175,19 +179,30 @@ test("correct net wealth after a month with salary only", () => {
   expect(state.getNetWealth()).toEqual(0);
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
-    salary.getMonthlyNetSalary() * (1 + bank.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+    salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) *
+      (1 + bank.getMonthlyInterestRate()) +
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         (1 + superan.getMonthlyInterestRate()),
     10
   );
 
   expect(state.waitOneMonth().waitOneMonth().getNetWealth()).toBeCloseTo(
-    salary.getMonthlyNetSalary() *
+    salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) *
       Math.pow(1 + bank.getMonthlyInterestRate(), 2) +
-      salary.getMonthlyNetSalary() * (1 + bank.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+      salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) *
+        (1 + bank.getMonthlyInterestRate()) +
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         (1 + superan.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         Math.pow(1 + superan.getMonthlyInterestRate(), 2),
     10
   );
@@ -209,21 +224,33 @@ test("correct net wealth after a month with salary and expense", () => {
   expect(state.getNetWealth()).toEqual(0);
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
-    (salary.getMonthlyNetSalary() - expense.getMonthlyAmount(0)) *
+    (salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) -
+      expense.getMonthlyAmount(0)) *
       (1 + bank.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         (1 + superan.getMonthlyInterestRate()),
     10
   );
 
   expect(state.waitOneMonth().waitOneMonth().getNetWealth()).toBeCloseTo(
-    (salary.getMonthlyNetSalary() - expense.getMonthlyAmount(1)) *
+    (salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) -
+      expense.getMonthlyAmount(1)) *
       Math.pow(1 + bank.getMonthlyInterestRate(), 2) +
-      (salary.getMonthlyNetSalary() - expense.getMonthlyAmount(0)) *
+      (salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) -
+        expense.getMonthlyAmount(0)) *
         (1 + bank.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         (1 + superan.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         Math.pow(1 + superan.getMonthlyInterestRate(), 2),
     10
   );
@@ -247,12 +274,15 @@ test("correct net wealth after a month with salary, house, stock and expense", (
   );
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
-    (salary.getMonthlyNetSalary() +
+    (salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) +
       house.getMonthlyGrossRentalIncome() -
       expense.getMonthlyAmount(0) -
       house.getMonthlyInterestPayment()) *
       (1 + bank.getMonthlyInterestRate()) +
-      superan.getMonthlyNetSuperContribution(120_000) *
+      superan.getMonthlyNetSuperContribution({
+        yearlyGrossSalary: 120_000,
+        tax: state.getSingletonTax(),
+      }) *
         (1 + superan.getMonthlyInterestRate()) +
       house.waitOneMonth().getEquity() +
       stock.waitOneMonth().getTotalValue(),
@@ -362,7 +392,9 @@ test("correct state change when selling stock", () => {
       .getSingletonBank()
       .getBalance(1)
   ).toBeCloseTo(
-    salary.waitOneMonth().getMonthlyNetSalary() *
+    salary
+      .waitOneMonth()
+      .getMonthlyNetSalary({ tax: state.getSingletonTax() }) *
       (1 + bank.getMonthlyInterestRate()) +
       stock.waitOneMonth().getTotalValue(),
     10
@@ -521,7 +553,7 @@ test("correct bank change after one month with salary and a house", () => {
       .getBalance(1)
   ).toBeCloseTo(
     (state.getSingletonBank().getBalance(0) +
-      salary.getMonthlyNetSalary() +
+      salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) +
       house.getMonthlyGrossRentalIncome() -
       house.getMonthlyInterestPayment()) *
       (1 + bank.getMonthlyInterestRate()) +
@@ -569,7 +601,6 @@ test("correct state change when paying an expense", () => {
 
 test("correct state change after one month when owning single house", () => {
   const salary = new Salary({
-    tax: tax,
     yearlyGrossSalary: 0,
     yearlySalaryIncrease: 0,
   });

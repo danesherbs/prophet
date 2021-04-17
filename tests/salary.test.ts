@@ -10,7 +10,6 @@ test("correct yearly salary increases", () => {
   });
 
   const salary = new Salary({
-    tax: tax,
     yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
   });
@@ -44,7 +43,6 @@ test("correct gross monthly salary", () => {
   });
 
   const salary = new Salary({
-    tax: tax,
     yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
   });
@@ -68,18 +66,17 @@ test("correct net monthly salary", () => {
   });
 
   const salary = new Salary({
-    tax: tax,
     yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
   });
 
-  expect(salary.getMonthlyNetSalary()).toEqual(
+  expect(salary.getMonthlyNetSalary({ tax })).toEqual(
     10_000 - ((60_000 - 1) * 0.2) / 12
   );
 
   const future = salary.waitOneYear().waitOneYear().waitOneYear();
 
-  expect(future.getMonthlyNetSalary()).toEqual(
+  expect(future.getMonthlyNetSalary({ tax })).toEqual(
     future.getMonthlyGrossSalary() -
       tax.getMonthlyIncomeTax(future.getYearlyGrossSalary())
   );
@@ -100,12 +97,11 @@ test("correct yearly net salary with rough ATO tax rates", () => {
   });
 
   const salary = new Salary({
-    tax: tax,
     yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
   });
 
-  expect(salary.getYearlyNetSalary()).toBeCloseTo(87_968.885, 2);
+  expect(salary.getYearlyNetSalary({ tax })).toBeCloseTo(87_968.885, 2);
 });
 
 test("correct net super contributions", () => {
@@ -117,12 +113,11 @@ test("correct net super contributions", () => {
   });
 
   const salary = new Salary({
-    tax: tax,
     yearlyGrossSalary: 120_000,
     yearlySalaryIncrease: 0.05,
   });
 
-  expect(salary.getMonthlyNetSuperContribution()).toEqual(
+  expect(salary.getMonthlyNetSuperContribution({ tax })).toEqual(
     (120_000 / 12) * 0.85
   );
 
@@ -131,6 +126,6 @@ test("correct net super contributions", () => {
       .waitOneYear()
       .waitOneYear()
       .waitOneYear()
-      .getMonthlyNetSuperContribution()
+      .getMonthlyNetSuperContribution({ tax })
   ).toBeCloseTo(((120_000 * Math.pow(1.05, 3)) / 12) * 0.85, 8);
 });

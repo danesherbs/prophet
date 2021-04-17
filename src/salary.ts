@@ -1,33 +1,24 @@
 import Tax, { Props as TaxProps } from "./tax";
 
 interface Props {
-  tax: TaxProps;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
   monthsSincePurchase?: number;
 }
 
 class Salary {
-  tax: Tax;
   yearlyGrossSalary: number;
   yearlySalaryIncrease: number;
   monthsSincePurchase: number;
 
   constructor({
-    tax,
     yearlyGrossSalary,
     yearlySalaryIncrease,
     monthsSincePurchase,
   }: Props) {
-    this.tax = new Tax(tax);
     this.yearlyGrossSalary = yearlyGrossSalary;
     this.yearlySalaryIncrease = yearlySalaryIncrease;
     this.monthsSincePurchase = monthsSincePurchase || 0;
-  }
-
-  getTax() {
-    /* istanbul ignore next */
-    return this.tax;
   }
 
   getYearlySalaryIncrease() {
@@ -40,7 +31,6 @@ class Salary {
     return {
       yearlyGrossSalary: this.yearlyGrossSalary,
       yearlySalaryIncrease: this.yearlySalaryIncrease,
-      tax: this.tax.getProps(),
       monthsSincePurchase: this.monthsSincePurchase,
     };
   }
@@ -49,10 +39,10 @@ class Salary {
     return this.yearlyGrossSalary;
   }
 
-  getYearlyNetSalary() {
+  getYearlyNetSalary({ tax }: { tax: TaxProps }) {
     return (
       this.yearlyGrossSalary -
-      this.tax.getYearlyIncomeTax(this.yearlyGrossSalary)
+      new Tax(tax).getYearlyIncomeTax(this.yearlyGrossSalary)
     );
   }
 
@@ -60,23 +50,22 @@ class Salary {
     return this.yearlyGrossSalary / 12.0;
   }
 
-  getMonthlyNetSalary() {
+  getMonthlyNetSalary({ tax }: { tax: TaxProps }) {
     return (
       this.getMonthlyGrossSalary() -
-      this.tax.getMonthlyIncomeTax(this.yearlyGrossSalary)
+      new Tax(tax).getMonthlyIncomeTax(this.yearlyGrossSalary)
     );
   }
 
-  getMonthlyNetSuperContribution() {
+  getMonthlyNetSuperContribution({ tax }: { tax: TaxProps }) {
     return (
       this.getMonthlyGrossSalary() -
-      this.tax.getMonthlySuperTax(this.getMonthlyGrossSalary())
+      new Tax(tax).getMonthlySuperTax(this.getMonthlyGrossSalary())
     );
   }
 
   waitOneMonth() {
     return new Salary({
-      tax: this.tax,
       yearlyGrossSalary:
         (this.monthsSincePurchase + 1) % 12 === 0
           ? this.yearlyGrossSalary * (1 + this.getYearlySalaryIncrease())

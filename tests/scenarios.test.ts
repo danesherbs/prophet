@@ -29,14 +29,12 @@ const bank = new Bank({
 });
 
 const superan = new Super({
-  tax: tax,
   transactions: [],
   yearlyInterestRate: 0.1,
   contributionRate: 0.125,
 });
 
 const salary = new Salary({
-  tax: tax,
   yearlyGrossSalary: 340_000,
   yearlySalaryIncrease: 0.1,
 });

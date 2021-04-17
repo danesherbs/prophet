@@ -1,5 +1,4 @@
 import Loan, { Props as LoanProps } from "./loan";
-import Tax from "./tax";
 
 interface Props {
   houseValue: number;

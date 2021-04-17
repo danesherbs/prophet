@@ -9,7 +9,6 @@ const tax = new Tax({
 });
 
 const superan = new Super({
-  tax: tax,
   transactions: [],
   yearlyInterestRate: 0.1,
   contributionRate: 0.125,
@@ -22,14 +21,13 @@ test("correct monthly gross super contributions", () => {
 });
 
 test("correct monthly net super contributions", () => {
-  expect(superan.getMonthlyNetSuperContribution(120_000)).toEqual(
-    (120_000 * 0.125 * (1 - 0.15)) / 12
-  );
+  expect(
+    superan.getMonthlyNetSuperContribution({ yearlyGrossSalary: 120_000, tax })
+  ).toEqual((120_000 * 0.125 * (1 - 0.15)) / 12);
 });
 
 test("get transactions retrieves correct transactions", () => {
   const superan = new Super({
-    tax: tax,
     transactions: [
       [0, 1_000],
       [4, 2_000],

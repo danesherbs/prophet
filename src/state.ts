@@ -178,7 +178,7 @@ class State {
           id,
           bank.deposit(
             this.clock.getTime(),
-            salary.getMonthlyNetSalary(),
+            salary.getMonthlyNetSalary({ tax: this.getSingletonTax() }),
             "Salary"
           ),
         ])
@@ -188,9 +188,10 @@ class State {
           id,
           superan.deposit(
             this.clock.getTime(),
-            superan.getMonthlyNetSuperContribution(
-              salary.getYearlyGrossSalary()
-            )
+            superan.getMonthlyNetSuperContribution({
+              yearlyGrossSalary: salary.getYearlyGrossSalary(),
+              tax: this.getSingletonTax(),
+            })
           ),
         ])
       ),
