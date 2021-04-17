@@ -207,7 +207,6 @@ class History {
     } else if (start === null && date !== null && startEvent !== undefined) {
       return this.addEvent({ date, event: startEvent });
     } else if (start !== null && date !== null && startEvent !== undefined) {
-      const event = this.getEvent({ date: start, id });
       return this.removeEvent({ date: start, id }).addEvent({
         date,
         event: startEvent,
@@ -358,9 +357,9 @@ class History {
       );
     }
 
-    if (this.memo.has(horizonInMonths)) {
-      return this.memo.get(horizonInMonths) as State[];
-    }
+    // if (this.memo.has(horizonInMonths)) {
+    //   return this.memo.get(horizonInMonths) as State[];
+    // }
 
     const actions = [...this.events].reduce(
       (acc, [, events]) =>
@@ -639,6 +638,7 @@ class History {
     }
 
     // Check loans come after bank
+    // TODO: add test
     for (const [id] of this.getLoans()) {
       const loanStart = this.getStart({ id });
 
