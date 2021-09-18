@@ -46,7 +46,7 @@ class Scenarios {
     );
   };
 
-  setHistory = ({ id, history }: { id: string; history: History }) => {
+  addHistory = ({ id, history }: { id: string; history: History }) => {
     return new Scenarios({
       histories: { ...this.histories, [id]: history.getProps() },
     });
