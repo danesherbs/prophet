@@ -1,3 +1,5 @@
+import { toMonthlyRate } from "./utils";
+
 type Transaction = [number, number, string];
 
 interface Props {
@@ -74,16 +76,17 @@ class Bank {
     return Math.pow(1 + this.yearlyInterestRate, 1 / 12) - 1;
   }
 
-  getBalance(now: number) {
+  getBalance(now: number, yearlyInflationRate?: number) {
     return (
-      this.transactions
+      (this.transactions
         .map(
           ([then, amount]) =>
             amount * Math.pow(1 + this.getMonthlyInterestRate(), now - then)
         )
         .reduce((acc, amount) => acc + amount, 0) +
-      this.getInitialBalance() *
-        Math.pow(1 + this.getMonthlyInterestRate(), now)
+        this.getInitialBalance() *
+          Math.pow(1 + this.getMonthlyInterestRate(), now)) /
+      Math.pow(1 + toMonthlyRate(yearlyInflationRate || 0), now)
     );
   }
 

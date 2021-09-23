@@ -1,18 +1,34 @@
 import Bank from "../src/bank";
 
-const bank = new Bank({
+const emptyBank = new Bank({
   transactions: new Array(),
   yearlyInterestRate: 0.03,
 });
 
+const nonemptyBank = new Bank({
+  transactions: new Array(),
+  yearlyInterestRate: 0.03,
+})
+  .deposit(0, 100, "Payday")
+  .deposit(12, 100, "Payday")
+  .deposit(24, 100, "Payday")
+  .withdraw(24, 100, "Rent")
+  .withdraw(36, 100, "Rent");
+
 test("componding monthly correctly", () => {
-  expect(Math.pow(1 + bank.getMonthlyInterestRate(), 12)).toBeCloseTo(1.03, 10);
+  expect(Math.pow(1 + emptyBank.getMonthlyInterestRate(), 12)).toBeCloseTo(
+    1.03,
+    10
+  );
 });
 
 test("correct bank balance with one transaction", () => {
-  expect(bank.deposit(0, 100, "Payday").getBalance(0)).toBeCloseTo(100, 10);
+  expect(emptyBank.deposit(0, 100, "Payday").getBalance(0)).toBeCloseTo(
+    100,
+    10
+  );
 
-  expect(bank.deposit(0, 100, "Payday").getBalance(60)).toBeCloseTo(
+  expect(emptyBank.deposit(0, 100, "Payday").getBalance(60)).toBeCloseTo(
     100 * Math.pow(1.03, 5),
     10
   );
@@ -20,7 +36,7 @@ test("correct bank balance with one transaction", () => {
 
 test("correct bank balance with many transactions", () => {
   expect(
-    bank
+    emptyBank
       .deposit(0, 100, "Payday")
       .deposit(12, 100, "Payday")
       .deposit(24, 100, "Payday")
@@ -33,7 +49,7 @@ test("correct bank balance with many transactions", () => {
 
 test("correct bank balance with withdrawls and depositys", () => {
   expect(
-    bank
+    emptyBank
       .deposit(0, 100, "Payday")
       .deposit(12, 100, "Payday")
       .deposit(24, 100, "Payday")
@@ -87,4 +103,16 @@ test("unrealistic interest rate is invalid", () => {
   expect(bank.isValidInterestRate()).toBeFalsy();
 
   expect(bank.isValid()).toBeFalsy();
+});
+
+test("correct bank balance after inflation", () => {
+  const yearlyInflationRate = 0.1;
+
+  expect(nonemptyBank.getBalance(0, yearlyInflationRate)).toBeCloseTo(
+    nonemptyBank.getBalance(0, 0)
+  );
+
+  expect(nonemptyBank.getBalance(12 * 10, yearlyInflationRate)).toBeCloseTo(
+    nonemptyBank.getBalance(12 * 10, 0) / Math.pow(1 + yearlyInflationRate, 10)
+  );
 });
