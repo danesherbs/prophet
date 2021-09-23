@@ -20,3 +20,28 @@ test("monthly expenses increasing yearly", () => {
     10
   );
 });
+
+test("correct monthly expenses when accounting for inflation", () => {
+  const yearlyInflationRate = 0.03;
+
+  expect(expense.getMonthlyAmount(0, yearlyInflationRate)).toBeCloseTo(
+    expense.getMonthlyAmount(0, 0)
+  );
+  expect(expense.getMonthlyAmount(12, yearlyInflationRate)).toBeCloseTo(
+    expense.getMonthlyAmount(12, 0) / Math.pow(1 + yearlyInflationRate, 1)
+  );
+  expect(expense.getMonthlyAmount(12, yearlyInflationRate)).toBeCloseTo(
+    expense.getMonthlyAmount(12 * 10, 0) / Math.pow(1 + yearlyInflationRate, 10)
+  );
+});
+
+test("correct weekly expenses when accounting for inflation", () => {
+  const yearlyInflationRate = 0.03;
+
+  expect(expense.getWeeklyAmount(0, yearlyInflationRate)).toBeCloseTo(
+    expense.getWeeklyAmount(0, 0)
+  );
+  expect(expense.getWeeklyAmount(12, yearlyInflationRate)).toBeCloseTo(
+    expense.getWeeklyAmount(12, 0) / (1 + yearlyInflationRate)
+  );
+});

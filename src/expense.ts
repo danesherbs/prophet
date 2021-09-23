@@ -1,3 +1,5 @@
+import { toMonthlyRate, toWeeklyRate } from "./utils";
+
 interface Props {
   yearlyIncrease: number;
   weeklyAmount: number;
@@ -28,12 +30,16 @@ class Expense {
     return this.yearlyIncrease;
   }
 
-  getWeeklyAmount(time: number) {
+  getWeeklyAmount(time: number, yearlyInflationRate?: number) {
     return (
-      this.weeklyAmount *
+      (this.weeklyAmount *
+        Math.pow(
+          1 + this.yearlyIncrease,
+          Math.floor((time - this.initialTime) / 12)
+        )) /
       Math.pow(
-        1 + this.yearlyIncrease,
-        Math.floor((time - this.initialTime) / 12)
+        1 + toMonthlyRate(yearlyInflationRate || 0),
+        time - this.initialTime
       )
     );
   }
@@ -66,12 +72,16 @@ class Expense {
     };
   }
 
-  getMonthlyAmount(time: number) {
+  getMonthlyAmount(time: number, yearlyInflationRate?: number) {
     return (
-      ((this.weeklyAmount * 52) / 12) *
+      (((this.weeklyAmount * 52) / 12) *
+        Math.pow(
+          1 + this.yearlyIncrease,
+          Math.floor((time - this.initialTime) / 12)
+        )) /
       Math.pow(
-        1 + this.yearlyIncrease,
-        Math.floor((time - this.initialTime) / 12)
+        1 + toMonthlyRate(yearlyInflationRate || 0),
+        time - this.initialTime
       )
     );
   }
