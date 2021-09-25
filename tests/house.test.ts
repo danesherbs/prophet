@@ -1,7 +1,7 @@
 import House from "../src/house";
 import Loan from "../src/loan";
 
-const loan = new Loan({
+const principalAndInterestLoan = new Loan({
   amountBorrowed: 550_000,
   yearlyInterestRate: 0.03,
   monthlyFee: 30,
@@ -9,8 +9,25 @@ const loan = new Loan({
   lengthOfLoanInMonths: 12 * 30,
 });
 
-const house = new House({
-  loan: loan,
+const interestOnlyLoan = new Loan({
+  amountBorrowed: 550_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: true,
+  lengthOfLoanInMonths: 12 * 30,
+});
+
+const houseWithPrincipleAndInterestLoan = new House({
+  loan: principalAndInterestLoan,
+  houseValue: 600_000,
+  yearlyAppreciationRate: 0.05,
+  monthlyGrossRentalIncome: 2_500,
+  yearlyRentalIncomeIncrease: 0.03,
+  buildingDepreciationRate: 0.025,
+});
+
+const houseWithInterestOnlyLoan = new House({
+  loan: interestOnlyLoan,
   houseValue: 600_000,
   yearlyAppreciationRate: 0.05,
   monthlyGrossRentalIncome: 2_500,
@@ -20,7 +37,7 @@ const house = new House({
 
 test("house value appreciating correctly", () => {
   expect(
-    house
+    houseWithPrincipleAndInterestLoan
       .waitOneYear()
       .waitOneYear()
       .waitOneYear()
@@ -31,29 +48,65 @@ test("house value appreciating correctly", () => {
 });
 
 test("correct monthly appreciation rate", () => {
-  expect(house.getYearlyAppreciationRate()).toBeCloseTo(
-    Math.pow(1 + house.getMonthlyAppreciationRate(), 12) - 1,
+  expect(
+    houseWithPrincipleAndInterestLoan.getYearlyAppreciationRate()
+  ).toBeCloseTo(
+    Math.pow(
+      1 + houseWithPrincipleAndInterestLoan.getMonthlyAppreciationRate(),
+      12
+    ) - 1,
     8
   );
 });
 
-test("house equity is value minus loan", () => {
-  expect(house.getEquity()).toEqual(50_000);
+test("house with principle and interest loan's equity is value minus loan value in future", () => {
+  expect(houseWithPrincipleAndInterestLoan.getEquity()).toEqual(50_000);
 
   expect(
-    house.waitOneYear().waitOneYear().waitOneYear().getEquity()
+    houseWithPrincipleAndInterestLoan
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .getEquity()
   ).toBeCloseTo(
-    house.getHouseValue() * Math.pow(1 + house.getYearlyAppreciationRate(), 3) -
-      loan.waitOneYear().waitOneYear().waitOneYear().getAmountBorrowed(),
+    houseWithPrincipleAndInterestLoan.getHouseValue() *
+      Math.pow(
+        1 + houseWithPrincipleAndInterestLoan.getYearlyAppreciationRate(),
+        3
+      ) -
+      principalAndInterestLoan
+        .waitOneYear()
+        .waitOneYear()
+        .waitOneYear()
+        .getAmountBorrowed(),
+    8
+  );
+});
+
+test("house with interest only loan's equity is value minus loan at start", () => {
+  expect(houseWithInterestOnlyLoan.getEquity()).toEqual(50_000);
+
+  expect(
+    houseWithInterestOnlyLoan
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .getEquity()
+  ).toBeCloseTo(
+    houseWithInterestOnlyLoan.getHouseValue() *
+      Math.pow(1 + houseWithInterestOnlyLoan.getYearlyAppreciationRate(), 3) -
+      interestOnlyLoan.getAmountBorrowed(),
     8
   );
 });
 
 test("house rental income grows correctly", () => {
-  expect(house.getMonthlyGrossRentalIncome()).toEqual(2_500);
+  expect(
+    houseWithPrincipleAndInterestLoan.getMonthlyGrossRentalIncome()
+  ).toEqual(2_500);
 
   expect(
-    house
+    houseWithPrincipleAndInterestLoan
       .waitOneYear()
       .waitOneYear()
       .waitOneYear()
@@ -62,62 +115,80 @@ test("house rental income grows correctly", () => {
 });
 
 test("correct monthly interest payments", () => {
-  expect(house.getMonthlyInterestPayment()).toEqual(loan.getMonthlyPayment());
+  expect(houseWithPrincipleAndInterestLoan.getMonthlyInterestPayment()).toEqual(
+    principalAndInterestLoan.getMonthlyPayment()
+  );
 });
 
 test("correct monthly depreciation rate", () => {
-  expect(Math.pow(1 + house.getMonthlyDepreciationRate(), 12) - 1).toBeCloseTo(
-    0.025,
-    10
-  );
+  expect(
+    Math.pow(
+      1 + houseWithPrincipleAndInterestLoan.getMonthlyDepreciationRate(),
+      12
+    ) - 1
+  ).toBeCloseTo(0.025, 10);
 });
 
 test("monthly depreciation amount is in sensible range", () => {
   const [amount] = Array(...Array(12).keys()).reduce(
     ([accAmount, accHouse]: [number, House]) => [
       accAmount + accHouse.getMonthlyDepreciationAmount(),
-      house.waitOneMonth(),
+      houseWithPrincipleAndInterestLoan.waitOneMonth(),
     ],
-    [0, house]
+    [0, houseWithPrincipleAndInterestLoan]
   );
 
   expect(amount).toBeGreaterThanOrEqual(
-    0.66 * house.getHouseValue() * house.getMonthlyDepreciationRate() * 12
+    0.66 *
+      houseWithPrincipleAndInterestLoan.getHouseValue() *
+      houseWithPrincipleAndInterestLoan.getMonthlyDepreciationRate() *
+      12
   );
 
   expect(amount).toBeLessThanOrEqual(
     0.66 *
-      house.waitOneYear().getHouseValue() *
-      house.getMonthlyDepreciationRate() *
+      houseWithPrincipleAndInterestLoan.waitOneYear().getHouseValue() *
+      houseWithPrincipleAndInterestLoan.getMonthlyDepreciationRate() *
       12
   );
 });
 
 test("can compare houses as JSON objects", () => {
-  expect(JSON.stringify(house) === JSON.stringify(house)).toBeTruthy;
+  expect(
+    JSON.stringify(houseWithPrincipleAndInterestLoan) ===
+      JSON.stringify(houseWithPrincipleAndInterestLoan)
+  ).toBeTruthy;
 });
 
 test("correct capital gain", () => {
-  expect(house.getCapitalGain()).toBeCloseTo(0, 10);
+  expect(houseWithPrincipleAndInterestLoan.getCapitalGain()).toBeCloseTo(0, 10);
 
-  expect(house.waitOneYear().getCapitalGain()).toBeCloseTo(
-    house.getHouseValue() *
-      Math.pow(1 + house.getMonthlyAppreciationRate(), 12) -
-      house.getHouseValue(),
+  expect(
+    houseWithPrincipleAndInterestLoan.waitOneYear().getCapitalGain()
+  ).toBeCloseTo(
+    houseWithPrincipleAndInterestLoan.getHouseValue() *
+      Math.pow(
+        1 + houseWithPrincipleAndInterestLoan.getMonthlyAppreciationRate(),
+        12
+      ) -
+      houseWithPrincipleAndInterestLoan.getHouseValue(),
     8
   );
 
   expect(
-    house
+    houseWithPrincipleAndInterestLoan
       .waitOneYear()
       .waitOneYear()
       .waitOneYear()
       .waitOneYear()
       .getCapitalGain()
   ).toBeCloseTo(
-    house.getHouseValue() *
-      Math.pow(1 + house.getMonthlyAppreciationRate(), 48) -
-      house.getHouseValue(),
+    houseWithPrincipleAndInterestLoan.getHouseValue() *
+      Math.pow(
+        1 + houseWithPrincipleAndInterestLoan.getMonthlyAppreciationRate(),
+        48
+      ) -
+      houseWithPrincipleAndInterestLoan.getHouseValue(),
     8
   );
 });
