@@ -35,6 +35,23 @@ const houseWithInterestOnlyLoan = new House({
   buildingDepreciationRate: 0.025,
 });
 
+const realisticLoan = new Loan({
+  amountBorrowed: 0.9 * 900_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: false,
+  lengthOfLoanInMonths: 12 * 30,
+});
+
+const realisticHouse = new House({
+  loan: realisticLoan,
+  houseValue: 900_000,
+  yearlyAppreciationRate: 0.04,
+  monthlyGrossRentalIncome: 2_500,
+  yearlyRentalIncomeIncrease: 0.02,
+  buildingDepreciationRate: 0.025,
+});
+
 test("house value appreciating correctly", () => {
   expect(
     houseWithPrincipleAndInterestLoan
@@ -44,7 +61,14 @@ test("house value appreciating correctly", () => {
       .waitOneYear()
       .waitOneYear()
       .getHouseValue()
-  ).toBeCloseTo(600_000 * Math.pow(1.05, 5), 8);
+  ).toBeCloseTo(
+    houseWithPrincipleAndInterestLoan.getHouseValue() *
+      Math.pow(
+        1 + houseWithPrincipleAndInterestLoan.getYearlyAppreciationRate(),
+        5
+      ),
+    8
+  );
 });
 
 test("correct monthly appreciation rate", () => {
@@ -97,6 +121,50 @@ test("house with interest only loan's equity is value minus loan at start", () =
       Math.pow(1 + houseWithInterestOnlyLoan.getYearlyAppreciationRate(), 3) -
       interestOnlyLoan.getAmountBorrowed(),
     8
+  );
+});
+
+test("sanity test for house equity with P&I loan", () => {
+  const futureHouse = realisticHouse
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear();
+
+  expect(futureHouse.getEquity()).toBeGreaterThan(
+    realisticHouse.getEquity() * Math.pow(1.16, 10)
+  );
+
+  expect(futureHouse.getEquity()).toBeLessThan(
+    realisticHouse.getEquity() * Math.pow(1.24, 10)
+  );
+});
+
+test("sanity test for house equity with interest only loan", () => {
+  const futureHouse = realisticHouse
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear()
+    .waitOneYear();
+
+  expect(futureHouse.getEquity()).toBeGreaterThan(
+    realisticHouse.getEquity() * Math.pow(1.16, 10)
+  );
+
+  expect(futureHouse.getEquity()).toBeLessThan(
+    realisticHouse.getEquity() * Math.pow(1.24, 10)
   );
 });
 
