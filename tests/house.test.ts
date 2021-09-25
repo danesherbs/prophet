@@ -43,7 +43,8 @@ test("house equity is value minus loan", () => {
   expect(
     house.waitOneYear().waitOneYear().waitOneYear().getEquity()
   ).toBeCloseTo(
-    600_000 * Math.pow(1 + house.getYearlyAppreciationRate(), 3) - 550_000,
+    house.getHouseValue() * Math.pow(1 + house.getYearlyAppreciationRate(), 3) -
+      loan.waitOneYear().waitOneYear().waitOneYear().getAmountBorrowed(),
     8
   );
 });

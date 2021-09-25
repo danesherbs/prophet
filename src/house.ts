@@ -141,7 +141,7 @@ class House {
   waitOneMonth() {
     return new House({
       houseValue: this.houseValue * (1 + this.getMonthlyAppreciationRate()),
-      loan: this.loan,
+      loan: this.loan.waitOneMonth(),
       yearlyAppreciationRate: this.yearlyAppreciationRate,
       monthlyGrossRentalIncome:
         (this.monthsSincePurchase + 1) % 12 === 0
