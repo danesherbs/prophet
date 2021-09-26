@@ -101,6 +101,16 @@ class Loan {
     const P = this.amountBorrowed;
     const N = this.lengthOfLoanInMonths;
 
+    if (N === 0 && !(-1e-8 < P && P < 1e-8)) {
+      throw Error(
+        `Invalid parameters for P&I loan! Borrowing ${P} dollars but gave 0 months to pay it back.`
+      );
+    }
+
+    if (N == 0) {
+      return 0;
+    }
+
     if (0 < r && r < 1e-3) {
       return P / N;
     }

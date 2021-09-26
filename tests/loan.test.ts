@@ -109,3 +109,23 @@ test("length of is not negative after expiry date", () => {
 
   expect(l.getLengthOfLoanInMonths()).toEqual(0);
 });
+
+test("amount owing for P&I is zero after expiry date", () => {
+  let l = principalAndInterestLoan;
+
+  for (let i = 0; i < 50; i++) {
+    l = l.waitOneYear();
+  }
+
+  expect(l.getAmountBorrowed()).toBeCloseTo(0, 8);
+});
+
+// test("amount owing for interest only is zero after expiry date", () => {
+//   let l = interestOnlyLoan;
+
+//   for (let i = 0; i < 50; i++) {
+//     l = l.waitOneYear();
+//   }
+
+//   expect(l.getAmountBorrowed()).toEqual(0);
+// });
