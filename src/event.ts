@@ -29,7 +29,6 @@ enum Action {
   AddHouse,
   BuyHouse,
   SellHouse,
-  RefinanceHouse,
 
   // Stocks
   AddStock,
@@ -39,6 +38,9 @@ enum Action {
   // Loans
   AddLoan,
   RemoveLoan,
+
+  // House
+  RefinanceHouse,
 }
 
 const addActions = new Set([
