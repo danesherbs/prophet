@@ -40,7 +40,7 @@ const expense = new Expense({
   initialTime: clock.getTime(),
 });
 
-const loan = new Loan({
+const principalAndInterestLoan = new Loan({
   amountBorrowed: 550_000,
   yearlyInterestRate: 0.03,
   monthlyFee: 30,
@@ -48,8 +48,25 @@ const loan = new Loan({
   lengthOfLoanInMonths: 12 * 30,
 });
 
-const house = new House({
-  loan: loan,
+const interestOnlyLoan = new Loan({
+  amountBorrowed: 550_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: true,
+  lengthOfLoanInMonths: 12 * 30,
+});
+
+const houseWithPrincipalAndInterestLoan = new House({
+  loan: principalAndInterestLoan,
+  houseValue: 600_000,
+  yearlyAppreciationRate: 0.03,
+  monthlyGrossRentalIncome: 2_500,
+  yearlyRentalIncomeIncrease: 0.03,
+  buildingDepreciationRate: 0.025,
+});
+
+const houseWithInterestOnlyLoan = new House({
+  loan: interestOnlyLoan,
   houseValue: 600_000,
   yearlyAppreciationRate: 0.03,
   monthlyGrossRentalIncome: 2_500,
@@ -83,8 +100,8 @@ test("getters are working correctly", () => {
     superans: new Map([["super a", superan]]),
     salaries: new Map([["salary a", salary]]),
     houses: new Map([
-      ["house a", house],
-      ["house b", house],
+      ["house a", houseWithPrincipalAndInterestLoan],
+      ["house b", houseWithPrincipalAndInterestLoan],
     ]),
     stocks: new Map([
       ["stock a", stock],
@@ -100,8 +117,8 @@ test("getters are working correctly", () => {
   expect(state.getSingletonSuper()).toEqual(superan);
   expect(state.getHouses()).toEqual(
     new Map([
-      ["house a", house],
-      ["house b", house],
+      ["house a", houseWithPrincipalAndInterestLoan],
+      ["house b", houseWithPrincipalAndInterestLoan],
     ])
   );
   expect(state.getStocks()).toEqual(
@@ -263,28 +280,28 @@ test("correct net wealth after a month with salary, house, stock and expense", (
     banks: new Map([["bank a", bank]]),
     superans: new Map([["super a", superan]]),
     salaries: new Map([["salary a", salary]]),
-    houses: new Map([["house a", house]]),
+    houses: new Map([["house a", houseWithPrincipalAndInterestLoan]]),
     stocks: new Map([["stock a", stock]]),
     expenses: new Map([["expense a", expense]]),
     loans: new Map(),
   });
 
   expect(state.getNetWealth()).toEqual(
-    house.getEquity() + stock.getTotalValue()
+    houseWithPrincipalAndInterestLoan.getEquity() + stock.getTotalValue()
   );
 
   expect(state.waitOneMonth().getNetWealth()).toBeCloseTo(
     (salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) +
-      house.getMonthlyGrossRentalIncome() -
+      houseWithPrincipalAndInterestLoan.getMonthlyGrossRentalIncome() -
       expense.getMonthlyAmount(0) -
-      house.getMonthlyInterestPayment()) *
+      houseWithPrincipalAndInterestLoan.getMonthlyInterestPayment()) *
       (1 + bank.getMonthlyInterestRate()) +
       superan.getMonthlyNetSuperContribution({
         yearlyGrossSalary: 120_000,
         tax: state.getSingletonTax(),
       }) *
         (1 + superan.getMonthlyInterestRate()) +
-      house.waitOneMonth().getEquity() +
+      houseWithPrincipalAndInterestLoan.waitOneMonth().getEquity() +
       stock.waitOneMonth().getTotalValue(),
     10
   );
@@ -433,13 +450,16 @@ test("correct state change when buying a house", () => {
     banks: new Map([["bank a", bank]]),
     superans: new Map([["super a", superan]]),
     salaries: new Map([["salary a", salary]]),
-    houses: new Map([["house a", house]]),
+    houses: new Map([["house a", houseWithPrincipalAndInterestLoan]]),
     stocks: new Map(),
     expenses: new Map(),
     loans: new Map(),
   });
 
-  const bought = state.buyHouse({ id: "house b", house });
+  const bought = state.buyHouse({
+    id: "house b",
+    house: houseWithPrincipalAndInterestLoan,
+  });
 
   // Unchanged
   expect(bought.getClock()).toEqual(state.getClock());
@@ -451,8 +471,8 @@ test("correct state change when buying a house", () => {
   // Changed
   expect(bought.getHouses()).toEqual(
     new Map([
-      ["house a", house],
-      ["house b", house],
+      ["house a", houseWithPrincipalAndInterestLoan],
+      ["house b", houseWithPrincipalAndInterestLoan],
     ])
   );
   expect(bought.getSingletonBank().getBalance(0)).toEqual(
@@ -468,8 +488,8 @@ test("correct state change when selling a house", () => {
     superans: new Map([["super a", superan]]),
     salaries: new Map([["salary a", salary]]),
     houses: new Map([
-      ["house a", house],
-      ["house b", house],
+      ["house a", houseWithPrincipalAndInterestLoan],
+      ["house b", houseWithPrincipalAndInterestLoan],
     ]),
     stocks: new Map(),
     expenses: new Map(),
@@ -487,11 +507,13 @@ test("correct state change when selling a house", () => {
   // Changed
   expect(state.getHouses()).toEqual(
     new Map([
-      ["house a", house],
-      ["house b", house],
+      ["house a", houseWithPrincipalAndInterestLoan],
+      ["house b", houseWithPrincipalAndInterestLoan],
     ])
   );
-  expect(sold.getHouses()).toEqual(new Map([["house b", house]]));
+  expect(sold.getHouses()).toEqual(
+    new Map([["house b", houseWithPrincipalAndInterestLoan]])
+  );
   expect(sold.getSingletonBank().getBalance(0)).toEqual(
     state.getSingletonBank().getBalance(0) + 50_000
   );
@@ -502,12 +524,12 @@ test("correct state change when selling a house", () => {
   // Changed after one month
   expect(state.waitOneMonth().getHouses()).toEqual(
     new Map([
-      ["house a", house.waitOneMonth()],
-      ["house b", house.waitOneMonth()],
+      ["house a", houseWithPrincipalAndInterestLoan.waitOneMonth()],
+      ["house b", houseWithPrincipalAndInterestLoan.waitOneMonth()],
     ])
   );
   expect(state.waitOneMonth().sellHouse({ id: "house a" }).getHouses()).toEqual(
-    new Map([["house b", house.waitOneMonth()]])
+    new Map([["house b", houseWithPrincipalAndInterestLoan.waitOneMonth()]])
   );
   expect(
     state
@@ -517,7 +539,7 @@ test("correct state change when selling a house", () => {
       .getBalance(1)
   ).toBeCloseTo(
     state.waitOneMonth().getSingletonBank().getBalance(1) +
-      house.waitOneMonth().getEquity(),
+      houseWithPrincipalAndInterestLoan.waitOneMonth().getEquity(),
     10
   );
   expect(
@@ -526,7 +548,60 @@ test("correct state change when selling a house", () => {
     state
       .waitOneMonth()
       .getSingletonTax()
-      .declareIncome(1, house.waitOneMonth().getCapitalGain())
+      .declareIncome(
+        1,
+        houseWithPrincipalAndInterestLoan.waitOneMonth().getCapitalGain()
+      )
+  );
+});
+
+test("correct state change when refinancing a house", () => {
+  const state = new State({
+    clock: clock,
+    tax: new Map([["tax a", tax]]),
+    banks: new Map([["bank a", bank]]),
+    superans: new Map([["super a", superan]]),
+    salaries: new Map([["salary a", salary]]),
+    houses: new Map([
+      ["house a", houseWithInterestOnlyLoan],
+      ["house b", houseWithInterestOnlyLoan],
+      ["house c", houseWithPrincipalAndInterestLoan],
+    ]),
+    stocks: new Map(),
+    expenses: new Map(),
+    loans: new Map(),
+  });
+
+  const refinanced = state.refinanceHouse({
+    id: "house a",
+    loan: principalAndInterestLoan,
+  });
+
+  // Unchanged
+  expect(refinanced.getClock()).toEqual(state.getClock());
+  expect(refinanced.getStocks()).toEqual(state.getStocks());
+  expect(refinanced.getSingletonSuper()).toEqual(state.getSingletonSuper());
+  expect(refinanced.getSingletonBank()).toEqual(state.getSingletonBank());
+  expect(refinanced.getSingletonTax()).toEqual(state.getSingletonTax());
+  expect(refinanced.getSalaries()).toEqual(state.getSalaries());
+
+  // Changed
+  expect(state.getHouses()).toEqual(
+    new Map([
+      ["house a", houseWithInterestOnlyLoan],
+      ["house b", houseWithInterestOnlyLoan],
+      ["house c", houseWithPrincipalAndInterestLoan],
+    ])
+  );
+  expect(refinanced.getHouses()).toEqual(
+    new Map([
+      [
+        "house a",
+        houseWithInterestOnlyLoan.refinanceLoan(principalAndInterestLoan),
+      ],
+      ["house b", houseWithInterestOnlyLoan],
+      ["house c", houseWithPrincipalAndInterestLoan],
+    ])
   );
 });
 
@@ -537,7 +612,7 @@ test("correct bank change after one month with salary and a house", () => {
     banks: new Map([["bank a", bank]]),
     superans: new Map([["super a", superan]]),
     salaries: new Map([["salary a", salary]]),
-    houses: new Map([["house a", house]]),
+    houses: new Map([["house a", houseWithPrincipalAndInterestLoan]]),
     stocks: new Map(),
     expenses: new Map(),
     loans: new Map(),
@@ -554,10 +629,10 @@ test("correct bank change after one month with salary and a house", () => {
   ).toBeCloseTo(
     (state.getSingletonBank().getBalance(0) +
       salary.getMonthlyNetSalary({ tax: state.getSingletonTax() }) +
-      house.getMonthlyGrossRentalIncome() -
-      house.getMonthlyInterestPayment()) *
+      houseWithPrincipalAndInterestLoan.getMonthlyGrossRentalIncome() -
+      houseWithPrincipalAndInterestLoan.getMonthlyInterestPayment()) *
       (1 + bank.getMonthlyInterestRate()) +
-      house.waitOneMonth().getEquity(),
+      houseWithPrincipalAndInterestLoan.waitOneMonth().getEquity(),
     10
   );
 });
@@ -611,7 +686,7 @@ test("correct state change after one month when owning single house", () => {
     banks: new Map([["bank a", bank]]),
     superans: new Map([["super a", superan]]),
     salaries: new Map([["salary a", salary]]),
-    houses: new Map([["house a", house]]),
+    houses: new Map([["house a", houseWithPrincipalAndInterestLoan]]),
     stocks: new Map(),
     expenses: new Map(),
     loans: new Map(),
@@ -635,15 +710,26 @@ test("correct state change after one month when owning single house", () => {
       .getSingletonTax()
       .declareIncome(0, 0)
       .declareIncome(0, 2_500)
-      .declareLoss(0, house.getMonthlyDepreciationAmount())
+      .declareLoss(
+        0,
+        houseWithPrincipalAndInterestLoan.getMonthlyDepreciationAmount()
+      )
       .payTax(0, 0, TaxType.Income)
       .payTax(0, 0, TaxType.Super)
   );
   expect(state.waitOneMonth().getSingletonBank().getBalance(1)).toBeCloseTo(
     state
       .getSingletonBank()
-      .deposit(0, house.getMonthlyGrossRentalIncome(), "Rental income")
-      .withdraw(0, house.getMonthlyInterestPayment(), "Interest payment")
+      .deposit(
+        0,
+        houseWithPrincipalAndInterestLoan.getMonthlyGrossRentalIncome(),
+        "Rental income"
+      )
+      .withdraw(
+        0,
+        houseWithPrincipalAndInterestLoan.getMonthlyInterestPayment(),
+        "Interest payment"
+      )
       .getBalance(0) *
       (1 + bank.getMonthlyInterestRate()),
     8
@@ -652,7 +738,7 @@ test("correct state change after one month when owning single house", () => {
 
 test("unpaid tax is paid at beginning of financial year", () => {
   const house = new House({
-    loan: loan,
+    loan: principalAndInterestLoan,
     houseValue: 600_000,
     yearlyAppreciationRate: 0.03,
     monthlyGrossRentalIncome: 5_000,
@@ -720,6 +806,9 @@ test("buying house subtracts from bank balance", () => {
   });
 
   expect(
-    state.buyHouse({ id: "a", house }).getSingletonBank().getBalance(0) < 0
+    state
+      .buyHouse({ id: "a", house: houseWithPrincipalAndInterestLoan })
+      .getSingletonBank()
+      .getBalance(0) < 0
   ).toBeTruthy();
 });

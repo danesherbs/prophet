@@ -1,5 +1,8 @@
 import Loan, { Props as LoanProps } from "./loan";
 
+// TODO: implement deductions
+// TODO: check tax for negative/positive gearing
+
 interface Props {
   houseValue: number;
   loan: LoanProps;
@@ -9,7 +12,6 @@ interface Props {
   buildingDepreciationRate: number;
   monthsSincePurchase?: number;
   initialHouseValue?: number;
-  description?: string;
 }
 
 class House {
@@ -21,7 +23,6 @@ class House {
   buildingDepreciationRate: number;
   monthsSincePurchase: number;
   initialHouseValue: number;
-  description?: string;
 
   constructor({
     houseValue,
@@ -32,7 +33,6 @@ class House {
     buildingDepreciationRate,
     monthsSincePurchase,
     initialHouseValue,
-    description,
   }: Props) {
     this.houseValue = houseValue;
     this.loan = new Loan(loan);
@@ -42,7 +42,6 @@ class House {
     this.buildingDepreciationRate = buildingDepreciationRate;
     this.monthsSincePurchase = monthsSincePurchase || 0;
     this.initialHouseValue = initialHouseValue || houseValue;
-    this.description = description;
   }
 
   getYearlyRentalIncomeIncrease() {
@@ -65,27 +64,8 @@ class House {
     return this.buildingDepreciationRate;
   }
 
-  getDescription() {
-    /* istanbul ignore next */
-    return this.description;
-  }
-
   getProps(): Props {
     /* istanbul ignore next */
-    if (this.description !== undefined) {
-      return {
-        houseValue: this.houseValue,
-        loan: this.loan,
-        yearlyAppreciationRate: this.yearlyAppreciationRate,
-        monthlyGrossRentalIncome: this.monthlyGrossRentalIncome,
-        yearlyRentalIncomeIncrease: this.yearlyRentalIncomeIncrease,
-        buildingDepreciationRate: this.buildingDepreciationRate,
-        monthsSincePurchase: this.monthsSincePurchase,
-        initialHouseValue: this.initialHouseValue,
-        description: this.description,
-      };
-    }
-
     return {
       houseValue: this.houseValue,
       loan: this.loan,
@@ -136,6 +116,10 @@ class House {
 
   getMonthlyAppreciationRate() {
     return Math.pow(1 + this.yearlyAppreciationRate, 1 / 12) - 1;
+  }
+
+  refinanceLoan(loan: Loan) {
+    return new House({ ...this.getProps(), loan });
   }
 
   waitOneMonth() {

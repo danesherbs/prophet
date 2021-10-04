@@ -47,7 +47,7 @@ const expense = new Expense({
   initialTime: 0,
 });
 
-const loan = new Loan({
+const principalAndInterestLoan = new Loan({
   amountBorrowed: 550_000,
   yearlyInterestRate: 0.03,
   monthlyFee: 30,
@@ -55,8 +55,25 @@ const loan = new Loan({
   lengthOfLoanInMonths: 12 * 30,
 });
 
-const house = new House({
-  loan: loan,
+const houseWithPrincipalAndInterestLoan = new House({
+  loan: principalAndInterestLoan,
+  houseValue: 600_000,
+  yearlyAppreciationRate: 0.05,
+  monthlyGrossRentalIncome: 2_500,
+  yearlyRentalIncomeIncrease: 0.03,
+  buildingDepreciationRate: 0.025,
+});
+
+const interestOnlyLoan = new Loan({
+  amountBorrowed: 550_000,
+  yearlyInterestRate: 0.03,
+  monthlyFee: 30,
+  isInterestOnly: true,
+  lengthOfLoanInMonths: 12 * 30,
+});
+
+const houseWithInterestOnlyLoan = new House({
+  loan: interestOnlyLoan,
   houseValue: 600_000,
   yearlyAppreciationRate: 0.05,
   monthlyGrossRentalIncome: 2_500,
@@ -163,7 +180,7 @@ test("multiple events are applied correctly", () => {
 
   const buyHouseEvent = {
     action: Action.BuyHouse,
-    item: { id: "house", object: house },
+    item: { id: "house", object: houseWithPrincipalAndInterestLoan },
   };
 
   const addExpenseEvent = {
@@ -257,7 +274,7 @@ test("retrieval of house with start time returns correct time", () => {
           action: Action.AddHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -278,7 +295,7 @@ test("retrieval house with end time returns correct time", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -288,7 +305,7 @@ test("retrieval house with end time returns correct time", () => {
           action: Action.SellHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -305,7 +322,7 @@ test("retrieval of house with no end time returns null", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -364,7 +381,7 @@ test("adding event at time adds correct asset", () => {
           action: Action.AddHouse,
           item: {
             id: "house a",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -374,7 +391,7 @@ test("adding event at time adds correct asset", () => {
     new Map([
       [
         "house a",
-        house
+        houseWithPrincipalAndInterestLoan
           .waitOneMonth()
           .waitOneMonth()
           .waitOneMonth()
@@ -394,7 +411,7 @@ test("adding and removing event doesn't alter original state", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -425,7 +442,7 @@ test("adding and removing multiple events doesn't alter original state", () => {
           action: Action.BuyHouse,
           item: {
             id: "house",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -450,7 +467,7 @@ test("removing events are idempotent", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -475,7 +492,7 @@ test("removing non-existent event has no effect", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -492,7 +509,7 @@ test("removing non-existent event has no effect", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -509,7 +526,7 @@ test("setting start of existing house sets to correct value", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -529,7 +546,7 @@ test("setting start of multiple houses sets correct times", () => {
         action: Action.AddHouse,
         item: {
           id: "A",
-          object: house,
+          object: houseWithPrincipalAndInterestLoan,
         },
       },
     })
@@ -539,7 +556,7 @@ test("setting start of multiple houses sets correct times", () => {
         action: Action.BuyHouse,
         item: {
           id: "B",
-          object: house,
+          object: houseWithPrincipalAndInterestLoan,
         },
       },
     })
@@ -564,7 +581,7 @@ test("adding and removing event results in original event list", () => {
         action: Action.AddHouse,
         item: {
           id: "A",
-          object: house,
+          object: houseWithPrincipalAndInterestLoan,
         },
       },
     })
@@ -585,7 +602,7 @@ test("adding two houses and removing one results in singleton event list", () =>
           action: Action.AddHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -595,7 +612,7 @@ test("adding two houses and removing one results in singleton event list", () =>
           action: Action.BuyHouse,
           item: {
             id: "B",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -609,7 +626,10 @@ test("adding two houses and removing one results in singleton event list", () =>
       [
         new Date(2020, 0).getTime(),
         new Set([
-          { action: Action.BuyHouse, item: { id: "B", object: house } },
+          {
+            action: Action.BuyHouse,
+            item: { id: "B", object: houseWithPrincipalAndInterestLoan },
+          },
         ]),
       ],
     ])
@@ -618,7 +638,7 @@ test("adding two houses and removing one results in singleton event list", () =>
 
 test("setting start of existing house at same time overwrites exiting house", () => {
   const house = new House({
-    loan: loan,
+    loan: principalAndInterestLoan,
     houseValue: 700_000,
     yearlyAppreciationRate: 0.05,
     monthlyGrossRentalIncome: 2_500,
@@ -655,7 +675,7 @@ test("setting end of existing house sets to correct value", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -665,7 +685,7 @@ test("setting end of existing house sets to correct value", () => {
           action: Action.SellHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -686,7 +706,7 @@ test("deleting end of existing house sets end to null", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -704,7 +724,7 @@ test("getter for multiple houses retrieves all houses", () => {
           action: Action.BuyHouse,
           item: {
             id: "A",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
@@ -714,15 +734,15 @@ test("getter for multiple houses retrieves all houses", () => {
           action: Action.AddHouse,
           item: {
             id: "B",
-            object: house,
+            object: houseWithPrincipalAndInterestLoan,
           },
         },
       })
       .getHouses()
   ).toEqual(
     new Map([
-      ["A", house],
-      ["B", house],
+      ["A", houseWithPrincipalAndInterestLoan],
+      ["B", houseWithPrincipalAndInterestLoan],
     ])
   );
 });
@@ -772,7 +792,10 @@ test("setting start and end and setting start again gives correct start and end"
       date: new Date("2021-1-1"),
       startEvent: {
         action: Action.AddHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan,
+        },
       },
     })
     .setEnd({
@@ -780,7 +803,10 @@ test("setting start and end and setting start again gives correct start and end"
       date: new Date("2027-1-1"),
       endEvent: {
         action: Action.SellHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan,
+        },
       },
     })
     .setStart({
@@ -788,7 +814,10 @@ test("setting start and end and setting start again gives correct start and end"
       date: new Date("2022-1-1"),
       startEvent: {
         action: Action.AddHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan.getProps(),
+        },
       },
     });
 
@@ -801,6 +830,64 @@ test("setting start and end and setting start again gives correct start and end"
   );
 });
 
+test("refinancing house a few years in replaces it with correct loan", () => {
+  const historyWithHouse = history.setStart({
+    id: "new house",
+    date: start,
+    startEvent: {
+      action: Action.AddHouse,
+      item: {
+        id: "new house",
+        object: houseWithPrincipalAndInterestLoan.getProps(),
+      },
+    },
+  });
+
+  const historyWithHouseAndRefinance = historyWithHouse.addEvent({
+    date: start,
+    event: {
+      action: Action.RefinanceHouse,
+      item: {
+        id: "new house",
+        object: interestOnlyLoan.getProps(),
+      },
+    },
+  });
+
+  const states = historyWithHouseAndRefinance.getStates({
+    horizonInMonths: 120,
+  });
+
+  // Check if additional event added
+  expect(
+    [...historyWithHouseAndRefinance.getEvents().values()].reduce(
+      (acc, evts) => acc + evts.size,
+      0
+    )
+  ).toEqual(
+    [...historyWithHouse.getEvents().values()].reduce(
+      (acc, evts) => acc + evts.size,
+      0
+    ) + 1
+  );
+  expect(states[0].getHouses().size).toEqual(1);
+  expect(states[0].getHouses().get("new house")?.getLoan()).toEqual(
+    interestOnlyLoan
+  );
+  expect(
+    historyWithHouse
+      .getState(12 * 5)
+      .getHouses()
+      .get("new house")
+      ?.getLoan() ===
+      historyWithHouseAndRefinance
+        .getState(12 * 5)
+        .getHouses()
+        .get("new house")
+        ?.getLoan()
+  ).toBeFalsy();
+});
+
 test("creating history with house, setting end date and pushing start date forward returns correct start and end dates", () => {
   const historyWithHouse = history
     .setStart({
@@ -808,7 +895,10 @@ test("creating history with house, setting end date and pushing start date forwa
       date: new Date(2021, 1, 1),
       startEvent: {
         action: Action.AddHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan.getProps(),
+        },
       },
     })
     .setEnd({
@@ -816,7 +906,10 @@ test("creating history with house, setting end date and pushing start date forwa
       date: new Date(2027, 1, 1),
       endEvent: {
         action: Action.SellHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan.getProps(),
+        },
       },
     })
     .setStart({
@@ -824,7 +917,10 @@ test("creating history with house, setting end date and pushing start date forwa
       date: new Date(2022, 1, 1),
       startEvent: {
         action: Action.AddHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan.getProps(),
+        },
       },
     })
     .setStart({
@@ -832,7 +928,10 @@ test("creating history with house, setting end date and pushing start date forwa
       date: new Date(2023, 1, 1),
       startEvent: {
         action: Action.AddHouse,
-        item: { id: "new house", object: house.getProps() },
+        item: {
+          id: "new house",
+          object: houseWithPrincipalAndInterestLoan.getProps(),
+        },
       },
     });
 
@@ -856,7 +955,10 @@ test("check that history with single house has invalid dependency graph", () => 
     date: new Date(2021, 0, 1),
     startEvent: {
       action: Action.AddHouse,
-      item: { id: "new house", object: house.getProps() },
+      item: {
+        id: "new house",
+        object: houseWithPrincipalAndInterestLoan.getProps(),
+      },
     },
   });
 
@@ -870,7 +972,10 @@ test("check that history with house added before bank has invalid dependency gra
         date: new Date(1950, 0, 1),
         event: {
           action: Action.BuyHouse,
-          item: { id: "house", object: house.getProps() },
+          item: {
+            id: "house",
+            object: houseWithPrincipalAndInterestLoan.getProps(),
+          },
         },
       })
       .hasValidDependencyGraph()
@@ -884,11 +989,51 @@ test("check that history with house added at same time as bank and tax has valid
         date: start,
         event: {
           action: Action.BuyHouse,
-          item: { id: "house", object: house.getProps() },
+          item: {
+            id: "house",
+            object: houseWithPrincipalAndInterestLoan.getProps(),
+          },
         },
       })
       .hasValidDependencyGraph()
   ).toBeTruthy();
+});
+
+test("check that history with refinance for house after sell date has an invalid dependency graph", () => {
+  expect(
+    history
+      .addEvent({
+        date: start,
+        event: {
+          action: Action.BuyHouse,
+          item: {
+            id: "house",
+            object: houseWithPrincipalAndInterestLoan,
+          },
+        },
+      })
+      .addEvent({
+        date: new Date(2025, 1, 1),
+        event: {
+          action: Action.SellHouse,
+          item: {
+            id: "house",
+            object: houseWithPrincipalAndInterestLoan,
+          },
+        },
+      })
+      .addEvent({
+        date: new Date(2026, 1, 1),
+        event: {
+          action: Action.RefinanceHouse,
+          item: {
+            id: "house",
+            object: interestOnlyLoan,
+          },
+        },
+      })
+      .hasValidDependencyGraph()
+  ).toBeFalsy();
 });
 
 test("check dependecy graph is correct for stocks", () => {
@@ -1052,7 +1197,7 @@ test("networth of clone is the same as original", () => {
         action: Action.BuyHouse,
         item: {
           id: "A",
-          object: house,
+          object: houseWithPrincipalAndInterestLoan,
         },
       },
     })
@@ -1090,7 +1235,7 @@ test("already owned returns correct values for added and bought stocks, houses a
         action: Action.AddHouse,
         item: {
           id: "A",
-          object: house,
+          object: houseWithPrincipalAndInterestLoan,
         },
       },
     })
@@ -1100,7 +1245,7 @@ test("already owned returns correct values for added and bought stocks, houses a
         action: Action.BuyHouse,
         item: {
           id: "B",
-          object: house,
+          object: houseWithPrincipalAndInterestLoan,
         },
       },
     })

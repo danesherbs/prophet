@@ -29,6 +29,7 @@ enum Action {
   AddHouse,
   BuyHouse,
   SellHouse,
+  RefinanceHouse,
 
   // Stocks
   AddStock,
@@ -95,6 +96,11 @@ const sellActions = new Set([
   Action.SellStock,
 ]);
 
+const updateActions = new Set([
+  // Houses
+  Action.RefinanceHouse,
+]);
+
 const endActions = new Set([...removeActions, ...sellActions]);
 
 type ItemProps =
@@ -138,4 +144,5 @@ export {
   removeActions,
   sellActions,
   endActions,
+  updateActions,
 };

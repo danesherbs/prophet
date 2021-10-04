@@ -260,3 +260,24 @@ test("correct capital gain", () => {
     8
   );
 });
+
+test("correctly refinances loan from interest only to principle and interest", () => {
+  expect(
+    houseWithPrincipleAndInterestLoan.refinanceLoan(interestOnlyLoan).getLoan()
+  ).toStrictEqual(interestOnlyLoan);
+
+  expect(
+    houseWithPrincipleAndInterestLoan
+      .refinanceLoan(interestOnlyLoan)
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneMonth()
+  ).toStrictEqual(
+    houseWithInterestOnlyLoan
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneYear()
+      .waitOneMonth()
+  );
+});

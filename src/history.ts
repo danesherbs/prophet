@@ -10,6 +10,7 @@ import Tax, { Props as TaxProps } from "./tax";
 import Clock from "./clock";
 import Event, { Action, endActions, startActions, addActions } from "./event";
 import { v4 as uuidv4 } from "uuid";
+import { findLastKey } from "lodash";
 
 interface Events {
   [time: number]: Event[];
@@ -257,7 +258,7 @@ class History {
       return this.removeEvent({ date: end, id }).addEvent({ date, event });
     }
 
-    return this; // should never happen -- throw error instead?
+    throw new Error("An unexpected error occurred when setting the end");
   };
 
   getHouses = (): State["houses"] =>
@@ -506,6 +507,13 @@ class History {
         return state.sellHouse({ id: event.item.id });
       }
 
+      case Action.RefinanceHouse: {
+        return state.refinanceHouse({
+          id: event.item.id,
+          loan: new Loan(event.item.object as LoanProps),
+        });
+      }
+
       case Action.AddStock: {
         return state.addStock({
           id: event.item.id,
@@ -588,6 +596,32 @@ class History {
         )
       ) {
         return false;
+      }
+    }
+
+    // Check refinances of houses come between start and end
+    for (const [id] of this.getHouses()) {
+      const houseStart = this.getStart({ id });
+      const houseEnd = this.getEnd({ id });
+
+      for (const [time, evts] of this.events) {
+        for (const evt of evts) {
+          if (evt.action === Action.RefinanceHouse && evt.item.id === id) {
+            const refinanceDate = this.fromDateTime({ dateTime: time });
+
+            if (!houseStart) {
+              return false; // can't refinance house that doesn't exist
+            }
+
+            if (!(houseStart <= refinanceDate)) {
+              return false; // refinance has to happen after start
+            }
+
+            if (houseEnd && !(refinanceDate <= houseEnd)) {
+              return false; // refinance has to happen before end (if there's an end)
+            }
+          }
+        }
       }
     }
 

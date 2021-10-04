@@ -491,6 +491,24 @@ class State {
     });
   }
 
+  refinanceHouse({ id, loan }: { id: string; loan: Loan }) {
+    return new State({
+      clock: this.clock,
+      tax: this.tax,
+      banks: this.banks,
+      superans: this.superans,
+      salaries: this.salaries,
+      houses: new Map(
+        [...this.houses].map(([i, house]) =>
+          i === id ? [i, house.refinanceLoan(loan)] : [i, house]
+        )
+      ),
+      stocks: this.stocks,
+      expenses: this.expenses,
+      loans: this.loans,
+    });
+  }
+
   addStock({ id, stock }: { id: string; stock: Stock }) {
     return new State({
       clock: this.clock,
